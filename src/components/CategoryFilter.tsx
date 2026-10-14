@@ -183,7 +183,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
       </div>
 
       {/* Category Pills Bar (Horizontal Scrollable with Smooth Scroll) */}
-      <div className="relative">
+      <div className="relative w-full max-w-full overflow-hidden">
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar py-1">
           {categories.map((cat) => {
             const isActive = selectedCategory === cat.id;

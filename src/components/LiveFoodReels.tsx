@@ -94,7 +94,7 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
     : FOOD_REELS.filter((r) => r.category === activeFilter);
 
   return (
-    <section id="live-reels" className="py-20 bg-[#FAF6EE] relative scroll-mt-12">
+    <section id="live-reels" className="py-20 bg-[#FAF6EE] relative overflow-hidden scroll-mt-12">
       {/* Background radial effects */}
       <div className="absolute top-1/4 left-0 w-96 h-96 bg-terracotta/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-0 w-96 h-96 bg-caramel/5 rounded-full blur-3xl pointer-events-none" />

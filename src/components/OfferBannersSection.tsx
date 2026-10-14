@@ -177,7 +177,7 @@ export const OfferBannersSection: React.FC<OfferBannersSectionProps> = ({
   };
 
   return (
-    <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 mb-8">
+    <section className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 mb-8 overflow-hidden">
       {/* Header Bar: Offers Heading & Scroll Controls & Admin Trigger */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2.5">

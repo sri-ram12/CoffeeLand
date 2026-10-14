@@ -118,14 +118,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Fast Action Tools: QR, Review, Favorites */}
             <div className="flex items-center gap-2 sm:gap-2.5">
-              {/* Scan QR Modal Trigger */}
+              {/* Scan QR Modal Trigger (Shown on tablet/desktop, mobile uses drawer and dock) */}
               <button
                 onClick={onOpenQRCode}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-white hover:bg-parchment-200 text-espresso-900 border border-terracotta/30 hover:border-terracotta text-xs font-bold transition-all shadow-sm"
+                className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-full bg-white hover:bg-parchment-200 text-espresso-900 border border-terracotta/30 hover:border-terracotta text-xs font-bold transition-all shadow-sm"
                 title="Scan Website QR Code"
               >
                 <QrCode className="w-4 h-4 text-terracotta" />
-                <span className="hidden sm:inline">Scan QR</span>
+                <span>Scan QR</span>
               </button>
 
               {/* Upload Photo & Review Button */}
@@ -138,10 +138,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span>Write Review</span>
               </button>
 
-              {/* Separate Owner Admin Portal Link */}
+              {/* Separate Owner Admin Portal Link (Shown on tablet/desktop, mobile uses drawer) */}
               <Link
                 to="/admin"
-                className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-amber-50 hover:bg-amber-100 text-espresso-950 border border-amber-300 text-xs font-bold transition-all shadow-xs"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full bg-amber-50 hover:bg-amber-100 text-espresso-950 border border-amber-300 text-xs font-bold transition-all shadow-xs"
                 title="Dedicated Owner Admin Portal (/admin)"
               >
                 <Settings className="w-3.5 h-3.5 text-terracotta" />

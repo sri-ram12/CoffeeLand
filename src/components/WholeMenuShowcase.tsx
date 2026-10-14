@@ -80,7 +80,7 @@ export const WholeMenuShowcase: React.FC<WholeMenuShowcaseProps> = ({
   };
 
   return (
-    <section id="full-menu-showcase" className="py-24 bg-[#FAF6EE] relative scroll-mt-12">
+    <section id="full-menu-showcase" className="py-24 bg-[#FAF6EE] relative overflow-hidden scroll-mt-12">
       {/* Background radial effects */}
       <div className="absolute top-10 right-10 w-96 h-96 bg-terracotta/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-caramel/5 rounded-full blur-3xl pointer-events-none" />
