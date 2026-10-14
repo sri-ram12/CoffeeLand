@@ -204,9 +204,12 @@ export const App: React.FC = () => {
             />
           </div>
 
-          {/* Products Grid */}
+          {/* Products Grid Aligned by Category */}
           <ProductGrid
             products={filteredProducts}
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
             isFavorite={isFavorite}
             onToggleFavorite={toggleFavorite}
             onSelectProduct={setSelectedProduct}

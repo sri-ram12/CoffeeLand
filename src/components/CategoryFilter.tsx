@@ -187,17 +187,57 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar py-1">
           {categories.map((cat) => {
             const isActive = selectedCategory === cat.id;
+            const emoji =
+              cat.id === 'all'
+                ? '✨'
+                : cat.id === 'hot-coffee'
+                ? '☕'
+                : cat.id === 'cold-coffee'
+                ? '🥤'
+                : cat.id === 'hot-chocolate-tea'
+                ? '🫖'
+                : cat.id === 'juices-mocktails'
+                ? '🍹'
+                : cat.id === 'thickshakes'
+                ? '🧋'
+                : cat.id === 'burgers'
+                ? '🍔'
+                : cat.id === 'sandwiches'
+                ? '🥪'
+                : cat.id === 'wraps'
+                ? '🌯'
+                : cat.id === 'veg-appetizers'
+                ? '🍟'
+                : cat.id === 'non-veg-appetizers'
+                ? '🍗'
+                : cat.id === 'pizza'
+                ? '🍕'
+                : cat.id === 'pasta'
+                ? '🍝'
+                : cat.id === 'fried-rice-bowls'
+                ? '🍚'
+                : cat.id === 'soup-salads'
+                ? '🥣'
+                : cat.id === 'waffles-pancakes'
+                ? '🧇'
+                : cat.id === 'kunafa-desserts'
+                ? '🍰'
+                : cat.id === 'add-ons'
+                ? '➕'
+                : '🍽️';
+
             return (
               <button
                 key={cat.id}
                 onClick={() => onSelectCategory(cat.id)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-xs sm:text-sm font-medium tracking-wide transition-all duration-300 border ${
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-xs sm:text-sm font-medium tracking-wide transition-all duration-300 border flex items-center gap-1.5 ${
                   isActive
                     ? 'bg-terracotta text-white font-bold border-transparent shadow-md scale-[1.03]'
                     : 'bg-white border-terracotta/20 text-espresso-800 hover:border-terracotta/50 hover:bg-[#EDE0CC] shadow-xs'
                 }`}
               >
-                {cat.name}
+                <span>{emoji}</span>
+                <span>{cat.name}</span>
               </button>
             );
           })}

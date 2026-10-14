@@ -23,7 +23,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.35 }}
-      className="group relative rounded-2xl bg-white overflow-hidden flex flex-col justify-between border border-terracotta/20 hover:border-terracotta/50 shadow-sm hover:shadow-md transition-all duration-300"
+      className="group relative rounded-2xl bg-white overflow-hidden flex flex-col justify-between border border-terracotta/20 hover:border-terracotta/50 shadow-sm hover:shadow-md transition-all duration-300 h-full"
     >
       {/* Top Image Container */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#EDE0CC]">
@@ -105,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div>
           {/* Header & Price */}
           <div className="flex items-start justify-between gap-2 mb-1.5">
-            <h3 className="font-serif text-lg sm:text-xl font-bold text-espresso-950 group-hover:text-terracotta transition-colors line-clamp-1">
+            <h3 className="font-serif text-lg sm:text-xl font-bold text-espresso-950 group-hover:text-terracotta transition-colors line-clamp-1 min-h-[1.75rem]">
               {product.name}
             </h3>
             <span className="font-serif text-lg sm:text-xl font-bold text-espresso-950 tracking-tight flex-shrink-0">
@@ -114,13 +114,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
 
           {/* Description */}
-          <p className="text-xs sm:text-sm text-coffee-700 line-clamp-2 leading-relaxed mb-4">
+          <p className="text-xs sm:text-sm text-coffee-700 line-clamp-2 leading-relaxed mb-4 min-h-[2.5rem]">
             {product.description}
           </p>
         </div>
 
         {/* Card Footer: Portion Info & View Details Button */}
-        <div className="pt-3 border-t border-terracotta/15 flex items-center justify-between gap-3">
+        <div className="pt-3 border-t border-terracotta/15 flex items-center justify-between gap-3 mt-auto">
           <span className="text-[11px] text-coffee-600 truncate font-medium">
             {product.portion || 'Artisanal Preparation'}
           </span>
