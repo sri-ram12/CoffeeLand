@@ -93,10 +93,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 />
               </motion.div>
               <div className="flex flex-col">
-                <span className="font-display tracking-wider text-xl sm:text-2xl font-bold text-espresso-950 group-hover:text-terracotta transition-colors leading-none">
-                  COFFEE <span className="text-terracotta">LAND</span>
+                <span className="font-serif tracking-tight text-xl sm:text-2xl font-bold text-espresso-950 group-hover:text-terracotta transition-colors leading-none">
+                  Coffee <span className="font-serif italic font-semibold text-terracotta">Land</span>
                 </span>
-                <span className="text-[10px] tracking-widest uppercase text-terracotta-700 font-bold mt-0.5">
+                <span className="text-[9px] sm:text-[10px] tracking-[0.22em] uppercase text-terracotta-700 font-bold mt-1 font-heading">
                   RESTO & CAFE • VIZAG
                 </span>
               </div>

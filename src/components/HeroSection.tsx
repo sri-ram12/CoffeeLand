@@ -100,9 +100,9 @@ interface HeroSectionProps {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   banners = [],
-  onOpenAdmin = () => {},
-  onClaimOffer = () => {},
-  onOrderWhatsApp = () => {}
+  onOpenAdmin = () => { },
+  onClaimOffer = () => { },
+  onOrderWhatsApp = () => { }
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [taglineIndex, setTaglineIndex] = useState(0);
@@ -247,25 +247,25 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <span className="w-8 h-[1px] bg-gradient-to-l from-transparent to-[#802B12]/60" />
             </motion.div>
 
-            {/* Grand Majestic Cafe Title with Rich Multi-Stop Foil Gradients & Depth */}
+            {/* Grand Majestic Cafe Title with Luxury Editorial Serif & Depth */}
             <motion.div
               initial={{ opacity: 0, scale: 0.92, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.7 }}
-              className="relative flex items-center justify-center flex-wrap gap-x-4 gap-y-1 select-none py-1"
+              className="relative flex items-center justify-center flex-wrap gap-x-3 sm:gap-x-5 gap-y-1 select-none py-1"
             >
               {/* Golden Ambient Backlight Behind Text */}
               <div className="absolute inset-0 max-w-2xl mx-auto bg-gradient-to-r from-amber-400/25 via-terracotta/30 to-amber-500/25 blur-3xl -z-10 pointer-events-none" />
 
-              <h1 className="font-display text-4xl min-[380px]:text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight leading-none filter drop-shadow-[0_4px_18px_rgba(128,43,18,0.22)]">
-                <span className="bg-gradient-to-br from-[#1E110C] via-[#5C1F0E] to-[#802B12] bg-clip-text text-transparent hover:brightness-110 transition-all">
-                  COFFEE
+              <h1 className="font-serif text-5xl min-[380px]:text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight leading-[0.96] filter drop-shadow-[0_4px_18px_rgba(128,43,18,0.22)]">
+                <span className="bg-gradient-to-br from-[#1E110C] via-[#5C1F0E] to-[#802B12] bg-clip-text text-transparent hover:brightness-110 transition-all font-serif">
+                  Coffee
                 </span>
                 {' '}
-                <span className="relative bg-gradient-to-br from-[#802B12] via-[#B84E29] to-[#D96B43] bg-clip-text text-transparent">
-                  LAND
+                <span className="relative bg-gradient-to-br from-[#802B12] via-[#B84E29] to-[#D96B43] bg-clip-text text-transparent font-serif italic font-normal sm:font-semibold">
+                  Land
                   {/* Subtle Golden Star Accent */}
-                  <span className="absolute -top-3 -right-4 sm:-right-8 text-lg sm:text-3xl text-amber-500 animate-pulse pointer-events-none">
+                  <span className="not-italic absolute -top-3 -right-4 sm:-right-8 text-lg sm:text-3xl text-amber-500 animate-pulse pointer-events-none">
                     ✦
                   </span>
                 </span>

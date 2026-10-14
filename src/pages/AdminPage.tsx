@@ -351,10 +351,10 @@ export const AdminPage: React.FC = () => {
             <Link to="/" className="flex items-center gap-2.5 group">
               <img src="/logo.png" alt="Logo" className="w-10 h-10 rounded-full object-cover border border-terracotta shadow-xs" />
               <div>
-                <span className="font-display tracking-wider text-lg font-bold text-espresso-950 block leading-tight">
-                  COFFEE <span className="text-terracotta">LAND</span>
+                <span className="font-serif tracking-tight text-xl font-bold text-espresso-950 block leading-tight">
+                  Coffee <span className="font-serif italic font-semibold text-terracotta">Land</span>
                 </span>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[#802B12] block">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#802B12] block font-heading">
                   Owner Admin Command Center
                 </span>
               </div>

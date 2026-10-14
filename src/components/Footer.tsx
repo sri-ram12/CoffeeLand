@@ -30,10 +30,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenQRCode, onOpenReviewModal,
                 className="w-12 h-12 rounded-full object-cover border-2 border-terracotta shadow-md"
               />
               <div className="flex flex-col">
-                <span className="font-display tracking-wider text-2xl font-bold text-espresso-950">
-                  COFFEE <span className="text-terracotta">LAND</span>
+                <span className="font-serif tracking-tight text-2xl sm:text-3xl font-bold text-espresso-950">
+                  Coffee <span className="font-serif italic font-semibold text-terracotta">Land</span>
                 </span>
-                <span className="text-[10px] tracking-widest uppercase text-terracotta-700 font-bold -mt-0.5">
+                <span className="text-[10px] tracking-[0.22em] uppercase text-terracotta-700 font-bold mt-0.5 font-heading">
                   RESTO & CAFE • VIZAG
                 </span>
               </div>
