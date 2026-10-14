@@ -137,10 +137,10 @@ export const WholeMenuShowcase: React.FC<WholeMenuShowcaseProps> = ({
         {/* View Controls & Action Bar */}
         <div className="glass-card rounded-3xl p-4 sm:p-6 mb-8 flex flex-col lg:flex-row items-center justify-between gap-4 border border-terracotta/20 shadow-md">
           {/* View Mode Toggle */}
-          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-[#FAF6EE] border border-terracotta/20 w-full sm:w-auto justify-center">
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-[#FAF6EE] border border-terracotta/20 w-full sm:w-auto overflow-x-auto scrollbar-none justify-start sm:justify-center">
             <button
               onClick={() => setViewMode('cards')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
                 viewMode === 'cards'
                   ? 'bg-terracotta text-white font-bold shadow-md'
                   : 'text-espresso-800 hover:text-terracotta'
@@ -152,26 +152,26 @@ export const WholeMenuShowcase: React.FC<WholeMenuShowcaseProps> = ({
 
             <button
               onClick={() => setViewMode('board')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
                 viewMode === 'board'
                   ? 'bg-terracotta text-white font-bold shadow-md'
                   : 'text-espresso-800 hover:text-terracotta'
               }`}
             >
               <span className="font-mono font-black text-base leading-none tracking-tighter">≡</span>
-              <span>3-Dashed Menu Board</span>
+              <span>3-Dashed Board</span>
             </button>
 
             <button
               onClick={() => setViewMode('scans')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
                 viewMode === 'scans'
                   ? 'bg-terracotta text-white font-bold shadow-md'
                   : 'text-espresso-800 hover:text-terracotta'
               }`}
             >
               <FileText className="w-4 h-4" />
-              <span>Original PDF Scans</span>
+              <span>PDF Scans</span>
             </button>
           </div>
 

@@ -52,7 +52,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-md bg-[#FAF6EE] border border-amber-900/15 rounded-3xl p-6 sm:p-8 shadow-2xl text-[#2B1B16] z-10 overflow-hidden"
+            className="relative w-full max-w-md bg-[#FAF6EE] border border-amber-900/15 rounded-3xl p-5 sm:p-8 shadow-2xl text-[#2B1B16] z-10 max-h-[92vh] overflow-y-auto"
           >
             {/* Ambient Background Glows */}
             <div className="absolute top-0 right-0 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />

@@ -55,7 +55,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.92, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 260 }}
-          className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#FAF6EE] border border-amber-900/15 shadow-2xl z-10 text-[#2B1B16] flex flex-col md:flex-row overflow-hidden"
+          className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl bg-[#FAF6EE] border border-amber-900/15 shadow-2xl z-10 text-[#2B1B16] flex flex-col md:flex-row"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}

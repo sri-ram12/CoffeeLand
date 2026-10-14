@@ -806,7 +806,7 @@ export const AdminPage: React.FC = () => {
             {/* Menu Items Table */}
             <div className="bg-white rounded-2xl border border-terracotta/20 overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[560px]">
                   <thead className="bg-amber-50/80 border-b border-amber-900/10 text-espresso-950 uppercase font-bold text-[10px] tracking-wider">
                     <tr>
                       <th className="py-3 px-4">Item</th>

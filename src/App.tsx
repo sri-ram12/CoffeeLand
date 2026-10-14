@@ -120,7 +120,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF6EE] text-espresso-950 flex flex-col font-sans selection:bg-terracotta selection:text-white pb-16 md:pb-0">
+    <div className="min-h-screen bg-[#FAF6EE] text-espresso-950 flex flex-col font-sans selection:bg-terracotta selection:text-white pb-24 md:pb-0">
       {/* Navigation Header with Fast Options & Admin Console */}
       <Navbar
         favoriteCount={favoriteCount}

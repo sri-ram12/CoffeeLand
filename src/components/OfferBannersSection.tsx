@@ -269,7 +269,7 @@ export const OfferBannersSection: React.FC<OfferBannersSectionProps> = ({
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
-              className={`w-[310px] sm:w-[380px] md:w-[420px] shrink-0 snap-start relative overflow-hidden rounded-3xl bg-gradient-to-r ${theme.gradient} ${theme.border} border-2 shadow-lg p-5 sm:p-6 text-white flex flex-col justify-between min-h-[215px] transition-all hover:-translate-y-1 hover:shadow-2xl group`}
+              className={`w-[85vw] max-w-[340px] sm:w-[380px] md:w-[420px] shrink-0 snap-start relative overflow-hidden rounded-3xl bg-gradient-to-r ${theme.gradient} ${theme.border} border-2 shadow-lg p-4 sm:p-6 text-white flex flex-col justify-between min-h-[215px] transition-all hover:-translate-y-1 hover:shadow-2xl group`}
               style={{
                 boxShadow: `0 14px 28px -10px ${theme.glow}`,
               }}
