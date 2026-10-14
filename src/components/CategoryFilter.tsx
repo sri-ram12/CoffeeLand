@@ -194,7 +194,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
                 className={`flex-shrink-0 px-4 py-2 rounded-full text-xs sm:text-sm font-medium tracking-wide transition-all duration-300 border ${
                   isActive
                     ? 'bg-terracotta text-white font-bold border-transparent shadow-md scale-[1.03]'
-                    : 'bg-white border-terracotta/20 text-espresso-800 hover:border-terracotta/50 hover:bg-[#FAF6EE] shadow-xs'
+                    : 'bg-white border-terracotta/20 text-espresso-800 hover:border-terracotta/50 hover:bg-[#EDE0CC] shadow-xs'
                 }`}
               >
                 {cat.name}

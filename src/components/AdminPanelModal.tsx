@@ -230,7 +230,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-5xl my-6 bg-[#FAF6EE] border-2 border-amber-900/15 rounded-3xl p-5 sm:p-8 shadow-2xl text-espresso-950 z-10 max-h-[92vh] flex flex-col overflow-hidden"
+          className="relative w-full max-w-5xl my-6 bg-[#EDE0CC] border-2 border-amber-900/15 rounded-3xl p-5 sm:p-8 shadow-2xl text-espresso-950 z-10 max-h-[92vh] flex flex-col overflow-hidden"
         >
           {/* Top Bar */}
           <div className="flex items-start justify-between gap-4 pb-4 border-b border-amber-900/15 shrink-0">
@@ -381,7 +381,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           value={formTitle}
                           onChange={(e) => setFormTitle(e.target.value)}
                           placeholder="e.g. Weekend Burger Crave Fest"
-                          className="w-full px-3.5 py-2 rounded-xl bg-[#FAF6EE] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
                         />
                       </div>
 
@@ -395,7 +395,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           value={formSubtitle}
                           onChange={(e) => setFormSubtitle(e.target.value)}
                           placeholder="e.g. Double Grilled Fillet with Gouda Cheese"
-                          className="w-full px-3.5 py-2 rounded-xl bg-[#FAF6EE] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
                         />
                       </div>
 
@@ -410,7 +410,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           value={formItemName}
                           onChange={(e) => setFormItemName(e.target.value)}
                           placeholder="e.g. Chef's Spl Non-Veg Burger"
-                          className="w-full px-3.5 py-2 rounded-xl bg-[#FAF6EE] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
                         />
                       </div>
 
@@ -424,7 +424,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           required
                           value={formOriginalPrice}
                           onChange={(e) => handlePriceChange(Number(e.target.value), formOfferPrice)}
-                          className="w-full px-3.5 py-2 rounded-xl bg-[#FAF6EE] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
                         />
                       </div>
 
@@ -438,7 +438,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           required
                           value={formOfferPrice}
                           onChange={(e) => handlePriceChange(formOriginalPrice, Number(e.target.value))}
-                          className="w-full px-3.5 py-2 rounded-xl bg-[#FAF6EE] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none font-bold text-terracotta"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none font-bold text-terracotta"
                         />
                       </div>
 
@@ -452,7 +452,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           value={formDiscountLabel}
                           onChange={(e) => setFormDiscountLabel(e.target.value)}
                           placeholder="e.g. 25% OFF, BUY 1 GET 1"
-                          className="w-full px-3.5 py-2 rounded-xl bg-[#FAF6EE] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
                         />
                       </div>
 
@@ -466,7 +466,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           value={formPromoCode}
                           onChange={(e) => setFormPromoCode(e.target.value.toUpperCase())}
                           placeholder="e.g. BURGER20"
-                          className="w-full px-3.5 py-2 rounded-xl bg-[#FAF6EE] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none uppercase font-mono"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none uppercase font-mono"
                         />
                       </div>
 
@@ -480,7 +480,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           value={formExpiryNote}
                           onChange={(e) => setFormExpiryNote(e.target.value)}
                           placeholder="e.g. Valid Saturday & Sunday"
-                          className="w-full px-3.5 py-2 rounded-xl bg-[#FAF6EE] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
                         />
                       </div>
 
@@ -492,7 +492,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                         <select
                           value={formThemeColor}
                           onChange={(e) => setFormThemeColor(e.target.value as BannerColorTheme)}
-                          className="w-full px-3.5 py-2 rounded-xl bg-[#FAF6EE] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none capitalize font-semibold"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none capitalize font-semibold"
                         >
                           <option value="terracotta">Terracotta Red (Warm Artisan)</option>
                           <option value="emerald">Emerald Green (Fresh)</option>
@@ -673,14 +673,14 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                       value={menuSearch}
                       onChange={(e) => setMenuSearch(e.target.value)}
                       placeholder="Search menu items..."
-                      className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#FAF6EE] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
+                      className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs text-espresso-950 focus:border-terracotta outline-none"
                     />
                   </div>
 
                   <select
                     value={selectedMenuCategory}
                     onChange={(e) => setSelectedMenuCategory(e.target.value)}
-                    className="px-3 py-2 rounded-xl bg-[#FAF6EE] border border-amber-900/20 text-xs text-espresso-950 font-medium capitalize"
+                    className="px-3 py-2 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs text-espresso-950 font-medium capitalize"
                   >
                     <option value="all">All Categories ({products.length})</option>
                     {uniqueCategories.map((c) => (
@@ -721,7 +721,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                                 type="text"
                                 value={editName}
                                 onChange={(e) => setEditName(e.target.value)}
-                                className="px-2 py-1 rounded bg-[#FAF6EE] border border-terracotta text-xs font-bold text-espresso-950 w-full"
+                                className="px-2 py-1 rounded bg-[#EDE0CC] border border-terracotta text-xs font-bold text-espresso-950 w-full"
                               />
                             ) : (
                               <div className="flex items-center gap-2">
@@ -755,7 +755,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                                 type="number"
                                 value={editPrice}
                                 onChange={(e) => setEditPrice(Number(e.target.value))}
-                                className="w-16 px-1.5 py-1 rounded bg-[#FAF6EE] border border-terracotta text-xs font-bold"
+                                className="w-16 px-1.5 py-1 rounded bg-[#EDE0CC] border border-terracotta text-xs font-bold"
                               />
                               <button
                                 onClick={() => {
@@ -868,7 +868,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                             {inq.itemName} • ₹{inq.price} {inq.promoCode && `(Code: ${inq.promoCode})`}
                           </p>
 
-                          <p className="text-xs text-coffee-800 bg-[#FAF6EE] p-2 rounded-xl mt-1.5 border border-amber-900/10">
+                          <p className="text-xs text-coffee-800 bg-[#EDE0CC] p-2 rounded-xl mt-1.5 border border-amber-900/10">
                             "{inq.message}"
                           </p>
                         </div>
@@ -878,7 +878,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           <select
                             value={inq.status}
                             onChange={(e) => onUpdateInquiryStatus(inq.id, e.target.value as any)}
-                            className="px-2.5 py-1.5 rounded-xl bg-[#FAF6EE] border border-amber-900/20 text-xs font-bold"
+                            className="px-2.5 py-1.5 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs font-bold"
                           >
                             <option value="Inquired">Inquired</option>
                             <option value="Confirmed">Confirmed</option>

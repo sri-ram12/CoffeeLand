@@ -124,7 +124,7 @@ export const FastAccessDock: React.FC<FastAccessDockProps> = ({
                         className={`px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all whitespace-nowrap flex items-center gap-1.5 ${
                           isActive
                             ? 'bg-terracotta text-white shadow-md scale-105'
-                            : 'bg-[#FAF6EE] text-espresso-900 hover:text-terracotta hover:bg-[#F3ECE1] border border-terracotta/20'
+                            : 'bg-[#EDE0CC] text-espresso-900 hover:text-terracotta hover:bg-[#E5D5BD] border border-terracotta/20'
                         }`}
                       >
                         <span>{opt.icon}</span>
@@ -160,7 +160,7 @@ export const FastAccessDock: React.FC<FastAccessDockProps> = ({
                         setShowSearchInput(true);
                         scrollToMenu();
                       }}
-                      className="p-2 rounded-full bg-[#FAF6EE] hover:bg-[#F3ECE1] text-espresso-800 hover:text-terracotta border border-terracotta/20 transition-colors shadow-xs"
+                      className="p-2 rounded-full bg-[#EDE0CC] hover:bg-[#E5D5BD] text-espresso-800 hover:text-terracotta border border-terracotta/20 transition-colors shadow-xs"
                       title="Quick Search"
                     >
                       <Search className="w-4 h-4" />
@@ -179,7 +179,7 @@ export const FastAccessDock: React.FC<FastAccessDockProps> = ({
                   {/* QR Code */}
                   <button
                     onClick={onOpenQRCode}
-                    className="p-2 rounded-full bg-[#FAF6EE] hover:bg-[#F3ECE1] text-espresso-800 hover:text-terracotta border border-terracotta/20 transition-colors shadow-xs"
+                    className="p-2 rounded-full bg-[#EDE0CC] hover:bg-[#E5D5BD] text-espresso-800 hover:text-terracotta border border-terracotta/20 transition-colors shadow-xs"
                     title="Scan Website QR"
                   >
                     <QrCode className="w-4 h-4 text-terracotta" />
@@ -188,7 +188,7 @@ export const FastAccessDock: React.FC<FastAccessDockProps> = ({
                   {/* Favorites badge */}
                   <button
                     onClick={onOpenFavorites}
-                    className="relative p-2 rounded-full bg-[#FAF6EE] hover:bg-[#F3ECE1] text-espresso-800 hover:text-red-500 border border-terracotta/20 transition-colors shadow-xs"
+                    className="relative p-2 rounded-full bg-[#EDE0CC] hover:bg-[#E5D5BD] text-espresso-800 hover:text-red-500 border border-terracotta/20 transition-colors shadow-xs"
                     title="Saved Favorites"
                   >
                     <Heart className="w-4 h-4" />
@@ -206,7 +206,7 @@ export const FastAccessDock: React.FC<FastAccessDockProps> = ({
       </AnimatePresence>
 
       {/* MOBILE END-TO-END BOTTOM ACCESS BAR (Always visible on mobile devices) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF6EE]/98 backdrop-blur-xl border-t border-terracotta/20 px-3 py-2 shadow-2xl safe-area-bottom">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#EDE0CC]/98 backdrop-blur-xl border-t border-terracotta/25 px-3 py-2 shadow-2xl safe-area-bottom">
         <div className="grid grid-cols-5 items-center justify-around gap-1 text-center">
           {/* 1. Home */}
           <button
@@ -235,7 +235,7 @@ export const FastAccessDock: React.FC<FastAccessDockProps> = ({
             onClick={onOpenReviewModal}
             className="flex flex-col items-center justify-center -mt-5"
           >
-            <div className="w-12 h-12 rounded-full bg-terracotta hover:bg-terracotta-600 text-white flex items-center justify-center shadow-lg border-2 border-[#FAF6EE] hover:scale-105 transition-transform">
+            <div className="w-12 h-12 rounded-full bg-terracotta hover:bg-terracotta-600 text-white flex items-center justify-center shadow-lg border-2 border-[#EDE0CC] hover:scale-105 transition-transform">
               <Camera className="w-6 h-6 stroke-[2.2]" />
             </div>
             <span className="text-[10px] font-bold text-terracotta mt-0.5">Review</span>

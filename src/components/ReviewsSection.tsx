@@ -40,7 +40,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   });
 
   return (
-    <section id="reviews" className="py-24 bg-[#FAF6EE] relative scroll-mt-12 overflow-hidden">
+    <section id="reviews" className="py-24 bg-[#EDE0CC] relative scroll-mt-12 overflow-hidden">
       {/* Background radial atmosphere */}
       <div className="absolute top-1/3 left-0 w-96 h-96 bg-terracotta/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-0 w-96 h-96 bg-caramel/5 rounded-full blur-3xl pointer-events-none" />
@@ -96,7 +96,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                       <span>{score}</span>
                       <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
                     </span>
-                    <div className="flex-1 h-2.5 rounded-full bg-[#FAF6EE] overflow-hidden border border-terracotta/10">
+                    <div className="flex-1 h-2.5 rounded-full bg-[#EDE0CC] overflow-hidden border border-terracotta/10">
                       <div
                         className="h-full bg-gradient-to-r from-amber-500 to-terracotta rounded-full transition-all duration-500"
                         style={{ width: `${pct}%` }}
@@ -135,7 +135,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                 activeFilter === 'all'
                   ? 'bg-terracotta text-white shadow-xs font-bold'
-                  : 'bg-white text-espresso-800 border border-terracotta/20 hover:bg-[#FAF6EE]'
+                  : 'bg-white text-espresso-800 border border-terracotta/20 hover:bg-[#EDE0CC]'
               }`}
             >
               All Reviews ({reviews.length})
@@ -145,7 +145,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 activeFilter === 'photos'
                   ? 'bg-terracotta text-white shadow-xs font-bold'
-                  : 'bg-white text-espresso-800 border border-terracotta/20 hover:bg-[#FAF6EE]'
+                  : 'bg-white text-espresso-800 border border-terracotta/20 hover:bg-[#EDE0CC]'
               }`}
             >
               <Camera className="w-3.5 h-3.5" />
@@ -156,7 +156,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 activeFilter === '5stars'
                   ? 'bg-terracotta text-white shadow-xs font-bold'
-                  : 'bg-white text-espresso-800 border border-terracotta/20 hover:bg-[#FAF6EE]'
+                  : 'bg-white text-espresso-800 border border-terracotta/20 hover:bg-[#EDE0CC]'
               }`}
             >
               <Star className="w-3.5 h-3.5 fill-current" />
@@ -223,7 +223,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   </div>
 
                   {/* Rating Stars */}
-                  <div className="flex items-center gap-0.5 bg-[#FAF6EE] px-2 py-1 rounded-lg border border-terracotta/20">
+                  <div className="flex items-center gap-0.5 bg-[#EDE0CC] px-2 py-1 rounded-lg border border-terracotta/20">
                     <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                     <span className="text-xs font-bold text-espresso-950">{review.rating}.0</span>
                   </div>
@@ -276,7 +276,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors ${
                     review.userLiked
                       ? 'text-red-600 bg-red-50 font-bold'
-                      : 'text-coffee-700 hover:text-red-500 hover:bg-[#FAF6EE]'
+                      : 'text-coffee-700 hover:text-red-500 hover:bg-[#EDE0CC]'
                   }`}
                   aria-label="Like review"
                 >

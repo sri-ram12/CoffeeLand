@@ -27,7 +27,7 @@ export const AboutSection: React.FC = () => {
   ];
 
   return (
-    <section id="about" className="py-24 bg-[#FAF6EE] relative overflow-hidden">
+    <section id="about" className="py-24 bg-[#EDE0CC] relative overflow-hidden">
       {/* Subtle background ornamentation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -108,7 +108,7 @@ export const AboutSection: React.FC = () => {
                   key={idx}
                   className="p-4 rounded-2xl bg-white border border-terracotta/20 hover:border-terracotta/50 shadow-xs hover:shadow-md transition-all"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-[#FAF6EE] border border-terracotta/20 flex items-center justify-center mb-3 text-terracotta">
+                  <div className="w-9 h-9 rounded-xl bg-[#EDE0CC] border border-terracotta/20 flex items-center justify-center mb-3 text-terracotta">
                     {pillar.icon}
                   </div>
                   <h4 className="font-serif text-base font-bold text-espresso-950 mb-1.5">

@@ -52,7 +52,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-md bg-[#FAF6EE] border border-amber-900/15 rounded-3xl p-5 sm:p-8 shadow-2xl text-[#2B1B16] z-10 max-h-[92vh] overflow-y-auto"
+            className="relative w-full max-w-md bg-[#EDE0CC] border border-amber-900/15 rounded-3xl p-5 sm:p-8 shadow-2xl text-[#2B1B16] z-10 max-h-[92vh] overflow-y-auto"
           >
             {/* Ambient Background Glows */}
             <div className="absolute top-0 right-0 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
@@ -90,22 +90,22 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
                 xmlns="http://www.w3.org/2000/svg"
               >
                 {/* Background */}
-                <rect width="200" height="200" fill="#FAF6EE" rx="8" />
+                <rect width="200" height="200" fill="#EDE0CC" rx="8" />
 
                 {/* Corner Positioning Markers */}
                 {/* Top-Left */}
                 <rect x="15" y="15" width="45" height="45" fill="#802B12" rx="4" />
-                <rect x="23" y="23" width="29" height="29" fill="#FAF6EE" rx="2" />
+                <rect x="23" y="23" width="29" height="29" fill="#EDE0CC" rx="2" />
                 <rect x="29" y="29" width="17" height="17" fill="#802B12" rx="2" />
 
                 {/* Top-Right */}
                 <rect x="140" y="15" width="45" height="45" fill="#802B12" rx="4" />
-                <rect x="148" y="23" width="29" height="29" fill="#FAF6EE" rx="2" />
+                <rect x="148" y="23" width="29" height="29" fill="#EDE0CC" rx="2" />
                 <rect x="154" y="29" width="17" height="17" fill="#802B12" rx="2" />
 
                 {/* Bottom-Left */}
                 <rect x="15" y="140" width="45" height="45" fill="#802B12" rx="4" />
-                <rect x="23" y="148" width="29" height="29" fill="#FAF6EE" rx="2" />
+                <rect x="23" y="148" width="29" height="29" fill="#EDE0CC" rx="2" />
                 <rect x="29" y="154" width="17" height="17" fill="#802B12" rx="2" />
 
                 {/* Detailed Data Matrix Pattern */}
@@ -178,7 +178,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
                     <circle cx="100" cy="100" r="23" />
                   </clipPath>
                 </defs>
-                <circle cx="100" cy="100" r="26" fill="#FAF6EE" stroke="#802B12" strokeWidth="2.5" />
+                <circle cx="100" cy="100" r="26" fill="#EDE0CC" stroke="#802B12" strokeWidth="2.5" />
                 <image
                   href="/logo.png"
                   x="75"

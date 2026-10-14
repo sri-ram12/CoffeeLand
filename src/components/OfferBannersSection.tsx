@@ -133,7 +133,7 @@ export const OfferBannersSection: React.FC<OfferBannersSectionProps> = ({
           border: 'border-amber-300/40',
           badgeBg: 'bg-white/25 text-white',
           accentText: 'text-amber-100',
-          btnBg: 'bg-[#2B1B16] text-[#FAF6EE] hover:bg-espresso-950',
+          btnBg: 'bg-[#2B1B16] text-[#EDE0CC] hover:bg-espresso-950',
           glow: 'rgba(184, 130, 63, 0.45)',
         };
       case 'espresso':

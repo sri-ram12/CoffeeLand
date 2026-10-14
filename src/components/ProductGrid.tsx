@@ -125,7 +125,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
                     <button
                       onClick={() => onSelectProduct(product)}
-                      className="px-2.5 py-1 rounded-lg bg-[#FAF6EE] hover:bg-terracotta hover:text-white border border-terracotta/25 font-bold text-[10px] text-espresso-900 transition-colors flex items-center gap-1"
+                      className="px-2.5 py-1 rounded-lg bg-[#EDE0CC] hover:bg-terracotta hover:text-white border border-terracotta/25 font-bold text-[10px] text-espresso-900 transition-colors flex items-center gap-1"
                     >
                       <Eye className="w-3 h-3" />
                       <span>Details</span>

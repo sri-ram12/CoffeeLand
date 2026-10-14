@@ -39,7 +39,7 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-24 bg-[#FAF6EE] relative overflow-hidden">
+    <section id="contact" className="py-24 bg-[#EDE0CC] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -67,7 +67,7 @@ export const ContactSection: React.FC = () => {
               <div className="space-y-5 text-sm text-coffee-800">
                 {/* Address */}
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#FAF6EE] border border-terracotta/25 flex items-center justify-center text-terracotta flex-shrink-0 mt-0.5 shadow-xs">
+                  <div className="w-10 h-10 rounded-xl bg-[#EDE0CC] border border-terracotta/25 flex items-center justify-center text-terracotta flex-shrink-0 mt-0.5 shadow-xs">
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
@@ -93,7 +93,7 @@ export const ContactSection: React.FC = () => {
 
                 {/* Opening Hours */}
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#FAF6EE] border border-terracotta/25 flex items-center justify-center text-terracotta flex-shrink-0 mt-0.5 shadow-xs">
+                  <div className="w-10 h-10 rounded-xl bg-[#EDE0CC] border border-terracotta/25 flex items-center justify-center text-terracotta flex-shrink-0 mt-0.5 shadow-xs">
                     <Clock className="w-5 h-5" />
                   </div>
                   <div>
@@ -109,7 +109,7 @@ export const ContactSection: React.FC = () => {
 
                 {/* Phone */}
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#FAF6EE] border border-terracotta/25 flex items-center justify-center text-terracotta flex-shrink-0 mt-0.5 shadow-xs">
+                  <div className="w-10 h-10 rounded-xl bg-[#EDE0CC] border border-terracotta/25 flex items-center justify-center text-terracotta flex-shrink-0 mt-0.5 shadow-xs">
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
@@ -130,7 +130,7 @@ export const ContactSection: React.FC = () => {
 
                 {/* Email */}
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#FAF6EE] border border-terracotta/25 flex items-center justify-center text-terracotta flex-shrink-0 mt-0.5 shadow-xs">
+                  <div className="w-10 h-10 rounded-xl bg-[#EDE0CC] border border-terracotta/25 flex items-center justify-center text-terracotta flex-shrink-0 mt-0.5 shadow-xs">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div>
@@ -250,7 +250,7 @@ export const ContactSection: React.FC = () => {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="e.g. Maya Sharma"
-                        className={`w-full px-4 py-3 rounded-xl bg-[#FAF6EE] border text-sm text-espresso-950 placeholder-espresso-400 focus:outline-none transition-all ${
+                        className={`w-full px-4 py-3 rounded-xl bg-[#EDE0CC] border text-sm text-espresso-950 placeholder-espresso-400 focus:outline-none transition-all ${
                           errors.name
                             ? 'border-rose-500 focus:ring-1 focus:ring-rose-500'
                             : 'border-terracotta/25 focus:border-terracotta focus:ring-1 focus:ring-terracotta'
@@ -269,7 +269,7 @@ export const ContactSection: React.FC = () => {
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="e.g. maya@example.com"
-                        className={`w-full px-4 py-3 rounded-xl bg-[#FAF6EE] border text-sm text-espresso-950 placeholder-espresso-400 focus:outline-none transition-all ${
+                        className={`w-full px-4 py-3 rounded-xl bg-[#EDE0CC] border text-sm text-espresso-950 placeholder-espresso-400 focus:outline-none transition-all ${
                           errors.email
                             ? 'border-rose-500 focus:ring-1 focus:ring-rose-500'
                             : 'border-terracotta/25 focus:border-terracotta focus:ring-1 focus:ring-terracotta'
@@ -290,7 +290,7 @@ export const ContactSection: React.FC = () => {
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="e.g. +91 95425 25665"
-                        className="w-full px-4 py-3 rounded-xl bg-[#FAF6EE] border border-terracotta/25 text-sm text-espresso-950 placeholder-espresso-400 focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta"
+                        className="w-full px-4 py-3 rounded-xl bg-[#EDE0CC] border border-terracotta/25 text-sm text-espresso-950 placeholder-espresso-400 focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta"
                       />
                     </div>
 
@@ -302,7 +302,7 @@ export const ContactSection: React.FC = () => {
                       <select
                         value={formData.subject}
                         onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-[#FAF6EE] border border-terracotta/25 text-sm text-espresso-950 focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta cursor-pointer"
+                        className="w-full px-4 py-3 rounded-xl bg-[#EDE0CC] border border-terracotta/25 text-sm text-espresso-950 focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta cursor-pointer"
                       >
                         <option value="General Enquiry">General Enquiry</option>
                         <option value="Table Reservation">Table Reservation Request</option>
@@ -323,7 +323,7 @@ export const ContactSection: React.FC = () => {
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       placeholder="Tell us about your visit, event requirements, or favorite dish..."
-                      className={`w-full px-4 py-3 rounded-xl bg-[#FAF6EE] border text-sm text-espresso-950 placeholder-espresso-400 focus:outline-none transition-all ${
+                      className={`w-full px-4 py-3 rounded-xl bg-[#EDE0CC] border text-sm text-espresso-950 placeholder-espresso-400 focus:outline-none transition-all ${
                         errors.message
                           ? 'border-rose-500 focus:ring-1 focus:ring-rose-500'
                           : 'border-terracotta/25 focus:border-terracotta focus:ring-1 focus:ring-terracotta'

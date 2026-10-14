@@ -100,7 +100,7 @@ export const GallerySection: React.FC = () => {
   };
 
   return (
-    <section id="gallery" className="py-24 bg-[#FAF6EE] relative overflow-hidden">
+    <section id="gallery" className="py-24 bg-[#EDE0CC] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
@@ -129,7 +129,7 @@ export const GallerySection: React.FC = () => {
                 className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 border ${
                   selectedFilter === tab.id
                     ? 'bg-terracotta text-white shadow-xs font-bold'
-                    : 'bg-white border-terracotta/20 text-espresso-800 hover:border-terracotta/40 hover:bg-[#FAF6EE]'
+                    : 'bg-white border-terracotta/20 text-espresso-800 hover:border-terracotta/40 hover:bg-[#EDE0CC]'
                 }`}
               >
                 {tab.label}

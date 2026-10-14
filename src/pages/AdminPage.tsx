@@ -253,7 +253,7 @@ export const AdminPage: React.FC = () => {
   // If not logged in, render the luxury login screen
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#FAF6EE] text-espresso-950 flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
+      <div className="min-h-screen bg-[#EDE0CC] text-espresso-950 flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
         {/* Ambient warm glows */}
         <div className="absolute top-1/4 -left-32 w-96 h-96 bg-terracotta/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
@@ -342,7 +342,7 @@ export const AdminPage: React.FC = () => {
 
   // Authenticated Owner Admin Dashboard
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#FAF6EE] text-espresso-950 flex flex-col font-sans selection:bg-terracotta selection:text-white">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#EDE0CC] text-espresso-950 flex flex-col font-sans selection:bg-terracotta selection:text-white">
       {/* Top Owner Header */}
       <header className="sticky top-0 z-30 bg-white/95 border-b border-terracotta/20 backdrop-blur-md px-4 sm:px-8 py-3.5 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">

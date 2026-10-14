@@ -165,7 +165,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-xl my-8 bg-[#FAF6EE] border border-amber-900/15 rounded-3xl p-6 sm:p-8 shadow-2xl text-[#2B1B16] z-10 max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-xl my-8 bg-[#EDE0CC] border border-amber-900/15 rounded-3xl p-6 sm:p-8 shadow-2xl text-[#2B1B16] z-10 max-h-[90vh] overflow-y-auto"
           >
             {/* Close Button */}
             <button

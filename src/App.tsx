@@ -120,7 +120,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#FAF6EE] text-espresso-950 flex flex-col font-sans selection:bg-terracotta selection:text-white pb-24 md:pb-0">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#EDE0CC] text-espresso-950 flex flex-col font-sans selection:bg-terracotta selection:text-white pb-24 md:pb-0">
       {/* Navigation Header with Fast Options & Admin Console */}
       <Navbar
         favoriteCount={favoriteCount}
@@ -162,7 +162,7 @@ export const App: React.FC = () => {
       <section
         id="menu"
         ref={menuSectionRef}
-        className="py-24 bg-[#FAF6EE] relative overflow-hidden scroll-mt-12"
+        className="py-24 bg-[#EDE0CC] relative overflow-hidden scroll-mt-12"
       >
         {/* Soft background ambient radial gradient */}
         <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-terracotta/5 rounded-full blur-3xl pointer-events-none" />

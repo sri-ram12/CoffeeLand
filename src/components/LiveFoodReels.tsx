@@ -94,7 +94,7 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
     : FOOD_REELS.filter((r) => r.category === activeFilter);
 
   return (
-    <section id="live-reels" className="py-20 bg-[#FAF6EE] relative overflow-hidden scroll-mt-12">
+    <section id="live-reels" className="py-20 bg-[#EDE0CC] relative overflow-hidden scroll-mt-12">
       {/* Background radial effects */}
       <div className="absolute top-1/4 left-0 w-96 h-96 bg-terracotta/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-0 w-96 h-96 bg-caramel/5 rounded-full blur-3xl pointer-events-none" />
@@ -250,7 +250,7 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-[#FAF6EE] border border-amber-900/15 rounded-3xl p-5 sm:p-6 shadow-2xl text-espresso-950 z-10 overflow-hidden"
+              className="relative w-full max-w-lg bg-[#EDE0CC] border border-amber-900/15 rounded-3xl p-5 sm:p-6 shadow-2xl text-espresso-950 z-10 overflow-hidden"
             >
               {/* Close Button */}
               <button

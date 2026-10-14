@@ -151,7 +151,7 @@ export const HeroBackgroundDecor: React.FC = () => {
             {/* Highlights */}
             <path
               d="M 28 25 C 20 40, 20 60, 24 75"
-              stroke="#FAF6EE"
+              stroke="#EDE0CC"
               strokeWidth="2.5"
               strokeLinecap="round"
               opacity="0.25"

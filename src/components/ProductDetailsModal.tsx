@@ -55,7 +55,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.92, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 260 }}
-          className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl bg-[#FAF6EE] border border-amber-900/15 shadow-2xl z-10 text-[#2B1B16] flex flex-col md:flex-row"
+          className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl bg-[#EDE0CC] border border-amber-900/15 shadow-2xl z-10 text-[#2B1B16] flex flex-col md:flex-row"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
@@ -74,7 +74,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
               alt={product.name}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#FAF6EE]/90 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-[#FAF6EE]/70 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#EDE0CC]/90 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-[#EDE0CC]/70 pointer-events-none" />
 
             {/* Badges on Modal Image */}
             <div className="absolute top-4 left-4 flex flex-wrap gap-2 items-center">

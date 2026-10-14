@@ -91,7 +91,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold tracking-wide transition-all duration-300 whitespace-nowrap ${
                     isActive
                       ? 'bg-terracotta text-white shadow-sm font-bold'
-                      : 'text-espresso-800 hover:text-terracotta hover:bg-[#FAF6EE]'
+                      : 'text-espresso-800 hover:text-terracotta hover:bg-[#EDE0CC]'
                   }`}
                 >
                   {tab.icon}
@@ -120,7 +120,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
               className="group relative rounded-3xl overflow-hidden bg-white border border-terracotta/20 hover:border-terracotta/50 shadow-md hover:shadow-xl transition-all duration-500 flex flex-col justify-between"
             >
               {/* Image & Badge Container */}
-              <div className="relative aspect-[16/10] overflow-hidden bg-[#FAF6EE]">
+              <div className="relative aspect-[16/10] overflow-hidden bg-[#EDE0CC]">
                 <img
                   src={item.image}
                   alt={item.name}

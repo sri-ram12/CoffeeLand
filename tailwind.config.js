@@ -31,15 +31,24 @@ export default {
           200: '#EED3A8',
           100: '#FAE8CC',
         },
+        biscuit: {
+          DEFAULT: '#EDE0CC',
+          50: '#FBF7F0',
+          100: '#F7EFE1',
+          200: '#EFE2CE',
+          300: '#EDE0CC',
+          400: '#E2CEB3',
+          500: '#D5BD9C',
+        },
         cream: {
-          DEFAULT: '#F7F0E6', // Warm Cream
+          DEFAULT: '#EDE0CC',
           50: '#FDFCF9',
-          100: '#FAF5EE',
-          200: '#F7F0E6',
-          300: '#EFE5D5',
+          100: '#F7EFE1',
+          200: '#EFE2CE',
+          300: '#EDE0CC',
         },
         beige: {
-          DEFAULT: '#E8D8C3', // Soft Beige
+          DEFAULT: '#EDE0CC',
           400: '#DFCAAE',
           500: '#D4B996',
         },

@@ -8,8 +8,9 @@
     --color-coffee: #5C3825;
     --color-terracotta: #802B12;
     --color-caramel: #B87333;
-    --color-cream: #FAF6EE;
-    --color-parchment: #F4EBE1;
+    --color-cream: #EDE0CC;
+    --color-biscuit: #EDE0CC;
+    --color-parchment: #E6D5BE;
     --color-card-bg: #FFFFFF;
   }
 
@@ -18,10 +19,11 @@
     max-width: 100%;
     overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
+    background-color: #EDE0CC;
   }
 
   body {
-    background-color: #FAF6EE;
+    background-color: #EDE0CC;
     color: #2B1B16;
     width: 100%;
     max-width: 100%;
@@ -63,12 +65,12 @@
     height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: #F4EBE1;
+    background: #EDE0CC;
   }
   ::-webkit-scrollbar-thumb {
     background: #802B12;
     border-radius: 9999px;
-    border: 2px solid #FAF6EE;
+    border: 2px solid #EDE0CC;
   }
   ::-webkit-scrollbar-thumb:hover {
     background: #2B1B16;
@@ -175,7 +177,7 @@
 
   .espresso-btn {
     background: #2B1B16;
-    color: #FAF6EE;
+    color: #EDE0CC;
     transition: all 0.2s ease;
   }
   .espresso-btn:hover {

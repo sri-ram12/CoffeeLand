@@ -26,7 +26,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       className="group relative rounded-2xl bg-white overflow-hidden flex flex-col justify-between border border-terracotta/20 hover:border-terracotta/50 shadow-sm hover:shadow-md transition-all duration-300"
     >
       {/* Top Image Container */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#FAF6EE]">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#EDE0CC]">
         <img
           src={product.image}
           alt={product.name}

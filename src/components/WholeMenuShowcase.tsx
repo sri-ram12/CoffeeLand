@@ -80,7 +80,7 @@ export const WholeMenuShowcase: React.FC<WholeMenuShowcaseProps> = ({
   };
 
   return (
-    <section id="full-menu-showcase" className="py-24 bg-[#FAF6EE] relative overflow-hidden scroll-mt-12">
+    <section id="full-menu-showcase" className="py-24 bg-[#EDE0CC] relative overflow-hidden scroll-mt-12">
       {/* Background radial effects */}
       <div className="absolute top-10 right-10 w-96 h-96 bg-terracotta/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-caramel/5 rounded-full blur-3xl pointer-events-none" />
@@ -137,7 +137,7 @@ export const WholeMenuShowcase: React.FC<WholeMenuShowcaseProps> = ({
         {/* View Controls & Action Bar */}
         <div className="glass-card rounded-3xl p-4 sm:p-6 mb-8 flex flex-col lg:flex-row items-center justify-between gap-4 border border-terracotta/20 shadow-md">
           {/* View Mode Toggle */}
-          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-[#FAF6EE] border border-terracotta/20 w-full sm:w-auto overflow-x-auto scrollbar-none justify-start sm:justify-center">
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-[#EDE0CC] border border-terracotta/20 w-full sm:w-auto overflow-x-auto scrollbar-none justify-start sm:justify-center">
             <button
               onClick={() => setViewMode('cards')}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
@@ -218,7 +218,7 @@ export const WholeMenuShowcase: React.FC<WholeMenuShowcaseProps> = ({
                   className={`px-4 py-2.5 rounded-2xl text-xs font-semibold whitespace-nowrap transition-all border shrink-0 text-left ${
                     isActive
                       ? 'bg-terracotta text-white border-terracotta shadow-md font-bold scale-[1.02]'
-                      : 'bg-white text-espresso-900 border-terracotta/20 hover:border-terracotta/40 hover:bg-[#FAF6EE]'
+                      : 'bg-white text-espresso-900 border-terracotta/20 hover:border-terracotta/40 hover:bg-[#EDE0CC]'
                   }`}
                 >
                   <div className="font-bold">{tab.title}</div>
@@ -338,7 +338,7 @@ export const WholeMenuShowcase: React.FC<WholeMenuShowcaseProps> = ({
                     className="cursor-pointer"
                   >
                     {/* Image with Tag & Favorite */}
-                    <div className="relative aspect-[4/3] overflow-hidden bg-[#FAF6EE]">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-[#EDE0CC]">
                       <img
                         src={product.image}
                         alt={product.name}
@@ -442,7 +442,7 @@ export const WholeMenuShowcase: React.FC<WholeMenuShowcaseProps> = ({
                   key={scan.page}
                   className="bg-white rounded-3xl overflow-hidden border border-terracotta/25 shadow-xl flex flex-col group"
                 >
-                  <div className="p-4 bg-[#FAF6EE] border-b border-terracotta/20 flex items-center justify-between">
+                  <div className="p-4 bg-[#EDE0CC] border-b border-terracotta/20 flex items-center justify-between">
                     <div>
                       <span className="text-xs font-bold text-terracotta uppercase tracking-wider block">
                         Page {scan.page} of 6
@@ -462,7 +462,7 @@ export const WholeMenuShowcase: React.FC<WholeMenuShowcaseProps> = ({
                     </a>
                   </div>
 
-                  <div className="relative aspect-[3/4] overflow-hidden bg-[#FAF6EE]">
+                  <div className="relative aspect-[3/4] overflow-hidden bg-[#EDE0CC]">
                     <img
                       src={scan.file}
                       alt={scan.title}

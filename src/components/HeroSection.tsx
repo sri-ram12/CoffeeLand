@@ -142,7 +142,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   return (
     <section
       id="home"
-      className="relative min-h-[96vh] flex flex-col justify-center pt-24 pb-14 overflow-hidden bg-[#FAF6EE]"
+      className="relative min-h-[96vh] flex flex-col justify-center pt-24 pb-14 overflow-hidden bg-[#EDE0CC]"
     >
       {/* Rich Animated Cafe Background Decor (Floating Coffee Beans, Rising Steam, Botanical Watermarks, Golden Motes) */}
       <HeroBackgroundDecor />
@@ -346,8 +346,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           />
         )}
 
-        {/* HERO SHOWCASE CARD in Reversed Light Theme */}
-        <div className="relative w-full max-w-5xl mx-auto bg-gradient-to-br from-white via-[#FAF6EE] to-[#F5ECE0] border-2 border-terracotta/20 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-xl backdrop-blur-xl overflow-hidden min-h-[460px] flex items-center">
+        {/* HERO SHOWCASE CARD in Warm Biscuit Theme */}
+        <div className="relative w-full max-w-5xl mx-auto bg-gradient-to-br from-white via-[#EDE0CC] to-[#E5D5BD] border-2 border-terracotta/20 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-xl backdrop-blur-xl overflow-hidden min-h-[460px] flex items-center">
           {/* HUGE OUTLINE BACKGROUND WORD (e.g. BURGER, COFFEE, PIZZA) */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none">
             <span className="font-display text-[18vw] sm:text-[140px] lg:text-[180px] font-black tracking-tighter text-stroke-amber opacity-35 uppercase whitespace-nowrap">

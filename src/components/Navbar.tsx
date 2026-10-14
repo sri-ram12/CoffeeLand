@@ -66,8 +66,8 @@ export const Navbar: React.FC<NavbarProps> = ({
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#FAF6EE]/95 backdrop-blur-md border-b border-terracotta/20 py-2.5 shadow-md'
-            : 'bg-gradient-to-b from-[#FAF6EE]/95 via-[#FAF6EE]/80 to-transparent py-3.5'
+            ? 'bg-[#EDE0CC]/95 backdrop-blur-md border-b border-terracotta/20 py-2.5 shadow-md'
+            : 'bg-gradient-to-b from-[#EDE0CC]/95 via-[#EDE0CC]/80 to-transparent py-3.5'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -183,7 +183,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-x-0 top-16 z-40 bg-[#FAF6EE]/98 border-b border-terracotta/25 backdrop-blur-xl px-6 py-6 shadow-2xl lg:hidden max-h-[85vh] overflow-y-auto"
+            className="fixed inset-x-0 top-16 z-40 bg-[#EDE0CC]/98 border-b border-terracotta/25 backdrop-blur-xl px-6 py-6 shadow-2xl lg:hidden max-h-[85vh] overflow-y-auto"
           >
             <div className="flex flex-col space-y-3">
               {navLinks.map((link) => (
