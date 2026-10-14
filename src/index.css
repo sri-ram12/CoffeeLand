@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-espresso: #2B1B16;
+    --color-coffee: #5C3825;
+    --color-terracotta: #802B12;
+    --color-caramel: #B87333;
+    --color-cream: #FAF6EE;
+    --color-parchment: #F4EBE1;
+    --color-card-bg: #FFFFFF;
+  }
+
+  body {
+    background-color: #FAF6EE;
+    color: #2B1B16;
+    overflow-x: hidden;
+  }
+
+  /* Custom smooth scrollbar in reversed theme */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F4EBE1;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #802B12;
+    border-radius: 9999px;
+    border: 2px solid #FAF6EE;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2B1B16;
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 20px rgba(128, 43, 18, 0.25);
+  }
+
+  .text-stroke-amber {
+    -webkit-text-stroke: 1.5px rgba(128, 43, 18, 0.25);
+    color: transparent;
+  }
+
+  .text-stroke-cream {
+    -webkit-text-stroke: 2px rgba(43, 27, 22, 0.15);
+    color: transparent;
+  }
+
+  .text-stroke-thick {
+    -webkit-text-stroke: 3px rgba(128, 43, 18, 0.2);
+    color: transparent;
+  }
+  
+  /* Reversed Glass Card: Warm crisp white with subtle terracotta border */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(128, 43, 18, 0.14);
+    box-shadow: 0 10px 25px -5px rgba(43, 27, 22, 0.06), 0 8px 10px -6px rgba(43, 27, 22, 0.04);
+  }
+
+  .glass-card-hover {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .glass-card-hover:hover {
+    background: #FFFFFF;
+    border-color: rgba(128, 43, 18, 0.35);
+    box-shadow: 0 20px 35px -10px rgba(128, 43, 18, 0.15), 0 4px 15px -2px rgba(43, 27, 22, 0.08);
+    transform: translateY(-4px);
+  }
+
+  .parchment-card {
+    background: #FFFFFF;
+    color: #2B1B16;
+    border: 1px solid rgba(128, 43, 18, 0.16);
+    box-shadow: 0 10px 30px rgba(43, 27, 22, 0.07);
+  }
+
+  .gold-gradient-text {
+    background: linear-gradient(135deg, #802B12 0%, #B87333 50%, #5C3825 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .amber-gradient-text {
+    background: linear-gradient(135deg, #802B12 0%, #A33C1D 50%, #2B1B16 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Reversed button: Terracotta primary button */
+  .gold-button-gradient {
+    background: linear-gradient(135deg, #802B12 0%, #68220D 100%);
+    color: #FFFFFF !important;
+  }
+
+  .gold-button-gradient:hover {
+    background: linear-gradient(135deg, #963417 0%, #802B12 100%);
+    color: #FFFFFF !important;
+  }
+
+  .terracotta-btn {
+    background-color: #802B12 !important;
+    color: #FFFFFF !important;
+    transition: all 0.2s ease;
+  }
+  .terracotta-btn:hover {
+    background-color: #68220D !important;
+    box-shadow: 0 8px 20px -4px rgba(128, 43, 18, 0.35);
+  }
+
+  .bg-terracotta {
+    background-color: #802B12 !important;
+  }
+  .hover\:bg-terracotta-600:hover {
+    background-color: #68220D !important;
+  }
+  .text-terracotta {
+    color: #802B12 !important;
+  }
+  .text-terracotta-700 {
+    color: #5C1D0B !important;
+  }
+  .border-terracotta {
+    border-color: #802B12 !important;
+  }
+  .border-terracotta-600 {
+    border-color: #68220D !important;
+  }
+
+  .espresso-btn {
+    background: #2B1B16;
+    color: #FAF6EE;
+    transition: all 0.2s ease;
+  }
+  .espresso-btn:hover {
+    background: #3D2720;
+    box-shadow: 0 8px 20px -4px rgba(43, 27, 22, 0.35);
+  }
+
+  /* Classic menu dotted leader in reversed theme */
+  .dotted-leader {
+    flex-grow: 1;
+    border-bottom: 2px dotted rgba(128, 43, 18, 0.35);
+    margin: 0 0.75rem;
+    position: relative;
+    top: -0.25rem;
+  }
+
+  /* Coffee bean float animation */
+  @keyframes floatSlow {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-10px) rotate(4deg);
+    }
+  }
+
+  .animate-float {
+    animation: floatSlow 6s ease-in-out infinite;
+  }
+}

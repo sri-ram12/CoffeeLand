@@ -1,0 +1,41 @@
+[
+  {
+    "id": "inq-1728900100000",
+    "customerName": "Ramesh Varma",
+    "customerPhone": "9848012345",
+    "itemName": "Chef's Spl Non-Veg Burger",
+    "category": "Gourmet Brioche Burgers",
+    "price": 159,
+    "inquiryType": "Offer Banner",
+    "promoCode": "BURGER20",
+    "message": "Hello Coffee Land (Sangivalasa, Vizag)! I am interested in ordering/inquiring about: *Chef's Spl Non-Veg Burger* (Price: ₹159 | Promo: BURGER20). Please confirm availability!",
+    "timestamp": "2026-10-14T10:15:00.000Z",
+    "status": "Confirmed"
+  },
+  {
+    "id": "inq-1728900200000",
+    "customerName": "Pooja Reddy",
+    "customerPhone": "9989023456",
+    "itemName": "Lotus Biscoff Kunafa",
+    "category": "Signature Desserts",
+    "price": 199,
+    "inquiryType": "Offer Banner",
+    "promoCode": "KUNAFA50",
+    "message": "Hello Coffee Land (Sangivalasa, Vizag)! I am interested in ordering/inquiring about: *Lotus Biscoff Kunafa* (Price: ₹199 | Promo: KUNAFA50). Please confirm availability!",
+    "timestamp": "2026-10-14T11:45:00.000Z",
+    "status": "Completed"
+  },
+  {
+    "id": "inq-1728900300000",
+    "customerName": "Suresh Kumar",
+    "customerPhone": "9703034567",
+    "itemName": "Neapolitan Margarita Pizza",
+    "category": "Artisanal Pizzas",
+    "price": 169,
+    "inquiryType": "Offer Banner",
+    "promoCode": "PIZZAFEST",
+    "message": "Hello Coffee Land (Sangivalasa, Vizag)! I am interested in ordering/inquiring about: *Neapolitan Margarita Pizza* (Price: ₹169 | Promo: PIZZAFEST). Please confirm availability!",
+    "timestamp": "2026-10-14T13:20:00.000Z",
+    "status": "Inquired"
+  }
+]

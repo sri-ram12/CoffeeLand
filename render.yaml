@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: coffeeland-resto-cafe
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: ADMIN_PASSWORD
+        value: coffeeland2024
+      - key: ADMIN_PIN
+        value: 954252
