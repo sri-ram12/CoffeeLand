@@ -57,12 +57,21 @@ function writeJson(filename, data) {
 // 1. SYSTEM HEALTH & ADMIN AUTHENTICATION
 // ==========================================
 app.get('/api/health', (req, res) => {
+  const uptimeSec = Math.floor(process.uptime());
+  const hours = Math.floor(uptimeSec / 3600);
+  const minutes = Math.floor((uptimeSec % 3600) / 60);
+  const seconds = uptimeSec % 60;
   res.json({
     status: 'online',
     service: 'Coffee Land Resto & Cafe Fullstack API',
     location: 'Temples Bypass Road, Sangivalasa, Visakhapatnam',
     serverTime: new Date().toISOString(),
-    uptime: process.uptime()
+    uptimeSeconds: uptimeSec,
+    uptimeFormatted: `${hours}h ${minutes}m ${seconds}s`,
+    keepAlive: 'active_24_7',
+    preventSleep: true,
+    pingIntervalMinutes: 8,
+    renderUrl: 'https://coffeeland-4yy7.onrender.com'
   });
 });
 
@@ -446,4 +455,47 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`➜ Admin:   http://localhost:${PORT}/admin`);
   console.log(`➜ API:     http://localhost:${PORT}/api/health`);
   console.log(`====================================================`);
+
+  // ==========================================
+  // 8. 24/7 ANTI-SLEEP KEEP-ALIVE HEARTBEAT
+  // ==========================================
+  // Render Free tier spins down web services after 15 minutes of inactivity.
+  // This automated loop pings the public HTTPS endpoint every 8 minutes
+  // so the service stays active, warm, and responsive 24/7 with 0s latency!
+  const targetHost = process.env.RENDER_EXTERNAL_URL || 'https://coffeeland-4yy7.onrender.com';
+  const PING_INTERVAL = 8 * 60 * 1000; // 8 minutes (well before Render's 15-minute idle limit)
+
+  console.log(`[Keep-Alive] 24/7 Anti-Sleep Heartbeat monitoring: ${targetHost}`);
+
+  // Initial warmup ping 15 seconds after launch
+  setTimeout(() => {
+    pingService(targetHost);
+  }, 15000);
+
+  // Recurring ping every 8 minutes
+  setInterval(() => {
+    pingService(targetHost);
+  }, PING_INTERVAL);
 });
+
+async function pingService(host) {
+  try {
+    const pingUrl = `${host.replace(/\/$/, '')}/api/health`;
+    const res = await fetch(pingUrl, {
+      headers: { 
+        'User-Agent': 'CoffeeLand-24-7-KeepAlive-Bot/2.0',
+        'Cache-Control': 'no-cache'
+      },
+      signal: AbortSignal.timeout(15000) // 15s timeout
+    });
+    if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+      console.log(`[Keep-Alive] ✓ 24/7 Heartbeat Ping SUCCESS at ${new Date().toLocaleTimeString('en-IN')} (Uptime: ${data.uptimeSeconds || 0}s) - Server kept awake & hot.`);
+    } else {
+      console.warn(`[Keep-Alive] Ping received HTTP ${res.status}`);
+    }
+  } catch (err) {
+    // Normal during initial boot or local dev without internet
+    console.log(`[Keep-Alive] Heartbeat check (${err.message})`);
+  }
+}

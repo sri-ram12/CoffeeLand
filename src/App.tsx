@@ -74,6 +74,16 @@ export const App: React.FC = () => {
     }
   }, [allProducts, customProducts.length]);
 
+  // Automated 24/7 Keep-Alive heartbeat while storefront is active
+  useEffect(() => {
+    const ping = () => {
+      fetch('/api/health', { cache: 'no-store' }).catch(() => {});
+    };
+    ping();
+    const interval = setInterval(ping, 5 * 60 * 1000); // every 5 minutes
+    return () => clearInterval(interval);
+  }, []);
+
   const handleUpdateProduct = (id: string, updatedFields: Partial<Product>) => {
     setCustomProducts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, ...updatedFields } : p))

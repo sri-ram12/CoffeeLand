@@ -4,18 +4,45 @@ import { Review } from '../types/review';
 
 const API_BASE = '/api';
 
+export interface ServerHealthResponse {
+  status: string;
+  service?: string;
+  location?: string;
+  serverTime?: string;
+  uptimeSeconds?: number;
+  uptimeFormatted?: string;
+  keepAlive?: string;
+  preventSleep?: boolean;
+  pingIntervalMinutes?: number;
+  renderUrl?: string;
+}
+
 /**
  * Unified Fullstack API Client for Coffee Land Resto & Cafe
  * Handles communication with Express backend with automatic fallback
  */
 export const api = {
   // Check backend server health
-  async checkHealth(): Promise<{ status: string; uptime?: number } | null> {
+  async checkHealth(): Promise<ServerHealthResponse | null> {
     try {
-      const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(3000) });
+      const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(5000) });
       if (res.ok) return await res.json();
     } catch {
       // Backend offline or starting up
+    }
+    return null;
+  },
+
+  // Manual trigger for keep-alive ping with cache busting
+  async pingKeepAlive(): Promise<ServerHealthResponse | null> {
+    try {
+      const res = await fetch(`${API_BASE}/health?t=${Date.now()}`, {
+        headers: { 'Cache-Control': 'no-cache' },
+        signal: AbortSignal.timeout(10000)
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Backend offline or timeout
     }
     return null;
   },

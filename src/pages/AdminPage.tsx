@@ -30,12 +30,18 @@ import {
   LogOut,
   Star,
   Clock,
-  Eye
+  Eye,
+  Radio,
+  Activity,
+  Zap,
+  Server,
+  Copy,
+  CheckCheck
 } from 'lucide-react';
 import { OfferBanner, BannerColorTheme, WhatsAppInquiry } from '../types/banner';
 import { Product } from '../types/product';
 import { Review } from '../types/review';
-import { api } from '../services/api';
+import { api, ServerHealthResponse } from '../services/api';
 import { exportInquiriesToExcel, exportBannersToExcel, exportMenuToExcel } from '../services/excelExport';
 
 const COLOR_THEMES: { id: BannerColorTheme; label: string; previewClass: string }[] = [
@@ -58,10 +64,14 @@ export const AdminPage: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(false);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<'banners' | 'menu' | 'inquiries' | 'excel' | 'reviews'>('banners');
+  const [activeTab, setActiveTab] = useState<'banners' | 'menu' | 'inquiries' | 'excel' | 'reviews' | 'keepalive'>('banners');
 
-  // Backend Health
+  // Backend Health & Keep-Alive State
   const [serverStatus, setServerStatus] = useState<'connected' | 'checking' | 'local'>('checking');
+  const [healthData, setHealthData] = useState<ServerHealthResponse | null>(null);
+  const [isTestingPing, setIsTestingPing] = useState(false);
+  const [pingResult, setPingResult] = useState<{ success: boolean; latencyMs?: number; message?: string; timestamp?: string } | null>(null);
+  const [copiedUrl, setCopiedUrl] = useState(false);
 
   // Data states
   const [banners, setBanners] = useState<OfferBanner[]>([]);
@@ -96,11 +106,44 @@ export const AdminPage: React.FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Test Ping trigger
+  const handleTestPing = async () => {
+    setIsTestingPing(true);
+    const start = performance.now();
+    const res = await api.pingKeepAlive();
+    const latency = Math.round(performance.now() - start);
+    if (res && res.status === 'online') {
+      setHealthData(res);
+      setServerStatus('connected');
+      setPingResult({
+        success: true,
+        latencyMs: latency,
+        message: `HTTP 200 OK • Latency: ${latency}ms • Uptime: ${res.uptimeFormatted || (res.uptimeSeconds ? res.uptimeSeconds + 's' : 'Active')}`,
+        timestamp: new Date().toLocaleTimeString('en-IN')
+      });
+    } else {
+      setPingResult({
+        success: false,
+        latencyMs: latency,
+        message: `Ping timed out or received unexpected status (${latency}ms)`,
+        timestamp: new Date().toLocaleTimeString('en-IN')
+      });
+    }
+    setIsTestingPing(false);
+  };
+
+  const handleCopyHealthUrl = () => {
+    navigator.clipboard.writeText('https://coffeeland-4yy7.onrender.com/api/health');
+    setCopiedUrl(true);
+    setTimeout(() => setCopiedUrl(false), 2500);
+  };
+
   // Initial load
   useEffect(() => {
     async function loadData() {
       // Check server health
       const health = await api.checkHealth();
+      if (health) setHealthData(health);
       setServerStatus(health ? 'connected' : 'local');
 
       // Fetch banners
@@ -361,10 +404,15 @@ export const AdminPage: React.FC = () => {
             </Link>
 
             {/* Server Status Indicator */}
-            <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold">
+            <button
+              onClick={() => setActiveTab('keepalive')}
+              className="hidden md:flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+              title="Click to view 24/7 Server Keep-Alive & Cloud Monitor"
+            >
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>{serverStatus === 'connected' ? 'Backend Live (Express API)' : 'Local Storage Mode'}</span>
-            </div>
+              <span>{serverStatus === 'connected' ? '24/7 Server Live' : 'Checking Cloud...'}</span>
+              <Activity className="w-3.5 h-3.5 text-emerald-700" />
+            </button>
           </div>
 
           {/* Quick Actions: View Site & Logout */}
@@ -503,6 +551,18 @@ export const AdminPage: React.FC = () => {
           >
             <Star className="w-4 h-4" />
             <span>Guest Photo Reviews</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('keepalive')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${
+              activeTab === 'keepalive'
+                ? 'bg-emerald-700 text-white shadow-md'
+                : 'bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300'
+            }`}
+          >
+            <Activity className="w-4 h-4 text-emerald-500 animate-pulse" />
+            <span>24/7 Server Keep-Alive</span>
           </button>
         </div>
 
@@ -1115,6 +1175,249 @@ export const AdminPage: React.FC = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 6: 24/7 SERVER KEEP-ALIVE & CLOUD UPTIME */}
+        {/* ======================================================== */}
+        {activeTab === 'keepalive' && (
+          <div className="space-y-6">
+            {/* Status Header Banner */}
+            <div className="p-6 rounded-3xl bg-linear-to-r from-emerald-900 via-emerald-800 to-espresso-950 text-white shadow-lg relative overflow-hidden">
+              <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold mb-3">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span>24/7 Zero-Sleep Mode Active</span>
+                  </div>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    Render Cloud Anti-Sleep Command Center
+                  </h3>
+                  <p className="text-xs sm:text-sm text-emerald-100/80 mt-1 max-w-2xl leading-relaxed">
+                    Prevent Render from sleeping after 15 minutes of inactivity. Keep your food menu, QR codes, and customer ordering instantly responsive with 0-second cold-start latency.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={handleTestPing}
+                    disabled={isTestingPing}
+                    className="px-5 py-3 rounded-2xl bg-white hover:bg-emerald-50 text-emerald-950 font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+                  >
+                    <RefreshCw className={`w-4 h-4 text-emerald-700 ${isTestingPing ? 'animate-spin' : ''}`} />
+                    <span>{isTestingPing ? 'Sending Ping...' : 'Send Test Ping Now'}</span>
+                  </button>
+
+                  <button
+                    onClick={handleCopyHealthUrl}
+                    className="px-5 py-3 rounded-2xl bg-emerald-600/40 hover:bg-emerald-600/60 text-white font-bold text-xs sm:text-sm border border-emerald-400/30 shadow-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
+                  >
+                    {copiedUrl ? <CheckCheck className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
+                    <span>{copiedUrl ? 'Copied Health URL!' : 'Copy Health URL'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {pingResult && (
+                <div className={`mt-5 p-3.5 rounded-xl text-xs font-mono border flex items-center justify-between ${
+                  pingResult.success ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-200' : 'bg-red-950/60 border-red-500/40 text-red-200'
+                }`}>
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{pingResult.message}</span>
+                  </span>
+                  <span className="text-[10px] opacity-75">{pingResult.timestamp}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Diagnostic Metrics */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-5 rounded-2xl bg-white border border-terracotta/20 shadow-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-coffee-600 uppercase">Server Status</span>
+                  <span className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700">
+                    <Activity className="w-4 h-4" />
+                  </span>
+                </div>
+                <div className="font-serif text-xl font-bold text-espresso-950 flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{serverStatus === 'connected' ? 'ONLINE 24/7' : 'Connecting...'}</span>
+                </div>
+                <span className="text-[10px] text-coffee-600 block mt-1">
+                  Fullstack Node.js + Express API
+                </span>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-white border border-terracotta/20 shadow-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-coffee-600 uppercase">Current Uptime</span>
+                  <span className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-800">
+                    <Clock className="w-4 h-4" />
+                  </span>
+                </div>
+                <div className="font-serif text-xl font-bold text-espresso-950">
+                  {healthData?.uptimeFormatted || (healthData?.uptimeSeconds ? `${Math.floor(healthData.uptimeSeconds / 60)} mins` : 'Live')}
+                </div>
+                <span className="text-[10px] text-coffee-600 block mt-1">
+                  Continuous session time
+                </span>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-white border border-terracotta/20 shadow-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-coffee-600 uppercase">Internal Heartbeat</span>
+                  <span className="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center text-purple-800">
+                    <Zap className="w-4 h-4" />
+                  </span>
+                </div>
+                <div className="font-serif text-xl font-bold text-espresso-950">
+                  Every 8 Mins
+                </div>
+                <span className="text-[10px] text-emerald-700 font-semibold block mt-1">
+                  Auto self-ping prevents 15m idle limit
+                </span>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-white border border-terracotta/20 shadow-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-coffee-600 uppercase">Target Endpoint</span>
+                  <span className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center text-blue-800">
+                    <Server className="w-4 h-4" />
+                  </span>
+                </div>
+                <div className="font-mono text-xs font-bold text-espresso-950 truncate" title="https://coffeeland-4yy7.onrender.com/api/health">
+                  /api/health
+                </div>
+                <span className="text-[10px] text-coffee-600 block mt-1">
+                  coffeeland-4yy7.onrender.com
+                </span>
+              </div>
+            </div>
+
+            {/* Permanent 24/7 Setup Guide (100% Free Forever) */}
+            <div className="p-6 rounded-3xl bg-white border border-terracotta/20 shadow-xs space-y-6">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold mb-2">
+                  <Flame className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Permanent 24/7 Solution (Zero Downtime)</span>
+                </div>
+                <h4 className="font-serif text-xl font-bold text-espresso-950">
+                  Why Render Sleeps & How To Keep It Permanently On
+                </h4>
+                <p className="text-xs text-coffee-700 mt-1 leading-relaxed max-w-3xl">
+                  Render's Free tier puts web services to sleep after <strong>15 minutes of zero inbound traffic</strong>. When someone visits, they see the black "Render Application Loading / Service Waking Up" screen for 45-60 seconds.
+                  <br className="hidden sm:inline" />
+                  Our backend code already pings itself every 8 minutes. To ensure the server <strong>instantly stays awake even across server restarts or redeploys</strong>, link a free external cloud pinger below (takes 1 minute, 100% free forever):
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {/* Method 1: Cron-Job.org */}
+                <div className="p-5 rounded-2xl bg-amber-50/50 border border-amber-900/15 flex flex-col justify-between space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sm text-espresso-950 flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-amber-500 text-white font-bold text-xs flex items-center justify-center">1</span>
+                        <span>Cron-Job.org (Recommended)</span>
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                        100% Free Forever
+                      </span>
+                    </div>
+
+                    <ol className="text-xs text-coffee-800 space-y-2 list-decimal list-inside pl-1 leading-relaxed">
+                      <li>Go to <a href="https://cron-job.org" target="_blank" rel="noopener noreferrer" className="text-terracotta font-bold hover:underline">cron-job.org</a> (free signup).</li>
+                      <li>Click <strong>"Create Cronjob"</strong>.</li>
+                      <li>Title: <strong>CoffeeLand Keep-Alive</strong>.</li>
+                      <li>URL: <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200 text-terracotta font-mono text-[11px]">https://coffeeland-4yy7.onrender.com/api/health</code></li>
+                      <li>Schedule: <strong>Every 10 minutes</strong> (or Every 5 minutes).</li>
+                      <li>Click <strong>Create</strong>. Done!</li>
+                    </ol>
+                  </div>
+
+                  <a
+                    href="https://cron-job.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 rounded-xl bg-terracotta hover:bg-terracotta-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors"
+                  >
+                    <span>Open Cron-Job.org</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+
+                {/* Method 2: UptimeRobot */}
+                <div className="p-5 rounded-2xl bg-emerald-50/50 border border-emerald-900/15 flex flex-col justify-between space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sm text-espresso-950 flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">2</span>
+                        <span>UptimeRobot</span>
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                        50 Free Monitors
+                      </span>
+                    </div>
+
+                    <ol className="text-xs text-coffee-800 space-y-2 list-decimal list-inside pl-1 leading-relaxed">
+                      <li>Go to <a href="https://uptimerobot.com" target="_blank" rel="noopener noreferrer" className="text-emerald-700 font-bold hover:underline">uptimerobot.com</a> (free account).</li>
+                      <li>Click <strong>"+ Add New Monitor"</strong>.</li>
+                      <li>Monitor Type: <strong>HTTP(s)</strong>.</li>
+                      <li>Friendly Name: <strong>CoffeeLand 24/7</strong>.</li>
+                      <li>URL: <code className="bg-white px-1.5 py-0.5 rounded border border-emerald-200 text-emerald-800 font-mono text-[11px]">https://coffeeland-4yy7.onrender.com/api/health</code></li>
+                      <li>Monitoring Interval: <strong>5 minutes</strong>.</li>
+                      <li>Click <strong>Create Monitor</strong>. Done!</li>
+                    </ol>
+                  </div>
+
+                  <a
+                    href="https://uptimerobot.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors"
+                  >
+                    <span>Open UptimeRobot.com</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Endpoint Health Verification Card */}
+              <div className="p-4 rounded-2xl bg-amber-100/60 border border-amber-900/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-terracotta shrink-0 shadow-2xs">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="font-bold text-xs text-espresso-950 block">Direct Public Ping Endpoint</span>
+                    <span className="font-mono text-xs text-terracotta break-all">https://coffeeland-4yy7.onrender.com/api/health</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <a
+                    href="https://coffeeland-4yy7.onrender.com/api/health"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2 rounded-xl bg-white hover:bg-amber-50 text-espresso-900 border border-terracotta/30 text-xs font-bold flex items-center gap-1.5 transition-colors"
+                  >
+                    <span>View JSON</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-terracotta" />
+                  </a>
+
+                  <button
+                    onClick={handleCopyHealthUrl}
+                    className="px-3.5 py-2 rounded-xl bg-terracotta hover:bg-terracotta-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  >
+                    {copiedUrl ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedUrl ? 'Copied!' : 'Copy'}</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
