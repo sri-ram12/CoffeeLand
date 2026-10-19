@@ -23,6 +23,29 @@ export interface OfferBanner {
   category?: string;
 }
 
+export type BillboardDesignTheme = 'white-brick' | 'burgundy-wave' | 'navy-torn';
+
+export interface BillboardBanner {
+  id: string;
+  designTheme?: BillboardDesignTheme; // 'white-brick' | 'burgundy-wave' | 'navy-torn'
+  highlightText: string;     // e.g. "SUPER" | "FRESH" | "TODAY'S"
+  scriptText: string;        // e.g. "Delicious" | "Special fresh" | "Today's Special"
+  foodName: string;          // e.g. "Pizza" | "Burger" | "PIZZA"
+  menuTag: string;           // e.g. "MENU" | "SPECIAL"
+  limitedOfferTag: string;   // e.g. "LIMITED OFFER" | "LIMITED TIME OFFER"
+  discountBadgeText: string; // e.g. "50% OFF" | "10 $" | "15 $" | "₹149"
+  discountBadgeSub: string;  // e.g. "Get Up To" | "Only" | "Price"
+  deliveryNote: string;      // e.g. "Free Home Delivery" | "FREE DELIVERY"
+  phone: string;             // e.g. "323-517-4946" | "0123 456 7890" | "8568 0269 5476"
+  websiteUrl: string;        // e.g. "WWW.COFFEELAND.IN"
+  buttonText: string;        // e.g. "ORDER NOW"
+  image: string;             // e.g. "/banners/pizza_board.png" | "/banners/burger_double.png" | "/banners/pizza_pan.png"
+  accentColor?: string;      // e.g. "#E52525" | "#F59E0B" | "#0A1931"
+  isActive: boolean;
+  originalPrice?: number;
+  offerPrice?: number;
+}
+
 export interface WhatsAppInquiry {
   id: string;
   customerName: string;

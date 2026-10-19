@@ -82,32 +82,37 @@ export const Footer: React.FC<FooterProps> = ({ onOpenQRCode, onOpenReviewModal,
               </li>
               <li>
                 <button onClick={() => scrollTo('#menu')} className="hover:text-terracotta transition-colors">
-                  Interactive Catalog
+                  Explore Menu by Category
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollTo('#full-menu-showcase')} className="hover:text-terracotta transition-colors">
-                  Official Menu (PDF)
+                <button onClick={() => scrollTo('#live-reels')} className="hover:text-terracotta transition-colors">
+                  Live Preparation Reels
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollTo('#reviews')} className="hover:text-terracotta transition-colors">
-                  Ratings & Reviews (4.7 ★)
+                <button onClick={() => scrollTo('#featured')} className="hover:text-terracotta transition-colors">
+                  Featured Specials
                 </button>
               </li>
               <li>
                 <button onClick={() => scrollTo('#about')} className="hover:text-terracotta transition-colors">
-                  Our Story & Location
+                  Our Story & Ambience
                 </button>
               </li>
               <li>
                 <button onClick={() => scrollTo('#gallery')} className="hover:text-terracotta transition-colors">
-                  Ambience & Photos
+                  Shop Ambience & Gallery
                 </button>
               </li>
               <li>
                 <button onClick={() => scrollTo('#contact')} className="hover:text-terracotta transition-colors">
                   Location & Contact
+                </button>
+              </li>
+              <li>
+                <button onClick={() => scrollTo('#reviews')} className="hover:text-terracotta transition-colors font-bold text-terracotta">
+                  Ratings & Reviews (4.7 ★)
                 </button>
               </li>
             </ul>
@@ -137,12 +142,16 @@ export const Footer: React.FC<FooterProps> = ({ onOpenQRCode, onOpenReviewModal,
             <div className="space-y-2 text-xs text-coffee-800 font-medium">
               <div className="flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-terracotta flex-shrink-0 mt-0.5" />
-                <span>Temples Bypass Road, Near Sangivalasa, Thagarapuvalasa, Vizag — 531162</span>
+                <span>Temples By Pass Road, near 3, Thagarapuvalasa, Sanghivalasa, Bheemunipatnam, Vizag — 531162</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-terracotta flex-shrink-0" />
+                <a href="tel:+919032992524" className="hover:text-terracotta font-bold">
+                  +91 90329 92524
+                </a>
+                <span className="text-coffee-400">/</span>
                 <a href="tel:+919542525665" className="hover:text-terracotta font-bold">
-                  +91 95425 25665 / +91 98765 43210
+                  +91 95425 25665
                 </a>
               </div>
               <div className="flex items-center gap-2">
@@ -163,7 +172,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenQRCode, onOpenReviewModal,
                   <span>Download Official Menu PDF</span>
                 </a>
                 <a
-                  href="https://maps.app.goo.gl/6JACSygk7XNrQ22x5"
+                  href="https://maps.app.goo.gl/Xkpi9H6ueRbUqH4UA"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-coffee-700 hover:text-terracotta font-semibold"

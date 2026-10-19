@@ -75,12 +75,12 @@ export const ContactSection: React.FC = () => {
                       Official Address (Google Maps)
                     </h4>
                     <p className="text-coffee-800 leading-relaxed text-xs sm:text-sm font-medium">
-                      Temples Bypass Road, Near Sangivalasa,<br />
-                      Thagarapuvalasa, Visakhapatnam (Vizag),<br />
+                      Temples By Pass Road, near 3, Thagarapuvalasa,<br />
+                      Sanghivalasa, Bheemunipatnam, Visakhapatnam,<br />
                       Andhra Pradesh — 531162
                     </p>
                     <a
-                      href="https://maps.app.goo.gl/6JACSygk7XNrQ22x5"
+                      href="https://maps.app.goo.gl/Xkpi9H6ueRbUqH4UA"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-terracotta hover:underline mt-1.5"
@@ -117,12 +117,12 @@ export const ContactSection: React.FC = () => {
                       Phone Numbers
                     </h4>
                     <p className="text-coffee-800 text-xs sm:text-sm font-medium">
-                      <a href="tel:+919542525665" className="hover:text-terracotta font-bold text-espresso-950">
-                        +91 95425 25665
+                      <a href="tel:+919032992524" className="hover:text-terracotta font-bold text-espresso-950">
+                        +91 90329 92524
                       </a>
                       <span className="mx-2 text-coffee-400">•</span>
-                      <a href="tel:+919876543210" className="hover:text-terracotta">
-                        +91 98765 43210
+                      <a href="tel:+919542525665" className="hover:text-terracotta font-medium">
+                        +91 95425 25665
                       </a>
                     </p>
                   </div>
@@ -167,12 +167,12 @@ export const ContactSection: React.FC = () => {
                 <span className="font-bold uppercase tracking-wider text-terracotta">
                   Live Google Map (Sangivalasa, Vizag)
                 </span>
-                <span className="font-bold text-espresso-950">4.7 ★ (260+ Reviews)</span>
+                <span className="font-bold text-espresso-950">4.7 ★ (263+ Reviews)</span>
               </div>
               <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden border border-terracotta/20 shadow-xs">
                 <iframe
                   title="Coffee Land Google Map Location"
-                  src="https://maps.google.com/maps?q=17.9230488,83.4193173&hl=en&z=16&output=embed"
+                  src="https://maps.google.com/maps?q=17.9230437,83.4193173&hl=en&z=17&output=embed"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -185,7 +185,7 @@ export const ContactSection: React.FC = () => {
               <div className="flex items-center justify-between pt-1">
                 <span className="text-[11px] text-coffee-700">Near ANITS Engineering College, NH16 Bypass</span>
                 <a
-                  href="https://maps.app.goo.gl/6JACSygk7XNrQ22x5"
+                  href="https://maps.app.goo.gl/Xkpi9H6ueRbUqH4UA"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs font-bold text-terracotta hover:underline"

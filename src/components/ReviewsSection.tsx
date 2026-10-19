@@ -80,7 +80,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 ))}
               </div>
               <p className="text-xs sm:text-sm text-coffee-700">
-                Based on <strong className="text-espresso-950">260+ Google reviews</strong> &{' '}
+                Based on <strong className="text-espresso-950">263+ Google reviews</strong> &{' '}
                 <strong className="text-terracotta">{stats.totalPhotos}</strong> guest photos
               </p>
             </div>

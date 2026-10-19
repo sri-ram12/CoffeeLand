@@ -86,30 +86,19 @@ export const WholeMenuShowcase: React.FC<WholeMenuShowcaseProps> = ({
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-caramel/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Banner from coffelandmenu.pdf with Circular Logo */}
-        <div className="text-center max-w-4xl mx-auto mb-12">
-          {/* Circular Logo & Ribbon */}
-          <div className="flex flex-col items-center mb-3">
-            <img
-              src="/logo.png"
-              alt="Coffee Land Logo"
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-3 border-terracotta shadow-lg mb-3"
-            />
-            <div className="inline-block bg-terracotta border-2 border-terracotta-600 px-6 py-2 rounded-xl shadow-md">
-              <span className="font-heading font-bold text-white tracking-widest text-xs sm:text-sm uppercase">
-                GOOD FOOD • GREAT COFFEE • BETTER TOGETHER
-              </span>
-            </div>
+        {/* Whole Menu Showcase Header */}
+        <div className="text-center max-w-4xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-terracotta/10 border border-terracotta/25 text-terracotta text-xs font-bold uppercase tracking-widest mb-3">
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>Official Printed Menu (6 Pages)</span>
           </div>
 
-          <h2 className="font-display tracking-wider text-4xl sm:text-5xl lg:text-6xl text-espresso-950 uppercase mb-2">
-            COFFEE LAND RESTO & CAFE
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-espresso-950 mb-3">
+            Browse All 150+ Dishes & Beverages
           </h2>
-          <p className="font-handwriting text-2xl sm:text-3xl text-terracotta font-bold mb-3">
-            Official Menu & Culinary Collection • Vizag
-          </p>
-          <p className="text-sm sm:text-base text-coffee-800 max-w-2xl mx-auto leading-relaxed">
-            Every handcrafted specialty from our official printed menu — explore all 6 pages with authentic pricing, chef recipes, and download options.
+
+          <p className="text-sm sm:text-base text-coffee-800 max-w-xl mx-auto">
+            View full scanned menu pages, filter by individual page, or download the original high-resolution menu PDF.
           </p>
 
           {/* 5 Brand Pillars from PDF Page 1 */}

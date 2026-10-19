@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { FastAccessDock } from './components/FastAccessDock';
-import { WholeMenuShowcase } from './components/WholeMenuShowcase';
 import { CategoryFilter } from './components/CategoryFilter';
 import { ProductGrid } from './components/ProductGrid';
 import { ProductDetailsModal } from './components/ProductDetailsModal';
@@ -23,7 +22,7 @@ import { useReviews } from './hooks/useReviews';
 import { useBanners } from './hooks/useBanners';
 import { OfferBanner } from './types/banner';
 import { Product } from './types/product';
-import { Utensils } from 'lucide-react';
+import { Utensils, Download } from 'lucide-react';
 
 export const App: React.FC = () => {
   const { favorites, toggleFavorite, isFavorite, favoriteCount } = useFavorites();
@@ -55,6 +54,13 @@ export const App: React.FC = () => {
     deleteBanner,
     toggleBannerStatus,
     resetBanners,
+    billboardBanners,
+    activeBillboardBanner,
+    addBillboardBanner,
+    updateBillboardBanner,
+    deleteBillboardBanner,
+    toggleBillboardBannerStatus,
+    resetBillboardBanners,
     inquiries,
     sendWhatsAppInquiry,
     deleteInquiry,
@@ -152,23 +158,15 @@ export const App: React.FC = () => {
         onSearchChange={setSearchQuery}
       />
 
-      {/* Cinematic Hero Section with Animated Spotlight & Rectangular Offer Banners */}
+      {/* Cinematic Hero Section with Animated Spotlight & Billboard Banner */}
       <HeroSection
-        banners={activeBanners}
+        billboardBanner={activeBillboardBanner}
+        billboardBanners={billboardBanners}
         onOpenAdmin={() => setIsAdminModalOpen(true)}
-        onClaimOffer={handleClaimOffer}
         onOrderWhatsApp={handleHeroOrderWhatsApp}
       />
 
-      {/* Official Whole Menu Showcase (from coffelandmenu.pdf) */}
-      <WholeMenuShowcase
-        products={allProducts}
-        onSelectProduct={setSelectedProduct}
-        isFavorite={isFavorite}
-        onToggleFavorite={toggleFavorite}
-      />
-
-      {/* Interactive Catalog & Filter Section */}
+      {/* Interactive Catalog & Filter Section (Main Menu Explorer) */}
       <section
         id="menu"
         ref={menuSectionRef}
@@ -186,11 +184,23 @@ export const App: React.FC = () => {
               <span>Interactive Food & Beverage Catalog</span>
             </div>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-espresso-950 mb-4">
-              Explore By Category
+              Explore Menu By Category
             </h2>
             <p className="text-sm sm:text-base text-coffee-800 max-w-2xl mx-auto leading-relaxed">
               Filter by dietary preference, price, or flavor profile across all 150+ authentic items from Coffee Land Resto & Cafe.
             </p>
+            {/* Quick Action: Download Official Menu PDF */}
+            <div className="mt-5 flex items-center justify-center gap-3">
+              <a
+                href="/coffelandmenu.pdf"
+                download="CoffeeLand-Menu.pdf"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white hover:bg-terracotta hover:text-white border border-terracotta/30 text-xs font-bold text-espresso-900 transition-all shadow-xs group"
+                title="Download original printed menu PDF"
+              >
+                <Download className="w-3.5 h-3.5 text-terracotta group-hover:text-white transition-colors" />
+                <span>Download Original Menu PDF</span>
+              </a>
+            </div>
           </div>
 
           {/* Interactive Filtering and Category Controls */}
@@ -229,15 +239,7 @@ export const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Customer Ratings & Photo Reviews Section */}
-      <ReviewsSection
-        reviews={reviews}
-        stats={stats}
-        onOpenReviewModal={() => setIsReviewModalOpen(true)}
-        onToggleLike={toggleLikeReview}
-      />
-
-      {/* Live Food Video Reels (Pinterest Showcase for Pizza, Coffee, Burger, Mocktails, Fried Chicken, Kunafa) */}
+      {/* Live Food Video Reels (Autoplay one by one through autoscrolling) */}
       <LiveFoodReels
         onOrderOnWhatsApp={(dish, price, cat) =>
           sendWhatsAppInquiry({
@@ -266,6 +268,14 @@ export const App: React.FC = () => {
 
       {/* Contact & Hours Section */}
       <ContactSection />
+
+      {/* Customer Ratings & Photo Reviews Section (Placed at End of Website) */}
+      <ReviewsSection
+        reviews={reviews}
+        stats={stats}
+        onOpenReviewModal={() => setIsReviewModalOpen(true)}
+        onToggleLike={toggleLikeReview}
+      />
 
       {/* Footer with Admin Console Link */}
       <Footer
@@ -297,10 +307,16 @@ export const App: React.FC = () => {
         products={allProducts}
       />
 
-      {/* Admin Panel Modal for Owner (Offer Banners, Excel Reports, WhatsApp Logs, Food Items) */}
+      {/* Admin Panel Modal for Owner (Billboard Banner, Excel Reports, WhatsApp Logs, Food Items) */}
       <AdminPanelModal
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
+        billboardBanners={billboardBanners}
+        onAddBillboardBanner={addBillboardBanner}
+        onUpdateBillboardBanner={updateBillboardBanner}
+        onDeleteBillboardBanner={deleteBillboardBanner}
+        onToggleBillboardBannerStatus={toggleBillboardBannerStatus}
+        onResetBillboardBanners={resetBillboardBanners}
         banners={banners}
         onAddBanner={addBanner}
         onUpdateBanner={updateBanner}

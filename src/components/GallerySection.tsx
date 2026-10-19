@@ -13,59 +13,59 @@ interface GalleryItem {
 const GALLERY_ITEMS: GalleryItem[] = [
   {
     id: 'g-1',
-    title: 'Artisanal Latte Art',
-    category: 'coffee',
-    image: 'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=1200&q=80',
-    caption: 'Handcrafted rosetta pattern poured into silky microfoam and Arabica espresso.',
+    title: 'Coffeeland Exterior & Iconic Van',
+    category: 'ambience',
+    image: '/shop-photos/shop_exterior_van.jpg',
+    caption: 'Our signature yellow Volkswagen van cafe facade, welcoming entrance, and official brand billboard on Temples Bypass Rd.',
   },
   {
     id: 'g-2',
-    title: 'Warm Wooden Seating Nook',
+    title: 'Good Vibes Lounge & Wall Art',
     category: 'ambience',
-    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80',
-    caption: 'Our cozy interior with natural timber, warm lighting, and greenery.',
+    image: '/shop-photos/shop_interior_counter.jpg',
+    caption: 'Modern indoor dining room featuring "Eat like you love yourself" wall mural, "Good Vibes Only" neon hedge, and cozy book library.',
   },
   {
     id: 'g-3',
-    title: 'Golden Flaky Croissants',
+    title: 'Brioche Burger & Garlic Bread Platter',
     category: 'bakery-food',
-    image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=1200&q=80',
-    caption: '27-layer butter viennoiserie baked golden and crisp every morning.',
+    image: '/shop-photos/shop_food_dining.jpg',
+    caption: 'Freshly toasted gourmet brioche burger served with crispy seasoned french fries, house dips, and melted cheese garlic toasts.',
   },
   {
     id: 'g-4',
-    title: 'Espresso Extraction & Crema',
-    category: 'coffee',
-    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1200&q=80',
-    caption: 'Rich golden crema extracted at 9 bars of pressure from single-origin roast.',
+    title: 'Evening Purple Neon Ambient Glow',
+    category: 'ambience',
+    image: '/shop-photos/shop_ambience_neon.jpg',
+    caption: 'Relaxing evening atmosphere with air-conditioned seating, contemporary pendant lights, and vibrant neon decor.',
   },
   {
     id: 'g-5',
-    title: 'Stone-Baked Margherita',
-    category: 'bakery-food',
-    image: 'https://images.unsplash.com/photo-1604382355076-af4b0eb60143?auto=format&fit=crop&w=1200&q=80',
-    caption: 'San Marzano plum tomatoes, fresh buffalo mozzarella, and fragrant sweet basil.',
+    title: 'Full Cafe Facade & Entrance Path',
+    category: 'ambience',
+    image: '/shop-photos/shop_seating_vibe.jpg',
+    caption: 'Complete front elevation of the two-storey Coffeeland building in Thagarapuvalasa with traditional floral kolam walkway.',
   },
   {
     id: 'g-6',
-    title: 'Evening Cafe Lights',
-    category: 'ambience',
-    image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80',
-    caption: 'Soft ambient glow as the sun sets over the Coffee Land courtyard.',
+    title: 'Stone-Baked Handcrafted Pizza',
+    category: 'bakery-food',
+    image: 'https://images.unsplash.com/photo-1604382355076-af4b0eb60143?auto=format&fit=crop&w=1200&q=80',
+    caption: 'Crispy thin crust stone-baked pizza loaded with fresh mozzarella, herbs, and gourmet toppings.',
   },
   {
     id: 'g-7',
-    title: 'Warm Buttermilk Pancake Stack',
+    title: 'Belgian Waffle & Fluffy Pancakes',
     category: 'bakery-food',
     image: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=1200&q=80',
-    caption: 'Fluffy griddled pancakes topped with Canadian maple syrup and blueberries.',
+    caption: 'Freshly baked golden Belgian waffles and fluffy buttermilk pancakes drizzled with warm chocolate and syrup.',
   },
   {
     id: 'g-8',
-    title: 'Slow Steeped Cold Brew',
+    title: 'Artisanal Hot & Cold Specialty Coffee',
     category: 'coffee',
-    image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=1200&q=80',
-    caption: '18-hour cold steeped coarse Arabica grounds poured over hand-carved ice.',
+    image: 'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=1200&q=80',
+    caption: 'Single-origin Arabica roasts extracted with dense crema and silky handcrafted microfoam latte art.',
   },
 ];
 
@@ -170,17 +170,17 @@ export const GallerySection: React.FC = () => {
             <div className="lg:col-span-7">
               <div className="relative aspect-video rounded-2xl overflow-hidden border-2 border-terracotta/20 shadow-lg group">
                 <img
-                  src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80"
-                  alt="Coffee Land Cafe Ambience"
+                  src="/shop-photos/shop_interior_counter.jpg"
+                  alt="Coffee Land Cafe Ambience & Interior"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-center justify-center">
                   <a
-                    href="https://maps.app.goo.gl/6JACSygk7XNrQ22x5"
+                    href="https://maps.app.goo.gl/Xkpi9H6ueRbUqH4UA"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-16 h-16 rounded-full bg-terracotta hover:bg-terracotta-600 text-white flex items-center justify-center shadow-xl hover:scale-110 transition-transform cursor-pointer"
-                    title="Watch Cafe Location & Photos on Google Maps"
+                    title="View Coffeeland Photos on Google Maps"
                   >
                     <span className="text-2xl ml-1">▶</span>
                   </a>

@@ -1,8 +1,72 @@
 import { useState, useEffect } from 'react';
-import { OfferBanner, WhatsAppInquiry } from '../types/banner';
+import { OfferBanner, BillboardBanner, WhatsAppInquiry } from '../types/banner';
 
 const BANNERS_STORAGE_KEY = 'coffeeland_offer_banners_v1';
+const BILLBOARD_BANNERS_STORAGE_KEY = 'coffeeland_billboard_banners_v5';
 const INQUIRIES_STORAGE_KEY = 'coffeeland_whatsapp_inquiries_v1';
+
+export const DEFAULT_BILLBOARD_BANNERS: BillboardBanner[] = [
+  {
+    id: 'billboard-1',
+    designTheme: 'white-brick',
+    highlightText: 'SUPER',
+    scriptText: 'Delicious',
+    foodName: 'Pizza',
+    menuTag: 'MENU',
+    limitedOfferTag: 'LIMITED OFFER',
+    discountBadgeText: '50% OFF',
+    discountBadgeSub: 'Get Up To',
+    deliveryNote: 'Free Home Delivery',
+    phone: '323-517-4946',
+    websiteUrl: 'WWW.COFFEELAND.IN',
+    buttonText: 'ORDER NOW',
+    image: '/banners/pizza_board.png',
+    accentColor: '#DC2626',
+    isActive: true,
+    originalPrice: 399,
+    offerPrice: 199
+  },
+  {
+    id: 'billboard-2',
+    designTheme: 'burgundy-wave',
+    highlightText: 'FRESH',
+    scriptText: 'Special fresh',
+    foodName: 'Burger',
+    menuTag: 'SPECIAL',
+    limitedOfferTag: 'LIMITED TIME',
+    discountBadgeText: '10 $',
+    discountBadgeSub: 'Only',
+    deliveryNote: 'Hot & Juicy Double Patty',
+    phone: '0123 456 7890',
+    websiteUrl: 'WWW.COFFEELAND.IN',
+    buttonText: 'ORDER NOW',
+    image: '/banners/burger_double.png',
+    accentColor: '#F59E0B',
+    isActive: true,
+    originalPrice: 249,
+    offerPrice: 149
+  },
+  {
+    id: 'billboard-3',
+    designTheme: 'navy-torn',
+    highlightText: "TODAY'S",
+    scriptText: "Today's Special",
+    foodName: 'PIZZA',
+    menuTag: 'SPECIAL',
+    limitedOfferTag: 'LIMITED TIME OFFER',
+    discountBadgeText: '15 $',
+    discountBadgeSub: 'Price',
+    deliveryNote: 'FREE DELIVERY',
+    phone: '8568 0269 5476',
+    websiteUrl: 'WWW.COFFEELAND.IN',
+    buttonText: 'ORDER NOW',
+    image: '/banners/pizza_pan.png',
+    accentColor: '#FBBF24',
+    isActive: true,
+    originalPrice: 299,
+    offerPrice: 199
+  }
+];
 
 export const DEFAULT_OFFER_BANNERS: OfferBanner[] = [
   {
@@ -29,7 +93,7 @@ export const DEFAULT_OFFER_BANNERS: OfferBanner[] = [
     offerPrice: 199,
     discountLabel: 'FLAT ₹50 OFF',
     promoCode: 'KUNAFA50',
-    image: '/menu-assets/img_p1_0.png',
+    image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9588?auto=format&fit=crop&w=800&q=80',
     themeColor: 'amber',
     isActive: true,
     expiryNote: 'Limited Daily Servings',
@@ -44,7 +108,7 @@ export const DEFAULT_OFFER_BANNERS: OfferBanner[] = [
     offerPrice: 169,
     discountLabel: 'SAVE ₹60',
     promoCode: 'PIZZAFEST',
-    image: '/menu-assets/img_p1_23.png',
+    image: 'https://images.unsplash.com/photo-1604382355076-af4b0eb60143?auto=format&fit=crop&w=800&q=80',
     themeColor: 'emerald',
     isActive: true,
     expiryNote: 'Dine-in & Takeaway Only',
@@ -59,7 +123,7 @@ export const DEFAULT_OFFER_BANNERS: OfferBanner[] = [
     offerPrice: 179,
     discountLabel: 'COMBO 28% OFF',
     promoCode: 'PAIR179',
-    image: '/menu-assets/img_p1_31.png',
+    image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=800&q=80',
     themeColor: 'espresso',
     isActive: true,
     expiryNote: 'Daily 2 PM to 7 PM Happy Hours',
@@ -74,7 +138,7 @@ export const DEFAULT_OFFER_BANNERS: OfferBanner[] = [
     offerPrice: 219,
     discountLabel: 'FLAT ₹60 OFF',
     promoCode: 'CRISP60',
-    image: '/menu-assets/img_p1_1.png',
+    image: 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=800&q=80',
     themeColor: 'crimson',
     isActive: true,
     expiryNote: 'Student ID Special Discount',
@@ -89,7 +153,7 @@ export const DEFAULT_OFFER_BANNERS: OfferBanner[] = [
     offerPrice: 149,
     discountLabel: 'COMBO ₹149',
     promoCode: 'DUO149',
-    image: '/menu-assets/img_p1_10.png',
+    image: 'https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?auto=format&fit=crop&w=800&q=80',
     themeColor: 'ocean',
     isActive: true,
     expiryNote: 'All Day Refreshment Special',
@@ -254,6 +318,67 @@ export const useBanners = () => {
     return newInquiry;
   };
 
+  const [billboardBanners, setBillboardBanners] = useState<BillboardBanner[]>(() => {
+    try {
+      const saved = localStorage.getItem(BILLBOARD_BANNERS_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= 3) {
+          const sanitized = parsed.map((b: BillboardBanner) => ({
+            ...b,
+            image: b.image
+              ?.replace('/banners/pizza_board.jpg', '/banners/pizza_board.png')
+              ?.replace('/banners/burger_double.jpg', '/banners/burger_double.png')
+              ?.replace('/banners/pizza_pan.jpg', '/banners/pizza_pan.png') || b.image,
+            isActive: true // Guarantee autoscroll works across all 3 banners
+          }));
+          return sanitized;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse saved billboard banners', e);
+    }
+    return DEFAULT_BILLBOARD_BANNERS;
+  });
+
+  // Persist billboard banners
+  useEffect(() => {
+    try {
+      localStorage.setItem(BILLBOARD_BANNERS_STORAGE_KEY, JSON.stringify(billboardBanners));
+    } catch (e) {
+      console.error('Failed to save billboard banners to localStorage', e);
+    }
+  }, [billboardBanners]);
+
+  const addBillboardBanner = (newBanner: Omit<BillboardBanner, 'id'>) => {
+    const bannerWithId: BillboardBanner = {
+      ...newBanner,
+      id: `billboard-${Date.now()}`
+    };
+    setBillboardBanners((prev) => [bannerWithId, ...prev]);
+    return bannerWithId;
+  };
+
+  const updateBillboardBanner = (id: string, updatedFields: Partial<BillboardBanner>) => {
+    setBillboardBanners((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, ...updatedFields } : b))
+    );
+  };
+
+  const deleteBillboardBanner = (id: string) => {
+    setBillboardBanners((prev) => prev.filter((b) => b.id !== id));
+  };
+
+  const toggleBillboardBannerStatus = (id: string) => {
+    setBillboardBanners((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, isActive: !b.isActive } : b))
+    );
+  };
+
+  const resetBillboardBanners = () => {
+    setBillboardBanners(DEFAULT_BILLBOARD_BANNERS);
+  };
+
   const deleteInquiry = (id: string) => {
     setInquiries((prev) => prev.filter((i) => i.id !== id));
   };
@@ -276,6 +401,14 @@ export const useBanners = () => {
     deleteBanner,
     toggleBannerStatus,
     resetBanners,
+    billboardBanners,
+    activeBillboardBanner:
+      billboardBanners.find((b) => b.isActive) || billboardBanners[0] || DEFAULT_BILLBOARD_BANNERS[0],
+    addBillboardBanner,
+    updateBillboardBanner,
+    deleteBillboardBanner,
+    toggleBillboardBannerStatus,
+    resetBillboardBanners,
     inquiries,
     sendWhatsAppInquiry,
     deleteInquiry,

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Home,
   Coffee,
   Heart,
   Menu as MenuIcon,
@@ -7,10 +8,12 @@ import {
   QrCode,
   Camera,
   Utensils,
-  BookOpen,
+  MapPin,
   Phone,
   Sparkles,
-  Search,
+  Star,
+  Image as ImageIcon,
+  Flame,
   Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -33,28 +36,47 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('#home');
+
+  const navLinks = [
+    { label: 'HOME', href: '#home', icon: Home, hint: 'Home Page' },
+    { label: 'ALL ITEMS', href: '#menu', icon: Utensils, hint: 'Explore Menu by Category' },
+    { label: 'LIVE PREPARATION', href: '#live-reels', icon: Flame, hint: 'Live Food Preparation Reels' },
+    { label: 'FEATURED', href: '#featured', icon: Sparkles, hint: 'Featured Specials' },
+    { label: 'OUR STORY', href: '#about', icon: Coffee, hint: 'Our Story & Cafe Heritage' },
+    { label: 'GALLERY', href: '#gallery', icon: ImageIcon, hint: 'Cafe Photo Gallery' },
+    { label: 'LOCATION', href: '#contact', icon: MapPin, hint: 'Location & Google Maps' },
+    { label: 'REVIEWS & RATINGS', href: '#reviews', icon: Star, hint: 'Customer Reviews & Ratings (4.7 ★)' },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 30);
+
+      // Detect current section on scroll (Reviews is at bottom!)
+      const sections = ['#reviews', '#contact', '#gallery', '#about', '#featured', '#live-reels', '#menu', '#home'];
+      const scrollPosition = window.scrollY + 140;
+
+      for (const sectionId of sections) {
+        const el = document.querySelector(sectionId);
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.scrollY;
+          if (scrollPosition >= top) {
+            setActiveSection(sectionId);
+            break;
+          }
+        }
+      }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const navLinks = [
-    { label: 'ALL ITEMS', href: '#menu' },
-    { label: 'FULL MENU (PDF)', href: '#full-menu-showcase' },
-    { label: 'FEATURED', href: '#featured' },
-    { label: 'REVIEWS & PHOTOS', href: '#reviews' },
-    { label: 'OUR STORY', href: '#about' },
-    { label: 'GALLERY', href: '#gallery' },
-    { label: 'CONTACT', href: '#contact' },
-  ];
 
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     setMobileMenuOpen(false);
+    setActiveSection(href);
     const element = document.querySelector(href);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -102,22 +124,52 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </a>
 
-            {/* Desktop Navigation - Pill Options */}
-            <nav className="hidden lg:flex items-center gap-1.5 bg-white/90 border border-terracotta/20 px-3 py-1.5 rounded-full backdrop-blur-md shadow-sm">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  onClick={(e) => handleScrollTo(e, link.href)}
-                  className="px-3 py-1 rounded-full text-xs font-heading font-bold text-espresso-800 hover:text-white hover:bg-terracotta transition-all tracking-wider uppercase"
-                >
-                  {link.label}
-                </a>
-              ))}
+            {/* Desktop Navigation - Iconic Options Instead of Names with High-End Tooltips */}
+            <nav className="hidden lg:flex items-center gap-1.5 bg-white/95 border border-terracotta/25 px-2.5 py-1.5 rounded-full backdrop-blur-md shadow-sm">
+              {navLinks.map((link) => {
+                const IconComp = link.icon;
+                const isActive = activeSection === link.href;
+                return (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    onClick={(e) => handleScrollTo(e, link.href)}
+                    className={`relative group p-2.5 rounded-full transition-all duration-200 flex items-center justify-center hover:scale-110 active:scale-95 ${
+                      isActive
+                        ? 'bg-terracotta text-white shadow-sm ring-2 ring-terracotta/30'
+                        : 'text-espresso-800 hover:text-white hover:bg-terracotta/90 bg-transparent'
+                    }`}
+                    title={link.label}
+                    aria-label={link.label}
+                  >
+                    <IconComp className="w-[18px] h-[18px] transition-transform group-hover:scale-110" />
+
+                    {/* Elegant Tooltip Bubble on Hover */}
+                    <div className="pointer-events-none absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 translate-y-1 transition-all duration-200 z-50 flex flex-col items-center">
+                      <div className="w-2 h-2 bg-espresso-950 rotate-45 -mb-1 shadow-xs" />
+                      <span className="bg-espresso-950 text-white text-[11px] font-heading font-semibold py-1 px-2.5 rounded-md shadow-xl whitespace-nowrap tracking-wide border border-terracotta/30">
+                        {link.label}
+                      </span>
+                    </div>
+                  </a>
+                );
+              })}
             </nav>
 
             {/* Fast Action Tools: QR, Review, Favorites */}
             <div className="flex items-center gap-2 sm:gap-2.5">
+              {/* Google Maps Location Button */}
+              <a
+                href="https://maps.app.goo.gl/Xkpi9H6ueRbUqH4UA"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-full bg-white hover:bg-emerald-50 text-espresso-900 border border-emerald-500/40 hover:border-emerald-600 text-xs font-bold transition-all shadow-sm group"
+                title="Open Coffeeland in Google Maps (Sangivalasa, Vizag)"
+              >
+                <MapPin className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+                <span>Location</span>
+              </a>
+
               {/* Scan QR Modal Trigger (Shown on tablet/desktop, mobile uses drawer and dock) */}
               <button
                 onClick={onOpenQRCode}
@@ -186,27 +238,64 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="fixed inset-x-0 top-16 z-40 bg-[#EDE0CC]/98 border-b border-terracotta/25 backdrop-blur-xl px-6 py-6 shadow-2xl lg:hidden max-h-[85vh] overflow-y-auto"
           >
             <div className="flex flex-col space-y-3">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  onClick={(e) => handleScrollTo(e, link.href)}
-                  className="px-4 py-3 rounded-2xl bg-white border border-terracotta/15 text-sm font-bold text-espresso-950 hover:text-white hover:bg-terracotta transition-colors flex items-center justify-between shadow-sm"
-                >
-                  <span>{link.label}</span>
-                  <span className="text-terracotta text-xs">➔</span>
-                </a>
-              ))}
+              {navLinks.map((link) => {
+                const IconComp = link.icon;
+                const isActive = activeSection === link.href;
+                return (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    onClick={(e) => handleScrollTo(e, link.href)}
+                    className={`px-4 py-2.5 rounded-2xl border text-sm font-bold transition-all flex items-center justify-between shadow-xs group ${
+                      isActive
+                        ? 'bg-terracotta text-white border-terracotta shadow-sm'
+                        : 'bg-white border-terracotta/15 text-espresso-950 hover:text-white hover:bg-terracotta'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                          isActive
+                            ? 'bg-white/20 text-white'
+                            : 'bg-parchment-200 text-terracotta group-hover:bg-white/20 group-hover:text-white'
+                        }`}
+                      >
+                        <IconComp className="w-4 h-4 transition-colors" />
+                      </div>
+                      <span>{link.label}</span>
+                    </div>
+                    <span
+                      className={`text-xs transition-colors ${
+                        isActive ? 'text-white' : 'text-terracotta group-hover:text-white'
+                      }`}
+                    >
+                      ➔
+                    </span>
+                  </a>
+                );
+              })}
 
-              <div className="pt-3 border-t border-terracotta/20 grid grid-cols-3 gap-2">
+              <div className="pt-3 border-t border-terracotta/20 grid grid-cols-4 gap-2">
+                <a
+                  href="https://maps.app.goo.gl/Xkpi9H6ueRbUqH4UA"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1 p-2.5 rounded-xl bg-white border border-emerald-500/30 text-espresso-950 text-xs font-bold shadow-xs"
+                  title="Open in Google Maps"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Map</span>
+                </a>
+
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     onOpenQRCode();
                   }}
-                  className="flex items-center justify-center gap-1.5 p-3 rounded-xl bg-white border border-terracotta/30 text-espresso-950 text-xs font-bold shadow-sm"
+                  className="flex items-center justify-center gap-1 p-2.5 rounded-xl bg-white border border-terracotta/30 text-espresso-950 text-xs font-bold shadow-xs"
                 >
-                  <QrCode className="w-4 h-4 text-terracotta" />
+                  <QrCode className="w-3.5 h-3.5 text-terracotta" />
                   <span>QR</span>
                 </button>
 

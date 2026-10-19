@@ -34,10 +34,10 @@ export const AboutSection: React.FC = () => {
           {/* Left Column: Visual Composition with Multiple Editorial Images */}
           <div className="lg:col-span-6 relative">
             <div className="relative mx-auto max-w-lg lg:max-w-none">
-              {/* Primary Large Image: Cafe Interior & Barista Art */}
+              {/* Primary Large Image: Real Cafe Interior & Good Vibes Wall */}
               <div className="relative rounded-3xl overflow-hidden shadow-xl border-2 border-terracotta/25 aspect-[4/5] sm:aspect-[4/4.5]">
                 <img
-                  src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80"
+                  src="/shop-photos/shop_interior_counter.jpg"
                   alt="Cozy interior ambience of Coffee Land cafe"
                   className="w-full h-full object-cover"
                 />
@@ -54,11 +54,11 @@ export const AboutSection: React.FC = () => {
                 </div>
               </div>
 
-              {/* Secondary Floating Offset Image: Espresso Crafting */}
+              {/* Secondary Floating Offset Image: Real Storefront & Yellow Van */}
               <div className="absolute -bottom-8 -right-4 sm:-right-8 w-44 sm:w-56 aspect-square rounded-2xl overflow-hidden border-2 border-terracotta shadow-xl hidden sm:block">
                 <img
-                  src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80"
-                  alt="Espresso bean roasting and hand preparation"
+                  src="/shop-photos/shop_exterior_van.jpg"
+                  alt="Coffeeland yellow van and storefront facade"
                   className="w-full h-full object-cover"
                 />
               </div>
