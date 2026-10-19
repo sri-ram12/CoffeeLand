@@ -6,13 +6,14 @@ import {
   Volume2,
   VolumeX,
   MessageCircle,
-  ExternalLink,
   ChevronLeft,
   ChevronRight,
   Flame,
   Clock,
   Sparkles,
-  Utensils
+  Maximize2,
+  X,
+  BadgeCheck
 } from 'lucide-react';
 
 interface LiveFoodReelsProps {
@@ -38,73 +39,73 @@ const PREPARATION_REELS: PreparationReelItem[] = [
     id: 'prep-pizza',
     dishName: 'Neapolitan Margherita & Tandoori Pizza',
     category: 'Pizza',
-    videoSrc: '/videos/pizza-prep.mp4',
-    posterUrl: '/menu-assets/img_p1_23.png',
+    videoSrc: '/videos/pizza-prep.mp4?v=hd2',
+    posterUrl: '/videos/pizza-thumb.jpg',
     price: 229,
     prepTag: '48-Hr Fermented Dough',
     prepTime: '8 Mins',
     badge: 'Stone-Baked Live',
-    description: 'Hand-stretched fermented dough, crushed San Marzano tomatoes, and fresh buffalo mozzarella fired at 450°C.',
+    description: 'Hand-stretched fermented dough, crushed San Marzano tomatoes, and fresh buffalo mozzarella fired at 450°C in our stone oven.',
     pinterestUrl: 'https://pin.it/6KyeC2ZwU'
   },
   {
     id: 'prep-coffee',
     dishName: 'Artisanal Cappuccino & Swan Latte Art',
     category: 'Coffee',
-    videoSrc: '/videos/coffee-prep.mp4',
-    posterUrl: '/menu-assets/img_p1_25.png',
+    videoSrc: '/videos/coffee-prep.mp4?v=hd2',
+    posterUrl: '/videos/coffee-thumb.jpg',
     price: 99,
     prepTag: 'Single-Origin Arabica',
     prepTime: '4 Mins',
     badge: 'Barista Handcrafted',
-    description: 'Precision double espresso extracted under 9 bars of pressure, combined with silky microfoam poured into signature latte art.',
+    description: 'Precision double espresso extracted under 9 bars of pressure, combined with silky microfoam poured into signature swan latte art.',
     pinterestUrl: 'https://pin.it/6KyeC2ZwU'
   },
   {
     id: 'prep-burger',
     dishName: "Chef's Spl Gourmet Brioche Burger",
     category: 'Burger',
-    videoSrc: '/videos/burger-prep.mp4',
-    posterUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop',
+    videoSrc: '/videos/burger-prep.mp4?v=hd2',
+    posterUrl: '/videos/burger-thumb.jpg',
     price: 199,
     prepTag: 'Toasted Butter Brioche',
     prepTime: '10 Mins',
     badge: 'Sizzling Grill',
-    description: 'Flame-seared gourmet chicken patty, melted gouda cheese, smokey house relish, and caramelized onions on toasted brioche.',
+    description: 'Flame-seared gourmet patty, melted gouda cheese, smokey house relish, and caramelized onions served on toasted brioche.',
     pinterestUrl: 'https://pin.it/6KyeC2ZwU'
   },
   {
     id: 'prep-mocktail',
     dishName: 'Blue Lagoon & Mint Mojito Coolers',
     category: 'Mocktails',
-    videoSrc: '/videos/mocktail-prep.mp4',
-    posterUrl: '/menu-assets/img_p1_10.png',
+    videoSrc: '/videos/mocktail-prep.mp4?v=hd2',
+    posterUrl: '/videos/mocktail-thumb.jpg',
     price: 99,
     prepTag: 'Sparkling Citrus Fizz',
     prepTime: '3 Mins',
     badge: 'Chilled Shaker',
-    description: 'Fresh garden mint sprigs crushed with lime wedges, vibrant blue curacao syrup, and effervescent sparkling soda over ice.',
+    description: 'Fresh garden mint sprigs crushed with lime wedges, vibrant blue curacao syrup, and effervescent sparkling soda shaken over ice.',
     pinterestUrl: 'https://pin.it/6KyeC2ZwU'
   },
   {
     id: 'prep-chicken',
     dishName: '12-Spice Crispy Golden Fried Chicken',
     category: 'Fried Chicken',
-    videoSrc: '/videos/chicken-prep.mp4',
-    posterUrl: '/menu-assets/img_p1_1.png',
+    videoSrc: '/videos/chicken-prep.mp4?v=hd2',
+    posterUrl: '/videos/chicken-thumb.jpg',
     price: 219,
     prepTag: 'Ultra Crunch Coating',
     prepTime: '12 Mins',
     badge: 'Secret Recipe',
-    description: 'Overnight herb marinade, double-dusted in authentic seasoned spices, and golden fried for a juicy, crunch bite.',
+    description: 'Overnight herb marinade, double-dusted in authentic seasoned spices, and golden fried for an ultra-crunchy, juicy bite.',
     pinterestUrl: 'https://pin.it/6KyeC2ZwU'
   },
   {
     id: 'prep-kunafa',
     dishName: 'Royal Lotus Biscoff Cheesy Kunafa',
     category: 'Kunafa',
-    videoSrc: '/videos/kunafa-prep.mp4',
-    posterUrl: '/menu-assets/img_p1_0.png',
+    videoSrc: '/videos/kunafa-prep.mp4?v=hd2',
+    posterUrl: '/videos/kunafa-thumb.jpg',
     price: 249,
     prepTag: 'Stretchy Sweet Cheese',
     prepTime: '10 Mins',
@@ -119,6 +120,7 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(true);
   const [progress, setProgress] = useState<number>(0);
+  const [modalReel, setModalReel] = useState<PreparationReelItem | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -128,7 +130,7 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
 
   // Progress timer for active reel + auto-advance
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || modalReel !== null) return;
 
     setProgress(0);
     const intervalTime = 50; // update progress every 50ms
@@ -138,7 +140,7 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
       setProgress((prev) => {
         if (prev >= 100) {
           // Advance to next video
-          setActiveIndex((curr) => (curr + 1) % PREPARATION_REELS.length);
+          setActiveIndex((current) => (current + 1) % PREPARATION_REELS.length);
           return 0;
         }
         return prev + step;
@@ -146,7 +148,7 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [activeIndex, isPaused]);
+  }, [activeIndex, isPaused, modalReel]);
 
   // Autoscroll container into view and play active video, pause others
   useEffect(() => {
@@ -158,16 +160,15 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
       container.scrollTo({ left: Math.max(0, scrollOffset), behavior: 'smooth' });
     }
 
-    // Play active video, pause and reset all other videos
+    // Play active video, pause all other videos
     videoRefs.current.forEach((videoEl, idx) => {
       if (!videoEl) return;
       if (idx === activeIndex) {
-        videoEl.currentTime = 0;
         videoEl.muted = isMuted;
         const playPromise = videoEl.play();
         if (playPromise !== undefined) {
           playPromise.catch(() => {
-            // Autoplay policy prevented playback, keep muted
+            // Autoplay policy prevented playback with audio, keep muted
             videoEl.muted = true;
             videoEl.play().catch(() => {});
           });
@@ -222,7 +223,7 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
           </h2>
 
           <p className="text-sm sm:text-base text-coffee-800 leading-relaxed max-w-2xl mx-auto font-normal">
-            Watch our chefs prepare every handcrafted specialty in real time — stone-baked pizzas, extracted espresso latte art, flame-grilled brioche burgers, chilled mocktails, crispy fried chicken, and sizzling Lotus Biscoff kunafa.
+            Watch our master chefs handcraft every specialty live in HD — stone-baked pizzas, extracted espresso latte art, flame-grilled brioche burgers, chilled mocktails, crispy fried chicken, and sizzling Lotus Biscoff kunafa.
           </p>
         </div>
 
@@ -259,19 +260,23 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
           </div>
 
           {/* Reel Control Bar: Active Title + Pause/Resume + Mute/Unmute */}
-          <div className="flex flex-wrap items-center justify-between gap-3 px-2 sm:px-4 py-2 rounded-2xl bg-white/70 border border-terracotta/20 backdrop-blur-md shadow-xs text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-3 sm:px-5 py-2.5 rounded-2xl bg-white/80 border border-terracotta/20 backdrop-blur-md shadow-sm text-xs">
             {/* Live Indicator & Current Playing Dish */}
             <div className="flex items-center gap-2 min-w-0">
-              <span className="relative flex h-2.5 w-2.5">
+              <span className="relative flex h-2.5 w-2.5 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-600" />
               </span>
               <span className="font-bold text-espresso-950 uppercase tracking-wider text-[11px] truncate">
                 Now Playing: <span className="text-terracotta">{PREPARATION_REELS[activeIndex].dishName}</span>
               </span>
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase tracking-wider border border-emerald-300">
+                <BadgeCheck className="w-3 h-3 text-emerald-600" />
+                <span>HD Clarity</span>
+              </span>
             </div>
 
-            {/* Controls: Prev / Pause / Next / Sound */}
+            {/* Controls: Prev / Pause / Next / Sound / Full HD */}
             <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
@@ -322,6 +327,16 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
                 {isMuted ? <VolumeX className="w-3.5 h-3.5 text-espresso-700" /> : <Volume2 className="w-3.5 h-3.5 text-white" />}
                 <span className="hidden sm:inline">{isMuted ? 'Muted' : 'Sound On'}</span>
               </button>
+
+              <button
+                type="button"
+                onClick={() => setModalReel(PREPARATION_REELS[activeIndex])}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-espresso-900 hover:bg-espresso-950 text-white text-[11px] font-bold shadow-xs transition-colors"
+                title="Watch in Fullscreen HD Modal"
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Full HD</span>
+              </button>
             </div>
           </div>
         </div>
@@ -343,14 +358,14 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
                   cardRefs.current[idx] = el;
                 }}
                 onClick={() => handleSelectReel(idx)}
-                className={`snap-center shrink-0 w-[84vw] max-w-[340px] sm:w-[350px] md:w-[380px] rounded-3xl overflow-hidden bg-white transition-all duration-500 cursor-pointer flex flex-col ${
+                className={`snap-center shrink-0 w-[86vw] max-w-[340px] sm:w-[350px] md:w-[380px] rounded-3xl overflow-hidden bg-white transition-all duration-500 cursor-pointer flex flex-col ${
                   isActive
                     ? 'ring-4 ring-terracotta shadow-2xl scale-[1.02] border-transparent'
                     : 'border border-terracotta/20 opacity-80 hover:opacity-100 hover:scale-[1.01] shadow-md'
                 }`}
               >
-                {/* Video Reel Stage */}
-                <div className="relative aspect-[9/13] sm:aspect-[9/12] w-full bg-black overflow-hidden group/video">
+                {/* Video Reel Stage: 4:5 Portrait Ratio for Cinematic HD Food Clarity */}
+                <div className="relative aspect-[4/5] w-full bg-black overflow-hidden group/video">
                   <video
                     ref={(el) => {
                       videoRefs.current[idx] = el;
@@ -361,39 +376,58 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
                     loop
                     muted={isMuted}
                     preload="auto"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover/video:scale-105"
                   />
 
-                  {/* Gradient overlays for readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30 pointer-events-none" />
+                  {/* Gradient overlays for crisp text legibility without obscuring food */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/35 pointer-events-none" />
 
                   {/* Top Floating Badges */}
-                  <div className="absolute top-3 inset-x-3 flex items-center justify-between z-10">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-espresso-950/80 backdrop-blur-md text-amber-200 border border-amber-300/30 text-[11px] font-bold uppercase tracking-wider">
+                  <div className="absolute top-3 inset-x-3 flex items-center justify-between z-10 pointer-events-none">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-espresso-950/85 backdrop-blur-md text-amber-200 border border-amber-300/30 text-[11px] font-bold uppercase tracking-wider shadow">
                       <Sparkles className="w-3 h-3 text-amber-300" />
                       <span>{reel.badge}</span>
                     </span>
 
-                    <span className="px-3 py-1 rounded-full bg-terracotta text-white font-display font-bold text-sm shadow-md">
-                      ₹{reel.price}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-500/90 text-white font-extrabold text-[10px] uppercase tracking-wider shadow">
+                        HD 720p
+                      </span>
+                      <span className="px-3 py-1 rounded-full bg-terracotta text-white font-display font-bold text-sm shadow-md">
+                        ₹{reel.price}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Active Live Pulse Badge */}
+                  {/* Active Autoplaying Indicator */}
                   {isActive && (
-                    <div className="absolute top-12 left-3 z-10">
+                    <div className="absolute top-12 left-3 z-10 pointer-events-none">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-600/90 text-white text-[10px] font-extrabold uppercase tracking-widest shadow-md animate-pulse">
                         <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                        <span>AUTOPLAYING</span>
+                        <span>LIVE AUTOPLAY</span>
                       </span>
                     </div>
                   )}
 
+                  {/* Quick Expand Button to Full HD */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setModalReel(reel);
+                    }}
+                    className="absolute top-12 right-3 z-10 p-2 rounded-full bg-black/60 hover:bg-terracotta text-white backdrop-blur-md transition-all shadow-md group-hover/video:opacity-100 sm:opacity-90 opacity-100"
+                    title="Watch in Fullscreen HD"
+                    aria-label="Fullscreen HD"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  </button>
+
                   {/* Inactive Overlay with Play Prompt */}
                   {!isActive && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/35 z-10 group-hover/video:bg-black/20 transition-colors">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 z-10 group-hover/video:bg-black/15 transition-colors">
                       <div className="w-12 h-12 rounded-full bg-white/90 text-espresso-950 flex items-center justify-center shadow-xl group-hover/video:scale-110 transition-transform">
-                        <Play className="w-5 h-5 fill-current ml-0.5" />
+                        <Play className="w-5 h-5 fill-current ml-0.5 text-terracotta" />
                       </div>
                     </div>
                   )}
@@ -423,17 +457,18 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
                   </p>
 
                   <div className="flex items-center gap-2 pt-2 border-t border-espresso-100">
-                    <a
-                      href={reel.pinterestUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="px-3 py-2 rounded-xl bg-parchment-200 hover:bg-parchment-300 text-espresso-950 text-xs font-bold transition-colors shadow-xs inline-flex items-center gap-1"
-                      title="Watch on Pinterest"
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setModalReel(reel);
+                      }}
+                      className="px-3 py-2 rounded-xl bg-parchment-200 hover:bg-parchment-300 text-espresso-950 text-xs font-bold transition-colors shadow-xs inline-flex items-center gap-1.5"
+                      title="Expand HD video"
                     >
-                      <span>Pin</span>
-                      <ExternalLink className="w-3 h-3 text-red-600" />
-                    </a>
+                      <Maximize2 className="w-3 h-3 text-terracotta" />
+                      <span>HD View</span>
+                    </button>
 
                     <button
                       type="button"
@@ -472,6 +507,92 @@ export const LiveFoodReels: React.FC<LiveFoodReelsProps> = ({ onOrderOnWhatsApp 
           ))}
         </div>
       </div>
+
+      {/* Full HD Video Modal */}
+      <AnimatePresence>
+        {modalReel && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-lg p-4 sm:p-6"
+            onClick={() => setModalReel(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-3xl bg-espresso-950 text-white rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setModalReel(null)}
+                className="absolute top-4 right-4 z-20 p-2.5 rounded-full bg-black/60 hover:bg-terracotta text-white backdrop-blur-md transition-colors"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Full HD Widescreen Video Player */}
+              <div className="relative aspect-video w-full bg-black">
+                <video
+                  src={modalReel.videoSrc}
+                  poster={modalReel.posterUrl}
+                  autoPlay
+                  controls
+                  playsInline
+                  loop
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              {/* Modal Body & Dish Info */}
+              <div className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-espresso-900/90">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-terracotta text-white text-[11px] font-bold uppercase tracking-wider">
+                      {modalReel.category}
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[11px] font-extrabold uppercase tracking-wider">
+                      Full 720p HD
+                    </span>
+                    <span className="text-amber-200 text-xs font-semibold flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{modalReel.prepTime} Prep</span>
+                    </span>
+                  </div>
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                    {modalReel.dishName}
+                  </h3>
+                  <p className="text-sm text-espresso-200 max-w-lg">
+                    {modalReel.description}
+                  </p>
+                </div>
+
+                <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 shrink-0">
+                  <div className="text-2xl sm:text-3xl font-display font-extrabold text-amber-300">
+                    ₹{modalReel.price}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onOrderOnWhatsApp(modalReel.dishName, modalReel.price, modalReel.category);
+                      setModalReel(null);
+                    }}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-terracotta hover:bg-terracotta-600 text-white font-bold text-sm shadow-lg hover:scale-105 active:scale-95 transition-all"
+                  >
+                    <MessageCircle className="w-4 h-4 fill-emerald-300 text-emerald-300" />
+                    <span>Order on WhatsApp</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
