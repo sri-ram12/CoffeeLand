@@ -56,28 +56,6 @@ export const HeroBackgroundDecor: React.FC = () => {
         className="absolute top-1/3 -right-24 w-[550px] h-[550px] bg-terracotta/15 rounded-full blur-3xl pointer-events-none"
       />
 
-      {/* 2. Slow-Rotating Artisanal Latte Art Rosette Watermark */}
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 90, repeat: Infinity, ease: 'linear' }}
-        className="absolute top-16 right-[-80px] sm:right-[-40px] md:right-[5%] w-[420px] h-[420px] opacity-[0.06] text-[#802B12] pointer-events-none"
-      >
-        <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="1.2" className="w-full h-full">
-          <circle cx="100" cy="100" r="90" strokeDasharray="4 6" />
-          <circle cx="100" cy="100" r="75" />
-          <circle cx="100" cy="100" r="55" strokeDasharray="6 4" />
-          <circle cx="100" cy="100" r="35" />
-          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
-            <path
-              key={deg}
-              d="M 100 100 C 120 70, 140 70, 100 20 C 60 70, 80 70, 100 100 Z"
-              transform={`rotate(${deg} 100 100)`}
-              stroke="currentColor"
-              strokeWidth="0.8"
-            />
-          ))}
-        </svg>
-      </motion.div>
 
       {/* 3. Floating 3D Animated Coffee Beans with Realistic Depth & Roasted Shine */}
       {coffeeBeans.map((bean) => (
