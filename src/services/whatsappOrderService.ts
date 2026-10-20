@@ -97,10 +97,10 @@ export async function generatePersonalizedCardBlob(payload: WhatsAppOrderPayload
 /**
  * Dispatches the order DIRECTLY into the Coffee Land restaurant owner's WhatsApp account:
  * Phone: +91 95425 25665
- * 1. ZERO URL LINKS in the text message - clean order details text only.
- * 2. On Mobile (Android & iOS): uses Web Share API with the real pass card image file,
- *    placing the order details text down in the message caption under the image.
- * 3. On Desktop: opens direct chat with owner and copies pass card to clipboard for 1-click Ctrl+V.
+ * 1. ZERO URL LINKS in the text message - clean, professional order details only.
+ * 2. Instant direct launch into chat with owner (+91 95425 25665) via native whatsapp:// protocol and wa.me.
+ * 3. Auto-downloads personalized pass card image to customer's device.
+ * 4. Copies pass card image to clipboard on desktop for 1-click Ctrl+V paste.
  */
 export function sendOrderToWhatsApp(payload: WhatsAppOrderPayload): void {
   const phone = '919542525665';
@@ -125,87 +125,136 @@ ${orderDetailsBlock}
 👤 *Guest:* ${payload.customerName || 'Guest'}${payload.customerPhone ? ` (${payload.customerPhone})` : ''}
 ${payload.customNote ? `📝 *Details:* ${payload.customNote}\n` : ''}Please confirm my order pass! Thank you.`;
 
-  // 1. Try Native Web Share API with Image File (Mobile Chrome/Safari)
-  // Attaches the real card image file with the clean order details down in the message caption
-  if (payload.cardBlob) {
-    try {
-      const cardFile = new File([payload.cardBlob], `CoffeeLand-${dining}-Pass-${orderId}.jpg`, {
-        type: 'image/jpeg',
-      });
-      if (
-        typeof navigator !== 'undefined' &&
-        typeof navigator.share === 'function' &&
-        typeof navigator.canShare === 'function' &&
-        navigator.canShare({ files: [cardFile] })
-      ) {
-        navigator
-          .share({
-            files: [cardFile],
-            text: cleanOrderMessage,
-            title: `Coffee Land ${dining} Order Pass`,
-          })
-          .catch((err) => {
-            if ((err as Error).name !== 'AbortError') {
-              console.warn('Web Share failed, using direct WhatsApp fallback', err);
-            }
-          });
-        return;
-      }
-    } catch (e) {
-      console.warn('File share check failed', e);
-    }
-  }
-
-  // 2. Direct WhatsApp links targeting owner's exact phone number (+91 95425 25665)
   const encodedText = encodeURIComponent(cleanOrderMessage);
-  const isMobile =
-    typeof navigator !== 'undefined' &&
-    /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-  const directOwnerApiUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`;
+  // 1. Auto-save pass card image to device gallery / downloads
+  const handleBlobSave = (blob: Blob) => {
+    if (typeof document === 'undefined') return;
+    try {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `CoffeeLand-${dining}-Pass-${orderId}.jpg`;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        try {
+          URL.revokeObjectURL(a.href);
+          a.remove();
+        } catch {}
+      }, 3000);
+    } catch (e) {
+      console.warn('Auto download card failed', e);
+    }
 
+    // 2. Clipboard copy of pass card image (for Desktop WhatsApp Web Ctrl+V)
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof ClipboardItem !== 'undefined') {
+      try {
+        const canvas = document.createElement('canvas');
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = URL.createObjectURL(blob);
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            canvas.toBlob((pngBlob) => {
+              if (pngBlob) {
+                navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]).catch(() => {});
+              }
+            }, 'image/png');
+          }
+        };
+      } catch {}
+    }
+  };
+
+  if (payload.cardBlob) {
+    handleBlobSave(payload.cardBlob);
+  } else {
+    generatePersonalizedCardBlob(payload)
+      .then((blob) => {
+        if (blob) handleBlobSave(blob);
+      })
+      .catch(() => {});
+  }
+
+  // 3. SYNCHRONOUS, GUARANTEED DIRECT CONNECTION TO CAFE OWNER (+91 95425 25665)
   if (typeof window !== 'undefined') {
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent || ''
+    );
+
+    const waMeUrl = `https://wa.me/${phone}?text=${encodedText}`;
+    const nativeAppUrl = `whatsapp://send?phone=${phone}&text=${encodedText}`;
+
     if (isMobile) {
-      window.location.href = directOwnerApiUrl;
+      // Mobile: direct jump into WhatsApp app chat with owner
+      window.location.href = nativeAppUrl;
+      setTimeout(() => {
+        window.location.href = waMeUrl;
+      }, 1000);
     } else {
-      const opened = window.open(directOwnerApiUrl, '_blank');
-      if (!opened || opened.closed || typeof opened.closed === 'undefined') {
-        window.location.href = directOwnerApiUrl;
+      // Desktop: open chat with owner directly in new tab or current tab
+      const win = window.open(waMeUrl, '_blank');
+      if (!win || win.closed || typeof win.closed === 'undefined') {
+        window.location.href = waMeUrl;
       }
     }
   }
+}
 
-  // 3. Background copy to clipboard for Desktop (Ctrl+V into chat)
-  const cardBlobPromise = payload.cardBlob
-    ? Promise.resolve(payload.cardBlob)
-    : generatePersonalizedCardBlob(payload);
+/**
+ * Optional Web Share API helper to share the actual pass card image file
+ * with the order caption directly through the device's share sheet.
+ */
+export async function sharePassCardImageWithCaption(payload: WhatsAppOrderPayload): Promise<boolean> {
+  const dining = payload.diningOption;
+  const emoji = dining === 'Dine-In' ? '🔴' : dining === 'Delivery' ? '🔵' : '🟢';
+  const orderId = payload.orderId || `CL-${Date.now().toString().slice(-6)}`;
 
-  cardBlobPromise
-    .then((cardBlob) => {
-      if (cardBlob && typeof navigator !== 'undefined' && navigator.clipboard && typeof ClipboardItem !== 'undefined') {
-        try {
-          const canvas = document.createElement('canvas');
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          img.src = URL.createObjectURL(cardBlob);
-          img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0);
-              canvas.toBlob((pngBlob) => {
-                if (pngBlob) {
-                  navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]).catch(() => {});
-                }
-              }, 'image/png');
-            }
-          };
-        } catch {
-          // Non-blocking clipboard copy
-        }
-      }
-    })
-    .catch(() => {});
+  let orderDetailsBlock = `🍽️ *Item:* ${payload.itemName} (₹${payload.price})`;
+  if (payload.items && payload.items.length > 1) {
+    const totalQty = payload.items.reduce((sum, i) => sum + i.quantity, 0);
+    const itemListLines = payload.items
+      .map((i) => `• ${i.quantity}x ${i.name} - ₹${i.price * i.quantity}`)
+      .join('\n');
+    orderDetailsBlock = `🍽️ *Items (${totalQty} Total):*\n${itemListLines}\n💰 *Total Bill:* ₹${payload.price}`;
+  }
+
+  const cleanOrderMessage = `Hello Coffee Land! 👋
+I would like to place a ${emoji} *${dining} Order*:
+${orderDetailsBlock}
+👤 *Guest:* ${payload.customerName || 'Guest'}${payload.customerPhone ? ` (${payload.customerPhone})` : ''}
+${payload.customNote ? `📝 *Details:* ${payload.customNote}\n` : ''}Please confirm my order pass! Thank you.`;
+
+  const blob = payload.cardBlob || (await generatePersonalizedCardBlob(payload));
+  if (!blob) return false;
+
+  try {
+    const cardFile = new File([blob], `CoffeeLand-${dining}-Pass-${orderId}.jpg`, {
+      type: 'image/jpeg',
+    });
+    if (
+      typeof navigator !== 'undefined' &&
+      typeof navigator.share === 'function' &&
+      typeof navigator.canShare === 'function' &&
+      navigator.canShare({ files: [cardFile] })
+    ) {
+      await navigator.share({
+        files: [cardFile],
+        text: cleanOrderMessage,
+        title: `Coffee Land ${dining} Order Pass`,
+      });
+      return true;
+    }
+  } catch (err) {
+    if ((err as Error).name !== 'AbortError') {
+      console.warn('Native file share failed', err);
+    }
+  }
+  return false;
 }
 
