@@ -82,77 +82,111 @@ export async function generatePersonalizedCardBlob(payload: WhatsAppOrderPayload
 }
 
 /**
- * Dispatches the order DIRECTLY into the Coffee Land restaurant owner's WhatsApp account:
- * Phone: +91 95425 25665
- * 1. Synchronously opens direct chat with owner's number (no contact picker or popup blocker delay).
- * 2. On mobile, triggers whatsapp://send deep link to jump directly into the owner's chat.
- * 3. Short polite cold message with the live order pass card link for rich media preview.
- * 4. Asynchronously copies the personalized card to clipboard for 1-click Ctrl+V on desktop.
+ * Dispatches the order to WhatsApp with the personalized reference pass card:
+ * 1. Shares the actual personalized card image with customer name and item name.
+ * 2. Sends a short, polite cold message from customer to restaurant owner.
+ * 3. Includes the live order-pass URL so WhatsApp generates the card preview banner.
+ * 4. On desktop, copies the personalized card to clipboard for 1-click Ctrl+V pasting.
  */
 export async function sendOrderToWhatsApp(payload: WhatsAppOrderPayload): Promise<void> {
   const phone = '919542525665';
   const dining = payload.diningOption;
   const emoji = dining === 'Dine-In' ? '🔴' : dining === 'Delivery' ? '🔵' : '🟢';
+  const passSlug = dining === 'Delivery' ? 'delivery' : dining === 'Takeaway' ? 'takeaway' : 'dine-in';
   const orderId = payload.orderId || `CL-${Date.now().toString().slice(-6)}`;
 
-  // Public card preview URL for WhatsApp OpenGraph preview (renders card banner in WhatsApp)
+  // Public card preview URL for WhatsApp OpenGraph preview
   const cardPreviewUrl = `${RENDER_BASE_URL}/order-pass?type=${encodeURIComponent(
     dining
   )}&item=${encodeURIComponent(payload.itemName)}&price=${payload.price}&name=${encodeURIComponent(
     payload.customerName || 'VIP Guest'
   )}&id=${orderId}`;
 
-  // Clean short pass link that triggers WhatsApp's visual card preview
-  const shortPassUrl = `${RENDER_BASE_URL}/pass/${orderId}?type=${encodeURIComponent(dining)}&item=${encodeURIComponent(payload.itemName)}&price=${payload.price}&name=${encodeURIComponent(payload.customerName || 'Guest')}`;
+  // Short, polite cold message from customer to restaurant owner (details are already on the card!)
+  let shortColdMessage = `${cardPreviewUrl}
 
-  // Short, polite cold message with card link for WhatsApp media card preview
-  const shortColdMessage = `Hello Coffee Land! 👋
+Hello Coffee Land! 👋
 I would like to place a ${emoji} *${dining} Order*:
 🍽️ *Item:* ${payload.itemName} (₹${payload.price})
 👤 *Guest:* ${payload.customerName || 'Guest'}${payload.customerPhone ? ` (${payload.customerPhone})` : ''}
-${payload.customNote ? `📝 *Details:* ${payload.customNote}\n` : ''}🎫 *Order Pass Card:* ${shortPassUrl}
-Please confirm my order pass! Thank you.`;
+${payload.customNote ? `📝 *Details:* ${payload.customNote}\n` : ''}Please confirm my order pass! Thank you.`;
 
+  // Generate personalized card image with customer name and item name
+  let cardFile: File | null = null;
+  let cardBlob: Blob | null = null;
+
+  try {
+    cardBlob = await generatePersonalizedCardBlob(payload);
+    if (!cardBlob) {
+      // Fallback to pre-rendered default pass
+      const res = await fetch(`/passes/${passSlug}.jpg`);
+      if (res.ok) cardBlob = await res.blob();
+    }
+
+    if (cardBlob) {
+      const fileName = `${dining}_Pass_${payload.itemName.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`;
+      cardFile = new File([cardBlob], fileName, { type: 'image/jpeg' });
+
+      // On desktop browsers: copy card image directly to clipboard so user can press Ctrl+V into WhatsApp Web
+      if (typeof navigator !== 'undefined' && navigator.clipboard && typeof ClipboardItem !== 'undefined') {
+        try {
+          const canvas = document.createElement('canvas');
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.src = URL.createObjectURL(cardBlob);
+          await new Promise((res) => {
+            img.onload = res;
+            img.onerror = res;
+          });
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            canvas.toBlob(async (pngBlob) => {
+              if (pngBlob) {
+                await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]).catch(() => {});
+              }
+            }, 'image/png');
+          }
+        } catch {
+          // Non-blocking clipboard copy
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Card image preparation error:', err);
+  }
+
+  // Direct link targeting restaurant owner's exact phone number (+91 95425 25665)
   const encodedText = encodeURIComponent(shortColdMessage);
+  const directOwnerUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`;
 
-  // Direct WhatsApp links targeting owner's exact phone number (+91 95425 25665)
-  const isMobile =
+  // 1. Mobile Web Share API: Directly attaches the personalized card image into WhatsApp with the cold message caption
+  let sharedViaNative = false;
+  if (
     typeof navigator !== 'undefined' &&
-    /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  const nativeAppUrl = `whatsapp://send?phone=${phone}&text=${encodedText}`;
-  const webApiUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`;
-
-  // 1. DIRECT IMMEDIATE CHAT LAUNCH (synchronous, direct to owner)
-  if (typeof window !== 'undefined') {
-    if (isMobile) {
-      // Mobile: whatsapp:// protocol directly jumps into WhatsApp app to the owner's chat
-      window.location.href = nativeAppUrl;
-      // Fallback to web link if app takes a moment
-      setTimeout(() => {
-        window.location.href = webApiUrl;
-      }, 1500);
-    } else {
-      // Desktop: opens direct chat with owner in WhatsApp Web
-      window.open(webApiUrl, '_blank');
+    cardFile &&
+    navigator.canShare &&
+    navigator.canShare({ files: [cardFile] })
+  ) {
+    try {
+      await navigator.share({
+        files: [cardFile],
+        text: shortColdMessage,
+        title: `Coffee Land ${dining} Order Pass`,
+      });
+      sharedViaNative = true;
+    } catch (shareErr: unknown) {
+      if (shareErr instanceof Error && shareErr.name === 'AbortError') {
+        return; // User cancelled share dialog
+      }
+      console.warn('Web Share fallback:', shareErr);
     }
   }
 
-  // 2. Automatically save the personalized card to user's device downloads/gallery
-  generatePersonalizedCardBlob(payload)
-    .then((cardBlob) => {
-      if (cardBlob && typeof document !== 'undefined') {
-        try {
-          const downloadLink = document.createElement('a');
-          downloadLink.href = URL.createObjectURL(cardBlob);
-          downloadLink.download = `CoffeeLand_${dining}_Pass_${payload.itemName.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`;
-          downloadLink.style.display = 'none';
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-          setTimeout(() => downloadLink.remove(), 2000);
-        } catch {
-          // Non-blocking
-        }
-      }
-    })
-    .catch(() => {});
+  // 2. Direct launch into restaurant owner's WhatsApp chat
+  if (!sharedViaNative && typeof window !== 'undefined') {
+    window.open(directOwnerUrl, '_blank');
+  }
 }
