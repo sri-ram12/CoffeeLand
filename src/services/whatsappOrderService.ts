@@ -102,10 +102,8 @@ export async function sendOrderToWhatsApp(payload: WhatsAppOrderPayload): Promis
     payload.customerName || 'VIP Guest'
   )}&id=${orderId}`;
 
-  // Short, polite cold message from customer to restaurant owner
-  const shortColdMessage = `${cardPreviewUrl}
-
-Hello Coffee Land! 👋
+  // Short, polite cold message from customer to restaurant owner (clean without URL link text)
+  const shortColdMessage = `Hello Coffee Land! 👋
 I would like to place a ${emoji} *${dining} Order*:
 🍽️ *Item:* ${payload.itemName} (₹${payload.price})
 👤 *Guest:* ${payload.customerName || 'Guest'}${payload.customerPhone ? ` (${payload.customerPhone})` : ''}
