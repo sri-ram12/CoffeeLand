@@ -608,12 +608,15 @@ if (fs.existsSync(passesDir)) {
   app.use('/passes', express.static(passesDir));
 }
 
-app.get('/order-pass', (req, res) => {
-  const dining = req.query.type || 'Dine-In';
-  const item = req.query.item || 'Coffee Land Specialty';
-  const price = req.query.price || '0';
-  const customer = req.query.name || 'VIP Guest';
-  const id = req.query.id || `CL-${Date.now().toString().slice(-6)}`;
+app.get(['/pass/:id', '/order-pass'], (req, res) => {
+  const inquiries = readJson('inquiries.json', []);
+  const id = req.params.id || req.query.id || `CL-${Date.now().toString().slice(-6)}`;
+  const inq = inquiries.find((i) => i.id === id || i.id === req.params.id);
+
+  const dining = req.query.type || (inq && inq.diningOption) || 'Dine-In';
+  const item = req.query.item || (inq && inq.itemName) || 'Coffee Land Specialty';
+  const price = req.query.price || (inq && inq.price) || '0';
+  const customer = req.query.name || (inq && inq.customerName) || 'VIP Guest';
 
   let passSlug = 'dine-in';
   let emoji = '🔴';

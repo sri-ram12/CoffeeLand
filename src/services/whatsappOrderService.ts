@@ -102,12 +102,16 @@ export async function sendOrderToWhatsApp(payload: WhatsAppOrderPayload): Promis
     payload.customerName || 'VIP Guest'
   )}&id=${orderId}`;
 
-  // Short, polite cold message from customer to restaurant owner (clean without URL link text)
+  // Clean short pass link that triggers WhatsApp's visual card preview
+  const shortPassUrl = `${RENDER_BASE_URL}/pass/${orderId}?type=${encodeURIComponent(dining)}&item=${encodeURIComponent(payload.itemName)}&price=${payload.price}&name=${encodeURIComponent(payload.customerName || 'Guest')}`;
+
+  // Short, polite cold message with card link for WhatsApp media card preview
   const shortColdMessage = `Hello Coffee Land! 👋
 I would like to place a ${emoji} *${dining} Order*:
 🍽️ *Item:* ${payload.itemName} (₹${payload.price})
 👤 *Guest:* ${payload.customerName || 'Guest'}${payload.customerPhone ? ` (${payload.customerPhone})` : ''}
-${payload.customNote ? `📝 *Details:* ${payload.customNote}\n` : ''}Please confirm my order pass! Thank you.`;
+${payload.customNote ? `📝 *Details:* ${payload.customNote}\n` : ''}🎫 *Order Pass Card:* ${shortPassUrl}
+Please confirm my order pass! Thank you.`;
 
   const encodedText = encodeURIComponent(shortColdMessage);
 
@@ -133,32 +137,21 @@ ${payload.customNote ? `📝 *Details:* ${payload.customNote}\n` : ''}Please con
     }
   }
 
-  // 2. Desktop clipboard copy of personalized card image
+  // 2. Automatically save the personalized card to user's device downloads/gallery
   generatePersonalizedCardBlob(payload)
     .then((cardBlob) => {
-      if (
-        cardBlob &&
-        typeof navigator !== 'undefined' &&
-        navigator.clipboard &&
-        typeof ClipboardItem !== 'undefined'
-      ) {
-        const canvas = document.createElement('canvas');
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = URL.createObjectURL(cardBlob);
-        img.onload = () => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0);
-            canvas.toBlob((pngBlob) => {
-              if (pngBlob) {
-                navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]).catch(() => {});
-              }
-            }, 'image/png');
-          }
-        };
+      if (cardBlob && typeof document !== 'undefined') {
+        try {
+          const downloadLink = document.createElement('a');
+          downloadLink.href = URL.createObjectURL(cardBlob);
+          downloadLink.download = `CoffeeLand_${dining}_Pass_${payload.itemName.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`;
+          downloadLink.style.display = 'none';
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          setTimeout(() => downloadLink.remove(), 2000);
+        } catch {
+          // Non-blocking
+        }
       }
     })
     .catch(() => {});
