@@ -78,7 +78,7 @@ export async function generatePersonalizedCardBlob(payload: WhatsAppOrderPayload
           ctx.fillText(`Note: ${payload.customNote}`, contentX, 425 * scale + 11 * scale, 680 * scale - contentX);
         }
 
-        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.95);
+        canvas.toBlob((blob) => resolve(blob), 'image/png');
       } catch (err) {
         console.warn('Canvas card generation failed:', err);
         resolve(null);
@@ -147,26 +147,10 @@ ${payload.customNote ? `📝 *Details:* ${payload.customNote}\n` : ''}Please con
       console.warn('Auto download card failed', e);
     }
 
-    // 2. Clipboard copy of pass card image (for Desktop WhatsApp Web Ctrl+V)
+    // 2. Direct clipboard copy of pass card image (for instant Ctrl+V into WhatsApp Web)
     if (typeof navigator !== 'undefined' && navigator.clipboard && typeof ClipboardItem !== 'undefined') {
       try {
-        const canvas = document.createElement('canvas');
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = URL.createObjectURL(blob);
-        img.onload = () => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0);
-            canvas.toBlob((pngBlob) => {
-              if (pngBlob) {
-                navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]).catch(() => {});
-              }
-            }, 'image/png');
-          }
-        };
+        navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).catch(() => {});
       } catch {}
     }
   };

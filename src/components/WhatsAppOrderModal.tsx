@@ -474,6 +474,15 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
                 <span>Connect & Send Order to Cafe Owner (+91 95425 25665)</span>
               </button>
 
+              <div className="mt-2.5 p-2 rounded-xl bg-amber-500/10 border border-amber-600/20 text-center">
+                <p className="text-[11px] font-medium text-amber-950 flex items-center justify-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                  <span>
+                    <strong>Attach Card in WhatsApp:</strong> Press <strong>Ctrl+V</strong> (Paste) on PC, or tap <strong>📎</strong> on phone (card is saved to your gallery)!
+                  </span>
+                </p>
+              </div>
+
               <p className="text-[11px] text-coffee-600 text-center mt-2 flex items-center justify-center gap-1">
                 <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                 <span>Direct chat with owner (+91 95425 25665) • Pass card auto-saved to device</span>
