@@ -601,6 +601,133 @@ app.get('/api/export/:type', (req, res) => {
 });
 
 // ==========================================
+// 6.5 DYNAMIC WHATSAPP ORDER PASS CARD ROUTE (OPENGRAPH PREVIEW)
+// ==========================================
+const passesDir = path.join(__dirname, '../public/passes');
+if (fs.existsSync(passesDir)) {
+  app.use('/passes', express.static(passesDir));
+}
+
+app.get('/order-pass', (req, res) => {
+  const dining = req.query.type || 'Dine-In';
+  const item = req.query.item || 'Coffee Land Specialty';
+  const price = req.query.price || '0';
+  const customer = req.query.name || 'VIP Guest';
+  const id = req.query.id || `CL-${Date.now().toString().slice(-6)}`;
+
+  let passSlug = 'dine-in';
+  let emoji = '🔴';
+  let passColorName = 'Red Card';
+  let passTitle = 'DINE-IN PASS';
+  let passSubtitle = 'Table Service Pass';
+
+  const dLower = dining.toLowerCase();
+  if (dLower.includes('deliv')) {
+    passSlug = 'delivery';
+    emoji = '🔵';
+    passColorName = 'Blue Card';
+    passTitle = 'DELIVERY PASS';
+    passSubtitle = 'Doorstep Express Pass';
+  } else if (dLower.includes('take') || dLower.includes('parcel')) {
+    passSlug = 'takeaway';
+    emoji = '🟢';
+    passColorName = 'Green Card';
+    passTitle = 'TAKEAWAY PASS';
+    passSubtitle = 'Express Counter Parcel';
+  }
+
+  const host = process.env.RENDER_EXTERNAL_URL || 'https://coffeeland-4yy7.onrender.com';
+  const imageUrl = `${host}/passes/${passSlug}.jpg`;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${emoji} ${passTitle} (${passColorName}) | Coffee Land Resto & Cafe</title>
+  
+  <!-- WhatsApp & Social OpenGraph Card Tags -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Coffee Land Resto & Cafe" />
+  <meta property="og:title" content="${emoji} ${passTitle} (${passColorName}) • ${item} (₹${price})" />
+  <meta property="og:description" content="Official ${passSubtitle} for ${customer} • Total ₹${price} • Coffee Land Resto & Cafe, Temples Bypass Rd, Sangivalasa, Vizag." />
+  <meta property="og:image" content="${imageUrl}" />
+  <meta property="og:image:secure_url" content="${imageUrl}" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1472" />
+  <meta property="og:image:height" content="1044" />
+  <meta property="og:url" content="${host}/order-pass?type=${encodeURIComponent(dining)}&item=${encodeURIComponent(item)}&price=${price}&name=${encodeURIComponent(customer)}" />
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${emoji} ${passTitle} (${passColorName}) • ${item}" />
+  <meta name="twitter:description" content="Official Pass for ${customer} • Total ₹${price}" />
+  <meta name="twitter:image" content="${imageUrl}" />
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #1a0f0d;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    .card-wrap {
+      max-width: 600px;
+      width: 100%;
+      background: #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .card-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .info-bar {
+      background: #231411;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .info-bar a {
+      background: #c85a32;
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card-wrap">
+    <img src="${imageUrl}" alt="${passTitle}" />
+    <div class="info-bar">
+      <div>
+        <div style="font-weight: bold; font-size: 15px;">${emoji} ${passTitle} • ${item}</div>
+        <div style="font-size: 12px; color: #d5b895;">Guest: ${customer} | Bill: ₹${price}</div>
+      </div>
+      <a href="https://wa.me/919542525665?text=${encodeURIComponent(`Hello Coffee Land, confirming my ${passTitle} for ${item} (₹${price})`)}">Open WhatsApp</a>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(html);
+});
+
+// ==========================================
 // 7. PRODUCTION STATIC ASSETS (RENDER HOSTING)
 // ==========================================
 const distPath = path.join(__dirname, '../dist');

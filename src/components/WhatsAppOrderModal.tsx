@@ -260,150 +260,25 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
           </div>
 
           {/* ============================================================ */}
-          {/* 2. REAL-TIME ORDER PASS PREVIEW */}
+          {/* 2. ORDER SUMMARY BAR (CLEAN & SLEEK IN WEBSITE) */}
           {/* ============================================================ */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-1.5 px-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-coffee-600">
-                Official {theme.title} Pass Preview
-              </span>
-              <span className="text-[10px] font-bold text-terracotta">
-                {theme.emoji} {theme.passLabel}
-              </span>
+          <div className="mb-4 p-3 rounded-2xl bg-amber-50/80 border border-amber-900/10 flex items-center justify-between shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-xs ${theme.badgeBg}`}>
+                <theme.icon className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-espresso-950 font-serif line-clamp-1">
+                  {orderTarget.itemName}
+                </div>
+                <div className="text-[11px] text-coffee-700">
+                  {orderTarget.category || 'Specialty'} • <span className={`font-bold ${theme.accentText}`}>{theme.title} ({theme.colorName} Pass)</span>
+                </div>
+              </div>
             </div>
-
-            <div className="relative w-full rounded-2xl bg-white border border-neutral-200 shadow-md overflow-hidden flex min-h-[170px] transition-all duration-300">
-              {/* Left Vertical Ribbon Bar with Velvet Bowknot */}
-              <div className="relative w-14 sm:w-16 shrink-0 bg-neutral-100 flex flex-col items-center justify-start overflow-hidden">
-                {/* Vertical Ribbon Body */}
-                <div
-                  className="absolute inset-y-0 w-8 sm:w-9 shadow-inner transition-colors duration-300"
-                  style={{
-                    background: `linear-gradient(90deg, ${theme.ribbonDark} 0%, ${theme.ribbonMain} 50%, ${theme.ribbonDark} 100%)`,
-                  }}
-                />
-
-                {/* Velvet Bowknot SVG at Top */}
-                <div className="relative z-10 pt-2 w-12 sm:w-14">
-                  <svg viewBox="0 0 100 110" fill="none" className="w-full h-auto drop-shadow-md">
-                    <defs>
-                      <linearGradient id={`bowLoopGrad-${diningOption}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor={theme.ribbonLight} />
-                        <stop offset="50%" stopColor={theme.ribbonMain} />
-                        <stop offset="100%" stopColor={theme.ribbonDark} />
-                      </linearGradient>
-                      <linearGradient id={`bowKnotGrad-${diningOption}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor={theme.ribbonLight} />
-                        <stop offset="100%" stopColor={theme.ribbonDark} />
-                      </linearGradient>
-                    </defs>
-                    {/* Left Loop */}
-                    <path
-                      d="M 50 35 C 22 15, 2 25, 8 45 C 14 62, 38 52, 48 42 Z"
-                      fill={`url(#bowLoopGrad-${diningOption})`}
-                    />
-                    {/* Right Loop */}
-                    <path
-                      d="M 50 35 C 78 15, 98 25, 92 45 C 86 62, 62 52, 52 42 Z"
-                      fill={`url(#bowLoopGrad-${diningOption})`}
-                    />
-                    {/* Left Flowing Ribbon Tail */}
-                    <path
-                      d="M 44 45 C 38 65, 24 88, 18 102 L 32 94 L 40 98 C 42 80, 44 60, 46 45 Z"
-                      fill={theme.ribbonDark}
-                    />
-                    {/* Right Flowing Ribbon Tail */}
-                    <path
-                      d="M 56 45 C 62 65, 76 88, 82 102 L 68 94 L 60 98 C 58 80, 56 60, 54 45 Z"
-                      fill={theme.ribbonDark}
-                    />
-                    {/* Center Velvet Knot */}
-                    <ellipse
-                      cx="50"
-                      cy="38"
-                      rx="11"
-                      ry="9"
-                      fill={`url(#bowKnotGrad-${diningOption})`}
-                    />
-                    <ellipse
-                      cx="48"
-                      cy="36"
-                      rx="6"
-                      ry="4"
-                      fill="#FFFFFF"
-                      opacity="0.3"
-                    />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Right Side: Gift CARD Just For You + TO: / FROM: + Details */}
-              <div className="flex-1 p-3.5 sm:p-4 flex flex-col justify-between">
-                <div>
-                  {/* Top Header: Direct Dine-In / Delivery / Takeaway */}
-                  <div className="leading-tight">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="font-serif font-black text-2xl sm:text-3xl tracking-wider uppercase transition-colors duration-300"
-                        style={{ color: theme.ribbonDark }}
-                      >
-                        {theme.title}
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${theme.badgeBg} text-white shadow-xs`}
-                      >
-                        {theme.passLabel}
-                      </span>
-                    </div>
-                    <p
-                      className="font-handwriting text-sm sm:text-base italic font-semibold transition-colors duration-300 -mt-0.5"
-                      style={{ color: theme.ribbonMain }}
-                    >
-                      {theme.subtitle}
-                    </p>
-                  </div>
-
-                  {/* Lined TO: and FROM: fields like reference image */}
-                  <div className="mt-2.5 space-y-1.5 text-xs">
-                    <div className="flex items-center gap-1.5 border-b pb-0.5" style={{ borderColor: `${theme.ribbonMain}33` }}>
-                      <span className="font-bold text-[10px] sm:text-xs text-neutral-600 w-11 uppercase shrink-0">
-                        TO:
-                      </span>
-                      <span className="font-serif font-bold text-neutral-900 truncate">
-                        Coffee Land Resto & Cafe
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 border-b pb-0.5" style={{ borderColor: `${theme.ribbonMain}33` }}>
-                      <span className="font-bold text-[10px] sm:text-xs text-neutral-600 w-11 uppercase shrink-0">
-                        FROM:
-                      </span>
-                      <span className="font-bold text-neutral-900 truncate">
-                        {customerName.trim() || 'Your Name'}
-                        {customerPhone.trim() ? ` (${customerPhone.trim()})` : ''}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Dish & Total Badge in Gift Card */}
-                <div className="mt-2 pt-2 border-t border-neutral-200/80 flex items-center justify-between text-xs">
-                  <div>
-                    <span className="text-[10px] text-neutral-500 uppercase block font-semibold">
-                      Selected Item
-                    </span>
-                    <span className="font-bold text-neutral-950 font-serif line-clamp-1">
-                      {orderTarget.itemName}
-                    </span>
-                  </div>
-                  <div className="text-right pl-2">
-                    <span className="text-[10px] text-neutral-500 uppercase block font-semibold">Total</span>
-                    <span className="font-bold text-base font-serif text-neutral-950">
-                      ₹{orderTarget.price}
-                    </span>
-                  </div>
-                </div>
-              </div>
+            <div className="text-right shrink-0 pl-2">
+              <div className="text-[10px] uppercase font-bold text-neutral-500">Bill Total</div>
+              <div className="text-base font-black font-serif text-espresso-950">₹{orderTarget.price}</div>
             </div>
           </div>
 

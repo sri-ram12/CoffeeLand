@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { OfferBanner, BillboardBanner, WhatsAppInquiry } from '../types/banner';
 import { api } from '../services/api';
+import { sendOrderToWhatsApp } from '../services/whatsappOrderService';
 
 const BANNERS_STORAGE_KEY = 'coffeeland_offer_banners_v1';
 const BILLBOARD_BANNERS_STORAGE_KEY = 'coffeeland_billboard_banners_v6';
@@ -344,14 +345,18 @@ ${data.customNote ? ` 📝 *NOTE / ADDRESS:* ${data.customNote}\n` : ''} ⏰ *OR
       customNote: message
     }).catch((err) => console.warn('Could not post inquiry to server database:', err));
 
-    // Open WhatsApp with owner's number (+91 95425 25665)
-    const phone = '919542525665';
-    const encodedText = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${phone}?text=${encodedText}`;
-
-    if (typeof window !== 'undefined') {
-      window.open(whatsappUrl, '_blank');
-    }
+    // Send order to WhatsApp with the official reference pass card attached & previewed
+    sendOrderToWhatsApp({
+      customerName: finalCustomerName || 'Direct Guest',
+      customerPhone: finalCustomerPhone || '',
+      itemName: data.itemName,
+      price: data.price,
+      category: data.category,
+      diningOption: dining,
+      customNote: data.customNote,
+      promoCode: data.promoCode,
+      orderId: newInquiry.id,
+    }).catch((err) => console.warn('Could not dispatch order to WhatsApp:', err));
 
     return newInquiry;
   };
