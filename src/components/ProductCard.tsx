@@ -1,6 +1,6 @@
 import React from 'react';
 import { Product } from '../types/product';
-import { Heart, Sparkles, Eye, Clock, Flame, MessageCircle } from 'lucide-react';
+import { Heart, Sparkles, Eye, Clock, Flame, MessageCircle, Plus, Minus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { HotFoodVapourEffect, isHotFoodItem } from './HotFoodVapourEffect';
 
@@ -10,6 +10,9 @@ interface ProductCardProps {
   onToggleFavorite: (id: string) => void;
   onSelectProduct: (product: Product) => void;
   onOrderProduct?: (product: Product) => void;
+  cartQuantity?: number;
+  onAddToCart?: (product: Product) => void;
+  onUpdateCartQuantity?: (productId: string, quantity: number) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -18,6 +21,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onToggleFavorite,
   onSelectProduct,
   onOrderProduct,
+  cartQuantity = 0,
+  onAddToCart,
+  onUpdateCartQuantity,
 }) => {
   const isHot = isHotFoodItem(product.category, product.name);
 
@@ -152,17 +158,42 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </button>
           ) : (
             <div className="flex items-center gap-1.5">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectProduct(product);
-                }}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-amber-900/10 hover:bg-amber-900/20 text-espresso-950 text-xs font-bold transition-all"
-                title="View full recipe and preparation details"
-              >
-                <Eye className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">Details</span>
-              </button>
+              {cartQuantity > 0 ? (
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center bg-emerald-50 border border-emerald-600/40 rounded-full px-1.5 py-0.5 shadow-2xs"
+                >
+                  <button
+                    onClick={() => onUpdateCartQuantity && onUpdateCartQuantity(product.id, cartQuantity - 1)}
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-emerald-800 hover:bg-emerald-200/60 active:scale-95 transition-colors"
+                    title="Decrease quantity"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </button>
+                  <span className="font-serif font-black text-xs px-1.5 text-emerald-950 min-w-[16px] text-center">
+                    {cartQuantity}
+                  </span>
+                  <button
+                    onClick={() => onAddToCart && onAddToCart(product)}
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-emerald-800 hover:bg-emerald-200/60 active:scale-95 transition-colors"
+                    title="Add one more"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onAddToCart) onAddToCart(product);
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-600/30 text-xs font-bold transition-all active:scale-95"
+                  title="Add dish to cart"
+                >
+                  <Plus className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Add</span>
+                </button>
+              )}
 
               <button
                 onClick={(e) => {
@@ -173,8 +204,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                     onSelectProduct(product);
                   }
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold tracking-wide transition-all duration-200 shadow-xs active:scale-95"
-                title="Order this dish on WhatsApp"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold tracking-wide transition-all duration-200 shadow-xs active:scale-95"
+                title="Order this dish immediately via WhatsApp"
               >
                 <MessageCircle className="w-3.5 h-3.5 fill-white" />
                 <span>Order</span>

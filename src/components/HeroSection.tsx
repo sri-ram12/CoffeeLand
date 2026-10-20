@@ -105,8 +105,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </button>
 
             <button
-              onClick={() => onOrderWhatsApp('Specialty Coffee & Food Inquiry', 0, 'General')}
+              onClick={() => scrollTo('menu')}
               className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center gap-1.5 hover:scale-105 active:scale-95"
+              title="Explore Menu & Order Online via WhatsApp"
             >
               <MessageCircle className="w-4 h-4 fill-white" />
               <span>Order on WhatsApp</span>

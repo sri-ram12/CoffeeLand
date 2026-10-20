@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Product } from '../types/product';
-import { X, Heart, Clock, Flame, Sparkles, ChefHat, Info, CheckCircle2, MessageCircle, AlertCircle } from 'lucide-react';
+import { X, Heart, Clock, Flame, Sparkles, ChefHat, Info, CheckCircle2, MessageCircle, AlertCircle, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HotFoodVapourEffect, isHotFoodItem } from './HotFoodVapourEffect';
 
@@ -10,6 +10,7 @@ interface ProductDetailsModalProps {
   isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
   onOrderWhatsApp?: (product: Product) => void;
+  onAddToCart?: (product: Product, quantity?: number) => void;
 }
 
 export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
@@ -18,7 +19,15 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
   isFavorite,
   onToggleFavorite,
   onOrderWhatsApp,
+  onAddToCart,
 }) => {
+  const [modalQty, setModalQty] = useState(1);
+  const [addedToast, setAddedToast] = useState(false);
+
+  useEffect(() => {
+    setModalQty(1);
+    setAddedToast(false);
+  }, [product]);
   // Handle Escape key to close modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -209,23 +218,78 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
                 </div>
               )}
 
-              {onOrderWhatsApp && (
-                product.inStock === false ? (
-                  <button
-                    disabled
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-zinc-300 text-zinc-500 font-bold text-sm cursor-not-allowed shadow-none"
-                  >
-                    <span>Currently Unavailable (Out of Stock)</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => onOrderWhatsApp(product)}
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Order on WhatsApp • {product.name} (₹{product.price})</span>
-                  </button>
-                )
+              {product.inStock === false ? (
+                <button
+                  disabled
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-zinc-300 text-zinc-500 font-bold text-sm cursor-not-allowed shadow-none"
+                >
+                  <span>Currently Unavailable (Out of Stock)</span>
+                </button>
+              ) : (
+                <div className="space-y-2.5">
+                  {/* Quantity Stepper & Add to Cart */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center bg-amber-100/70 border border-amber-900/20 rounded-xl px-2 py-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setModalQty((q) => Math.max(1, q - 1))}
+                        className="w-6 h-6 rounded-lg flex items-center justify-center text-espresso-900 hover:bg-amber-200 active:scale-95 transition-colors"
+                        title="Decrease quantity"
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="font-serif font-black text-sm px-2.5 min-w-[24px] text-center text-espresso-950">
+                        {modalQty}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setModalQty((q) => q + 1)}
+                        className="w-6 h-6 rounded-lg flex items-center justify-center text-espresso-900 hover:bg-amber-200 active:scale-95 transition-colors"
+                        title="Increase quantity"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {onAddToCart && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onAddToCart(product, modalQty);
+                          setAddedToast(true);
+                          setTimeout(() => setAddedToast(false), 2000);
+                        }}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl border text-xs font-bold transition-all shadow-xs active:scale-[0.98] ${
+                          addedToast
+                            ? 'bg-emerald-600 text-white border-emerald-600'
+                            : 'bg-white hover:bg-amber-50 text-emerald-800 border-emerald-600/40'
+                        }`}
+                      >
+                        {addedToast ? (
+                          <>
+                            <CheckCircle2 className="w-4 h-4 text-white" />
+                            <span>Added to Cart!</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingBag className="w-4 h-4 text-emerald-700" />
+                            <span>Add to Cart (₹{product.price * modalQty})</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+
+                  {onOrderWhatsApp && (
+                    <button
+                      onClick={() => onOrderWhatsApp(product)}
+                      className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Direct WhatsApp Pass • {product.name} (₹{product.price * modalQty})</span>
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           </div>

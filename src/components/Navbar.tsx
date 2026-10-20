@@ -14,7 +14,8 @@ import {
   Star,
   Image as ImageIcon,
   Flame,
-  Settings
+  Settings,
+  MessageCircle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -24,12 +25,16 @@ interface NavbarProps {
   onOpenFavorites: () => void;
   onOpenQRCode?: () => void;
   onOpenReviewModal: () => void;
+  cartCount?: number;
+  onOpenCart?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   favoriteCount,
   onOpenFavorites,
   onOpenReviewModal,
+  cartCount = 0,
+  onOpenCart,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -153,8 +158,31 @@ export const Navbar: React.FC<NavbarProps> = ({
               })}
             </nav>
 
-            {/* Fast Action Tools: Review, Favorites & Mobile Menu */}
+            {/* Fast Action Tools: Orders on WhatsApp, Review, Favorites & Mobile Menu */}
             <div className="flex items-center gap-2 sm:gap-2.5">
+              {/* Top Orders on WhatsApp Button - Scrolls to #menu for selecting food items (or opens cart if items selected) */}
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (cartCount > 0 && onOpenCart) {
+                    onOpenCart();
+                  } else {
+                    const el = document.querySelector('#menu');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition-all hover:scale-105 active:scale-95"
+                title="Orders on WhatsApp • Select food items from our 150+ menu"
+              >
+                <MessageCircle className="w-4 h-4 fill-white" />
+                <span className="hidden sm:inline">Orders on WhatsApp</span>
+                <span className="sm:hidden">Orders</span>
+                {cartCount > 0 && (
+                  <span className="px-1.5 py-0.2 bg-white text-emerald-800 rounded-full text-[10px] font-black animate-pulse">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
 
               {/* Upload Photo & Review Button */}
               <button
@@ -204,15 +232,28 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="fixed inset-x-0 top-16 z-40 bg-[#EDE0CC]/98 border-b border-terracotta/25 backdrop-blur-xl px-6 py-6 shadow-2xl lg:hidden max-h-[85vh] overflow-y-auto"
           >
             <div className="flex flex-col space-y-3">
-              {/* Prominent Mobile Order Now Button */}
-              <a
-                href="#menu"
-                onClick={(e) => handleScrollTo(e, '#menu')}
-                className="w-full py-3 px-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 ring-2 ring-red-400/40"
+              {/* Prominent Mobile Orders on WhatsApp Button */}
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMobileMenuOpen(false);
+                  if (cartCount > 0 && onOpenCart) {
+                    onOpenCart();
+                  } else {
+                    const el = document.querySelector('#menu');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 ring-2 ring-emerald-400/40"
               >
-                <Utensils className="w-4 h-4" />
-                <span>ORDER NOW (EXPLORE 150+ MENU)</span>
-              </a>
+                <MessageCircle className="w-4 h-4 fill-white" />
+                <span>ORDERS ON WHATSAPP (SELECT FOOD ITEMS)</span>
+                {cartCount > 0 && (
+                  <span className="px-2 py-0.5 bg-white text-emerald-800 rounded-full text-xs font-black">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
 
               {navLinks.map((link) => {
                 const IconComp = link.icon;

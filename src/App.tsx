@@ -11,6 +11,8 @@ import { ReviewsSection } from './components/ReviewsSection';
 import { ReviewModal } from './components/ReviewModal';
 import { QRCodeModal } from './components/QRCodeModal';
 import { WhatsAppOrderModal, WhatsAppOrderTarget } from './components/WhatsAppOrderModal';
+import { FloatingCartBar } from './components/FloatingCartBar';
+import { CartOrderModal } from './components/CartOrderModal';
 import { AboutSection } from './components/AboutSection';
 import { GallerySection } from './components/GallerySection';
 import { ContactSection } from './components/ContactSection';
@@ -20,6 +22,7 @@ import { useFavorites } from './hooks/useFavorites';
 import { useMenu } from './hooks/useMenu';
 import { useReviews } from './hooks/useReviews';
 import { useBanners } from './hooks/useBanners';
+import { useCart } from './hooks/useCart';
 import { OfferBanner } from './types/banner';
 import { Product } from './types/product';
 import { Utensils, Download } from 'lucide-react';
@@ -72,6 +75,20 @@ export const App: React.FC = () => {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [catalogViewMode, setCatalogViewMode] = useState<'cards' | 'compact' | 'dashed'>('cards');
   const [customProducts, setCustomProducts] = useState<Product[]>([]);
+
+  // Cart state for multi-item WhatsApp ordering
+  const {
+    items: cartItems,
+    addToCart,
+    updateQuantity: updateCartQuantity,
+    removeFromCart,
+    clearCart,
+    getItemQuantity,
+    totalCount: cartTotalCount,
+    totalPrice: cartTotalPrice,
+  } = useCart();
+
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
 
   useEffect(() => {
     if (allProducts.length > 0 && customProducts.length === 0) {
@@ -143,6 +160,8 @@ export const App: React.FC = () => {
         favoriteCount={favoriteCount}
         onOpenFavorites={handleOpenFavorites}
         onOpenReviewModal={() => setIsReviewModalOpen(true)}
+        cartCount={cartTotalCount}
+        onOpenCart={() => setIsCartModalOpen(true)}
       />
 
       {/* Floating / Sticky Fast Access Dock (Desktop scroll + Mobile Bottom Bar) */}
@@ -230,6 +249,9 @@ export const App: React.FC = () => {
             onOrderProduct={handleProductWhatsAppOrder}
             onResetFilters={resetFilters}
             viewMode={catalogViewMode}
+            getItemQuantity={getItemQuantity}
+            onAddToCart={addToCart}
+            onUpdateCartQuantity={updateCartQuantity}
           />
         </div>
       </section>
@@ -285,13 +307,41 @@ export const App: React.FC = () => {
         isFavorite={selectedProduct ? isFavorite(selectedProduct.id) : false}
         onToggleFavorite={toggleFavorite}
         onOrderWhatsApp={handleProductWhatsAppOrder}
+        onAddToCart={addToCart}
       />
 
-      {/* WhatsApp Order & Inquiry Capture Modal */}
+      {/* WhatsApp Order & Inquiry Capture Modal (Single Dish Fast Dispatch) */}
       <WhatsAppOrderModal
         orderTarget={activeOrderTarget}
         onClose={() => setActiveOrderTarget(null)}
         onConfirmOrder={(orderData) => {
+          sendWhatsAppInquiry(orderData);
+        }}
+      />
+
+      {/* Floating Cart Bar (Appears when items are selected in cart) */}
+      <FloatingCartBar
+        totalCount={cartTotalCount}
+        totalPrice={cartTotalPrice}
+        onOpenCart={() => setIsCartModalOpen(true)}
+      />
+
+      {/* Multi-Item Cart Order Modal (Order 2 or more dishes via WhatsApp with Pass Card) */}
+      <CartOrderModal
+        isOpen={isCartModalOpen}
+        onClose={() => setIsCartModalOpen(false)}
+        items={cartItems}
+        totalPrice={cartTotalPrice}
+        totalCount={cartTotalCount}
+        onUpdateQuantity={updateCartQuantity}
+        onRemoveItem={removeFromCart}
+        onClearCart={clearCart}
+        onAddMoreItems={() => {
+          if (menuSectionRef.current) {
+            menuSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
+        onInquiryRecorded={(orderData) => {
           sendWhatsAppInquiry(orderData);
         }}
       />

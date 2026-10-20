@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Product, Category, CategoryId } from '../types/product';
 import { ProductCard } from './ProductCard';
-import { Coffee, RotateCcw, Heart, Eye, Sparkles, Filter, ChevronRight, ArrowRight, Utensils } from 'lucide-react';
+import { Coffee, RotateCcw, Heart, Eye, Sparkles, Filter, ChevronRight, ArrowRight, Utensils, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HotFoodVapourEffect, isHotFoodItem } from './HotFoodVapourEffect';
 
@@ -18,6 +18,9 @@ interface ProductGridProps {
   onOrderProduct?: (product: Product) => void;
   onResetFilters: () => void;
   viewMode?: CatalogViewMode;
+  getItemQuantity?: (productId: string) => number;
+  onAddToCart?: (product: Product) => void;
+  onUpdateCartQuantity?: (productId: string, quantity: number) => void;
 }
 
 const CATEGORY_META: Record<string, { emoji: string; badge: string }> = {
@@ -51,6 +54,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   onOrderProduct,
   onResetFilters,
   viewMode = 'cards',
+  getItemQuantity,
+  onAddToCart,
+  onUpdateCartQuantity,
 }) => {
   // Group products by category when viewing all categories or multi-category searches
   const categoryGroups = useMemo(() => {
@@ -140,6 +146,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               onToggleFavorite={onToggleFavorite}
               onSelectProduct={onSelectProduct}
               onOrderProduct={onOrderProduct}
+              cartQuantity={getItemQuantity ? getItemQuantity(product.id) : 0}
+              onAddToCart={onAddToCart}
+              onUpdateCartQuantity={onUpdateCartQuantity}
             />
           </div>
         ))}
@@ -232,6 +241,40 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                         }`}
                       />
                     </button>
+
+                    {product.inStock !== false && (
+                      (() => {
+                        const qty = getItemQuantity ? getItemQuantity(product.id) : 0;
+                        return qty > 0 ? (
+                          <div className="flex items-center bg-emerald-50 border border-emerald-600/30 rounded-lg px-1 py-0.5">
+                            <button
+                              onClick={() => onUpdateCartQuantity && onUpdateCartQuantity(product.id, qty - 1)}
+                              className="w-4 h-4 flex items-center justify-center text-emerald-800 hover:bg-emerald-200/60 rounded"
+                              title="Decrease"
+                            >
+                              <Minus className="w-2.5 h-2.5" />
+                            </button>
+                            <span className="text-[10px] font-bold text-emerald-950 px-1">{qty}</span>
+                            <button
+                              onClick={() => onAddToCart && onAddToCart(product)}
+                              className="w-4 h-4 flex items-center justify-center text-emerald-800 hover:bg-emerald-200/60 rounded"
+                              title="Increase"
+                            >
+                              <Plus className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => onAddToCart && onAddToCart(product)}
+                            className="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-600/30 font-bold text-[10px] transition-all"
+                            title="Add dish to cart"
+                          >
+                            + Add
+                          </button>
+                        );
+                      })()
+                    )}
+
                     <button
                       onClick={() => onSelectProduct(product)}
                       className="px-2.5 py-1 rounded-lg bg-terracotta hover:bg-terracotta-600 text-white font-bold text-[10px] shadow-xs transition-all active:scale-95"
@@ -309,7 +352,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   {product.description}
                 </p>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     onClick={() => onToggleFavorite(product.id)}
                     className="p-1 rounded-full text-espresso-400 hover:text-red-500 transition-colors"
@@ -320,6 +363,39 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                       }`}
                     />
                   </button>
+
+                  {product.inStock !== false && (
+                    (() => {
+                      const qty = getItemQuantity ? getItemQuantity(product.id) : 0;
+                      return qty > 0 ? (
+                        <div className="flex items-center bg-emerald-50 border border-emerald-600/30 rounded-lg px-1 py-0.5">
+                          <button
+                            onClick={() => onUpdateCartQuantity && onUpdateCartQuantity(product.id, qty - 1)}
+                            className="w-4 h-4 flex items-center justify-center text-emerald-800 hover:bg-emerald-200/60 rounded"
+                            title="Decrease"
+                          >
+                            <Minus className="w-2.5 h-2.5" />
+                          </button>
+                          <span className="text-[10px] font-bold text-emerald-950 px-1">{qty}</span>
+                          <button
+                            onClick={() => onAddToCart && onAddToCart(product)}
+                            className="w-4 h-4 flex items-center justify-center text-emerald-800 hover:bg-emerald-200/60 rounded"
+                            title="Increase"
+                          >
+                            <Plus className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => onAddToCart && onAddToCart(product)}
+                          className="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-600/30 font-bold text-[10px] transition-all"
+                          title="Add dish to cart"
+                        >
+                          + Add
+                        </button>
+                      );
+                    })()
+                  )}
 
                   <button
                     onClick={() => onSelectProduct(product)}

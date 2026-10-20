@@ -139,52 +139,78 @@ export const HotFoodVapourEffect: React.FC<HotFoodVapourEffectProps> = ({
 };
 
 /**
- * Helper to determine if a dish or category qualifies as a hot food item
+ * Helper to strictly determine if a dish or beverage qualifies as a hot food item.
+ * Fog and steam animation ONLY appears for genuinely hot items (Hot coffee, tea, soup, sizzling dishes, pizza, pasta, rice bowls).
+ * Cold shakes, cold coffee, juices, ice creams, mocktails, desserts, and cold items NEVER have steam.
  */
 export const isHotFoodItem = (category?: string, name?: string): boolean => {
   if (!category && !name) return false;
   const cat = (category || '').toLowerCase();
   const n = (name || '').toLowerCase();
 
-  // Exclude explicit cold drink categories
-  if (
-    cat.includes('cold-coffee') ||
-    cat.includes('juices') ||
-    cat.includes('mocktails') ||
-    cat.includes('thickshake') ||
-    n.includes('frappe') ||
-    n.includes('iced') ||
-    n.includes('cold brew') ||
-    n.includes('chilled')
-  ) {
-    return false;
+  // 1. Strict Exclusion: Any cold drinks, shakes, juices, mocktails, ice creams, desserts, salads
+  const coldSignals = [
+    'cold',
+    'iced',
+    'chilled',
+    'shake',
+    'thickshake',
+    'frappe',
+    'mojito',
+    'mocktail',
+    'juice',
+    'smoothie',
+    'cooler',
+    'soda',
+    'ice cream',
+    'ice-cream',
+    'falooda',
+    'kulfi',
+    'frozen',
+    'cheesecake',
+    'pastry',
+    'cake',
+    'mousse',
+    'tart',
+    'pudding',
+    'custard',
+    'salad',
+  ];
+
+  if (coldSignals.some((signal) => cat.includes(signal) || n.includes(signal))) {
+    // Sizzling brownie is an exception if explicitly sizzling
+    if (!n.includes('sizzling')) {
+      return false;
+    }
   }
 
-  // Hot food / hot beverage categories
-  const hotCategories = [
-    'hot-coffee',
-    'hot-chocolate-tea',
-    'pizza',
-    'pasta',
-    'burgers',
-    'sandwiches',
-    'wraps',
-    'veg-appetizers',
-    'non-veg-appetizers',
-    'fried-rice-bowls',
-    'soup-salads',
-    'waffles-pancakes',
-    'kunafa-desserts',
-  ];
+  // 2. Strict Hot Categories ONLY
+  if (cat === 'hot-coffee' || cat.includes('hot-coffee')) return true;
+  if (cat === 'hot-chocolate-tea' || cat.includes('hot-chocolate') || cat.includes('hot-tea')) return true;
+  if (cat === 'pizza' || cat.includes('pizza')) return true;
+  if (cat === 'pasta' || cat.includes('pasta')) return true;
+  if (cat === 'fried-rice-bowls' || cat.includes('rice-bowls')) return true;
 
-  if (hotCategories.some((c) => cat.includes(c))) return true;
-
-  // Food keywords
+  // 3. Strict Hot Dish Keywords
   const hotKeywords = [
-    'hot', 'espresso', 'cappuccino', 'latte', 'americano', 'mocha', 'tea', 'chai',
-    'pizza', 'burger', 'pasta', 'rice', 'soup', 'sizzler', 'brownie', 'crispy',
-    'grilled', 'paneer', 'chicken', 'roast', 'fried', 'waffle', 'panini', 'wrap', 'cheese'
+    'soup',
+    'sizzler',
+    'sizzling',
+    'hot chocolate',
+    'cappuccino',
+    'espresso',
+    'americano',
+    'latte',
+    'cortado',
+    'flat white',
+    'macchiato',
+    'masala chai',
+    'ginger tea',
+    'green tea',
+    'kashmiri kahwa',
+    'hot tea',
+    'hot cocoa',
   ];
 
-  return hotKeywords.some((k) => n.includes(k));
+  return hotKeywords.some((keyword) => n.includes(keyword));
 };
