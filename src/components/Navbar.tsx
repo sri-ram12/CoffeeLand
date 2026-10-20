@@ -153,18 +153,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               })}
             </nav>
 
-            {/* Fast Action Tools: Order Now, Review & Favorites */}
+            {/* Fast Action Tools: Review, Favorites & Mobile Menu */}
             <div className="flex items-center gap-2 sm:gap-2.5">
-              {/* Order Now Button - Tackles the Overall Menu Area */}
-              <a
-                href="#menu"
-                onClick={(e) => handleScrollTo(e, '#menu')}
-                className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95 ring-2 ring-red-400/30"
-                title="Explore Menu & Order Online via WhatsApp"
-              >
-                <Utensils className="w-3.5 h-3.5" />
-                <span>ORDER NOW</span>
-              </a>
 
               {/* Upload Photo & Review Button */}
               <button

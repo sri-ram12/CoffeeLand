@@ -15,82 +15,131 @@ export interface WhatsAppOrderPayload {
 const RENDER_BASE_URL = 'https://coffeeland-4yy7.onrender.com';
 
 /**
- * Dispatches the order to WhatsApp with the official reference pass card.
- * 1. Puts the live order-pass OpenGraph URL at the top of the message so WhatsApp
- *    renders the high-resolution reference card banner in the chat bubble.
- * 2. On mobile browsers supporting navigator.share, shares the actual card image file
- *    directly into WhatsApp with the message caption.
- * 3. On desktop browsers, copies the card image to the system clipboard for easy Ctrl+V pasting.
+ * Dynamically draws the customer details and actual item name onto the
+ * official reference card template (with real velvet ribbon & bow).
+ */
+export async function generatePersonalizedCardBlob(payload: WhatsAppOrderPayload): Promise<Blob | null> {
+  if (typeof document === 'undefined') return null;
+
+  const dining = payload.diningOption;
+  const passSlug = dining === 'Delivery' ? 'delivery' : dining === 'Takeaway' ? 'takeaway' : 'dine-in';
+  const baseImgUrl = `/passes/${passSlug}-base.jpg`;
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width || 1472;
+        canvas.height = img.height || 1044;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(null);
+
+        // 1. Draw the reference card base (velvet ribbon, bow, branding, TO: line)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const scale = canvas.width / 736; // scale factor (2x)
+        const contentX = 305 * scale;
+        const lineStartX = contentX + 70 * scale;
+        const maxTextWidth = 680 * scale - lineStartX;
+
+        // 2. Draw FROM: Customer Name and Mobile
+        ctx.fillStyle = '#2c1810';
+        ctx.textBaseline = 'middle';
+        ctx.font = `bold ${Math.round(14 * scale)}px Georgia, serif`;
+        const customerText = `${payload.customerName || 'Direct Guest'}${
+          payload.customerPhone ? ` (${payload.customerPhone})` : ''
+        }`;
+        ctx.fillText(customerText, lineStartX, 335 * scale + 11 * scale, maxTextWidth);
+
+        // 3. Draw ITEM: Exact Dish Name & Bill Total (NOT generic verified pass)
+        ctx.font = `bold ${Math.round(15 * scale)}px Georgia, serif`;
+        const itemText = `${payload.itemName} • ₹${payload.price}`;
+        ctx.fillText(itemText, lineStartX, 385 * scale + 11 * scale, maxTextWidth);
+
+        // 4. Optional Special Note (Table Number / Delivery Address)
+        if (payload.customNote) {
+          ctx.font = `italic ${Math.round(12 * scale)}px Georgia, serif`;
+          ctx.fillStyle = dining === 'Delivery' ? '#0f378c' : dining === 'Takeaway' ? '#0c5a30' : '#780a14';
+          ctx.fillText(`Note: ${payload.customNote}`, contentX, 425 * scale + 11 * scale, 680 * scale - contentX);
+        }
+
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.95);
+      } catch (err) {
+        console.warn('Canvas card generation failed:', err);
+        resolve(null);
+      }
+    };
+
+    img.onerror = () => {
+      console.warn('Failed to load card base image:', baseImgUrl);
+      resolve(null);
+    };
+
+    img.src = baseImgUrl;
+  });
+}
+
+/**
+ * Dispatches the order to WhatsApp with the personalized reference pass card:
+ * 1. Shares the actual personalized card image with customer name and item name.
+ * 2. Sends a short, polite cold message from customer to restaurant owner.
+ * 3. Includes the live order-pass URL so WhatsApp generates the card preview banner.
+ * 4. On desktop, copies the personalized card to clipboard for 1-click Ctrl+V pasting.
  */
 export async function sendOrderToWhatsApp(payload: WhatsAppOrderPayload): Promise<void> {
   const phone = '919542525665';
   const dining = payload.diningOption;
-  const tagEmoji = dining === 'Dine-In' ? '🔴' : dining === 'Delivery' ? '🔵' : '🟢';
-  const tagColor = dining === 'Dine-In' ? 'RED' : dining === 'Delivery' ? 'BLUE' : 'GREEN';
-  const typeLabel =
-    dining === 'Dine-In'
-      ? 'DINE-IN ORDER'
-      : dining === 'Delivery'
-      ? 'HOME DELIVERY ORDER'
-      : 'TAKEAWAY PARCEL ORDER';
-  const subLabel =
-    dining === 'Dine-In'
-      ? 'Table Service Pass'
-      : dining === 'Delivery'
-      ? 'Doorstep Express Pass'
-      : 'Express Counter Parcel';
-
-  const orderId = payload.orderId || `CL-${Date.now().toString().slice(-6)}`;
+  const emoji = dining === 'Dine-In' ? '🔴' : dining === 'Delivery' ? '🔵' : '🟢';
   const passSlug = dining === 'Delivery' ? 'delivery' : dining === 'Takeaway' ? 'takeaway' : 'dine-in';
+  const orderId = payload.orderId || `CL-${Date.now().toString().slice(-6)}`;
 
-  // The public preview link for WhatsApp OpenGraph card preview
+  // Public card preview URL for WhatsApp OpenGraph preview
   const cardPreviewUrl = `${RENDER_BASE_URL}/order-pass?type=${encodeURIComponent(
     dining
   )}&item=${encodeURIComponent(payload.itemName)}&price=${payload.price}&name=${encodeURIComponent(
     payload.customerName || 'VIP Guest'
   )}&id=${orderId}`;
 
-  // Formatted order message with the card URL at the very top for WhatsApp Rich Link Preview
-  const orderWhatsAppText = `${cardPreviewUrl}
+  // Short, polite cold message from customer to restaurant owner (details are already on the card!)
+  let shortColdMessage = `${cardPreviewUrl}
 
-${tagEmoji}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${tagEmoji}
-   *${typeLabel} (${tagColor} PASS)*
-   _${subLabel}_
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📌 *TO:* Coffee Land Resto & Cafe
-        Temples Bypass Rd, Sangivalasa, Vizag
-👤 *FROM:* ${payload.customerName || 'Direct Guest'}${payload.customerPhone ? ` (${payload.customerPhone})` : ''}
-────────────────────────────
-🍽️ *ITEM:* ${payload.itemName}
-🏷️ *CATEGORY:* ${payload.category || 'Specialty Dish'}
-💰 *TOTAL BILL:* ₹${payload.price}${payload.promoCode ? ` (Promo: ${payload.promoCode})` : ''}
-${payload.customNote ? `📝 *DETAILS:* ${payload.customNote}\n` : ''}⏰ *TIME:* ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✨ Please prepare & confirm this ${typeLabel}! ✨`;
+Hello Coffee Land! 👋
+I would like to place a ${emoji} *${dining} Order*:
+🍽️ *Item:* ${payload.itemName} (₹${payload.price})
+👤 *Guest:* ${payload.customerName || 'Guest'}${payload.customerPhone ? ` (${payload.customerPhone})` : ''}
+${payload.customNote ? `📝 *Details:* ${payload.customNote}\n` : ''}Please confirm my order pass! Thank you.`;
 
-  // Try to fetch the local/hosted pass image
-  let imageFile: File | null = null;
+  // Generate personalized card image with customer name and item name
+  let cardFile: File | null = null;
+  let cardBlob: Blob | null = null;
+
   try {
-    const imgUrl = `/passes/${passSlug}.jpg`;
-    const res = await fetch(imgUrl);
-    if (res.ok) {
-      const blob = await res.blob();
-      imageFile = new File([blob], `${passSlug}-order-pass.jpg`, { type: 'image/jpeg' });
+    cardBlob = await generatePersonalizedCardBlob(payload);
+    if (!cardBlob) {
+      // Fallback to pre-rendered default pass
+      const res = await fetch(`/passes/${passSlug}.jpg`);
+      if (res.ok) cardBlob = await res.blob();
+    }
 
-      // If on desktop, try copying the image to clipboard so the user can easily paste (Ctrl+V) into WhatsApp Web
+    if (cardBlob) {
+      const fileName = `${dining}_Pass_${payload.itemName.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`;
+      cardFile = new File([cardBlob], fileName, { type: 'image/jpeg' });
+
+      // On desktop browsers: copy card image directly to clipboard so user can press Ctrl+V into WhatsApp Web
       if (typeof navigator !== 'undefined' && navigator.clipboard && typeof ClipboardItem !== 'undefined') {
         try {
-          // Convert to PNG blob if needed since some browsers require image/png for clipboard
           const canvas = document.createElement('canvas');
           const img = new Image();
           img.crossOrigin = 'anonymous';
-          img.src = URL.createObjectURL(blob);
-          await new Promise((resolve) => {
-            img.onload = resolve;
-            img.onerror = resolve;
+          img.src = URL.createObjectURL(cardBlob);
+          await new Promise((res) => {
+            img.onload = res;
+            img.onerror = res;
           });
-          canvas.width = img.width || 736;
-          canvas.height = img.height || 522;
+          canvas.width = img.width;
+          canvas.height = img.height;
           const ctx = canvas.getContext('2d');
           if (ctx) {
             ctx.drawImage(img, 0, 0);
@@ -101,39 +150,38 @@ ${payload.customNote ? `📝 *DETAILS:* ${payload.customNote}\n` : ''}⏰ *TIME:
             }, 'image/png');
           }
         } catch {
-          // Non-blocking
+          // Non-blocking clipboard copy
         }
       }
     }
   } catch (err) {
-    console.warn('Could not fetch pass card image for sharing:', err);
+    console.warn('Card image preparation error:', err);
   }
 
-  // 1. If mobile device supports Web Share API with files, share directly to WhatsApp
+  // 1. Mobile Web Share API: Directly attaches the personalized card image into WhatsApp with the cold message caption
   if (
     typeof navigator !== 'undefined' &&
-    imageFile &&
+    cardFile &&
     navigator.canShare &&
-    navigator.canShare({ files: [imageFile] })
+    navigator.canShare({ files: [cardFile] })
   ) {
     try {
       await navigator.share({
-        files: [imageFile],
-        text: orderWhatsAppText,
+        files: [cardFile],
+        text: shortColdMessage,
         title: `Coffee Land ${dining} Order Pass`,
       });
       return;
     } catch (shareErr: unknown) {
-      // If user cancelled share sheet, return silently; otherwise fall back to wa.me
       if (shareErr instanceof Error && shareErr.name === 'AbortError') {
-        return;
+        return; // User cancelled share dialog
       }
-      console.warn('Web Share failed, falling back to wa.me URL:', shareErr);
+      console.warn('Web Share fallback:', shareErr);
     }
   }
 
-  // 2. Standard WhatsApp deep-link with the card preview URL included
-  const encodedText = encodeURIComponent(orderWhatsAppText);
+  // 2. Standard WhatsApp deep-link with the card preview URL and short cold message
+  const encodedText = encodeURIComponent(shortColdMessage);
   const whatsappUrl = `https://wa.me/${phone}?text=${encodedText}`;
 
   if (typeof window !== 'undefined') {

@@ -296,23 +296,13 @@ export const useBanners = () => {
     const typeLabel = dining === 'Dine-In' ? 'DINE-IN ORDER' : dining === 'Delivery' ? 'HOME DELIVERY ORDER' : 'TAKEAWAY PARCEL ORDER';
     const subLabel = dining === 'Dine-In' ? 'Fresh Table Service' : dining === 'Delivery' ? 'Doorstep Express Delivery' : 'Express Counter Pickup';
 
-    const orderWhatsAppText = `🎀${tagEmoji}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${tagEmoji}🎀
-           *${typeLabel}*
-        _${subLabel}_
-  ${tagEmoji} *COFFEE LAND RESTO & CAFE* (${tagColor} PASS)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 📌 *TO:* Coffee Land Resto & Cafe
-         Temples Bypass Rd, Sangivalasa
- 👤 *FROM:* ${finalCustomerName || 'Direct Guest'}${finalCustomerPhone ? ` (${finalCustomerPhone})` : ''}
-────────────────────────────────────
- 🍽️ *ITEM:* ${data.itemName}
- 🏷️ *CATEGORY:* ${data.category || 'Specialty Dish'}
- 💰 *TOTAL:* ₹${data.price}${data.promoCode ? ` (Promo: ${data.promoCode})` : ''}
-${data.customNote ? ` 📝 *NOTE / ADDRESS:* ${data.customNote}\n` : ''} ⏰ *ORDER TIME:* ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   ✨ Please prepare & confirm this ${typeLabel}! ✨`;
+    const shortColdMessage = `Hello Coffee Land! 👋
+I would like to place a ${tagEmoji} *${dining} Order*:
+🍽️ *Item:* ${data.itemName} (₹${data.price})
+👤 *Guest:* ${finalCustomerName || 'Guest'}${finalCustomerPhone ? ` (${finalCustomerPhone})` : ''}
+${data.customNote ? `📝 *Details:* ${data.customNote}\n` : ''}Please confirm my order pass! Thank you.`;
 
-    const message = orderWhatsAppText;
+    const message = shortColdMessage;
 
     const newInquiry: WhatsAppInquiry = {
       id: `inq-${Date.now()}`,
