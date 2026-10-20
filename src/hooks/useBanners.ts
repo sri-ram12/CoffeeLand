@@ -335,7 +335,7 @@ ${data.customNote ? `📝 *Details:* ${data.customNote}\n` : ''}Please confirm m
       customNote: message
     }).catch((err) => console.warn('Could not post inquiry to server database:', err));
 
-    // Send order to WhatsApp with the official reference pass card attached & previewed
+    // Send order to WhatsApp directly into owner's chat (+91 95425 25665)
     sendOrderToWhatsApp({
       customerName: finalCustomerName || 'Direct Guest',
       customerPhone: finalCustomerPhone || '',
@@ -346,7 +346,7 @@ ${data.customNote ? `📝 *Details:* ${data.customNote}\n` : ''}Please confirm m
       customNote: data.customNote,
       promoCode: data.promoCode,
       orderId: newInquiry.id,
-    }).catch((err) => console.warn('Could not dispatch order to WhatsApp:', err));
+    });
 
     return newInquiry;
   };
