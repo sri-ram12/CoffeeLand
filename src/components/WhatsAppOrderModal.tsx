@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, MessageCircle, User, Phone, FileText, CheckCircle2, UtensilsCrossed, Truck, ShoppingBag, MapPin, Sparkles } from 'lucide-react';
+import { X, MessageCircle, User, Phone, FileText, CheckCircle2, UtensilsCrossed, Truck, ShoppingBag, MapPin, Sparkles, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { generatePersonalizedCardBlob } from '../services/whatsappOrderService';
 
 export interface WhatsAppOrderTarget {
   itemName: string;
@@ -25,6 +26,7 @@ interface WhatsAppOrderModalProps {
     diningOption: DiningOption;
     promoCode?: string;
     customNote?: string;
+    cardBlob?: Blob | null;
   }) => void;
 }
 
@@ -41,6 +43,8 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [tableNumber, setTableNumber] = useState('');
   const [customNote, setCustomNote] = useState('');
+  const [cardBlob, setCardBlob] = useState<Blob | null>(null);
+  const [cardPreviewUrl, setCardPreviewUrl] = useState<string | null>(null);
 
   // Load saved customer profile if available
   useEffect(() => {
@@ -56,6 +60,38 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
       console.warn('Could not read customer profile', e);
     }
   }, [orderTarget]);
+
+  // Pre-generate pass card image so it is ready immediately for sharing/clipboard
+  useEffect(() => {
+    if (!orderTarget) return;
+    let isCancelled = false;
+
+    let note = customNote.trim();
+    if (diningOption === 'Delivery' && deliveryAddress.trim()) {
+      note = `Deliver To: ${deliveryAddress.trim()}${note ? ` | Note: ${note}` : ''}`;
+    } else if (diningOption === 'Dine-In' && tableNumber.trim()) {
+      note = `Table #${tableNumber.trim()}${note ? ` | Note: ${note}` : ''}`;
+    }
+
+    generatePersonalizedCardBlob({
+      customerName: customerName.trim() || 'Direct Guest',
+      customerPhone: customerPhone.trim(),
+      itemName: orderTarget.itemName,
+      price: orderTarget.price,
+      diningOption,
+      customNote: note || undefined,
+    }).then((blob) => {
+      if (!isCancelled && blob) {
+        setCardBlob(blob);
+        const url = URL.createObjectURL(blob);
+        setCardPreviewUrl(url);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [orderTarget, diningOption, customerName, customerPhone, deliveryAddress, tableNumber, customNote]);
 
   if (!orderTarget) return null;
 
@@ -114,7 +150,7 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
     },
   }[diningOption];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedName = customerName.trim() || 'Direct Guest';
     const trimmedPhone = customerPhone.trim();
@@ -140,6 +176,18 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
       finalNote = `Table #${tableNumber.trim()}${finalNote ? ` | Note: ${finalNote}` : ''}`;
     }
 
+    let activeBlob = cardBlob;
+    if (!activeBlob) {
+      activeBlob = await generatePersonalizedCardBlob({
+        customerName: trimmedName,
+        customerPhone: trimmedPhone,
+        itemName: orderTarget.itemName,
+        price: orderTarget.price,
+        diningOption,
+        customNote: finalNote || undefined,
+      });
+    }
+
     onConfirmOrder({
       customerName: trimmedName,
       customerPhone: trimmedPhone,
@@ -150,6 +198,7 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
       diningOption,
       promoCode: orderTarget.promoCode,
       customNote: finalNote || undefined,
+      cardBlob: activeBlob,
     });
 
     onClose();
@@ -262,7 +311,7 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
           {/* ============================================================ */}
           {/* 2. ORDER SUMMARY BAR (CLEAN & SLEEK IN WEBSITE) */}
           {/* ============================================================ */}
-          <div className="mb-4 p-3 rounded-2xl bg-amber-50/80 border border-amber-900/10 flex items-center justify-between shadow-xs">
+          <div className="mb-3 p-3 rounded-2xl bg-amber-50/80 border border-amber-900/10 flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-xs ${theme.badgeBg}`}>
                 <theme.icon className="w-5 h-5" />
@@ -280,6 +329,36 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
               <div className="text-[10px] uppercase font-bold text-neutral-500">Bill Total</div>
               <div className="text-base font-black font-serif text-espresso-950">₹{orderTarget.price}</div>
             </div>
+          </div>
+
+          {/* Official Pass Card Live Image Preview */}
+          <div className="mb-3 text-center">
+            <div className="relative rounded-2xl overflow-hidden border border-amber-900/20 shadow-md aspect-[736/522] w-full max-w-[340px] mx-auto bg-parchment-200">
+              {cardPreviewUrl ? (
+                <img
+                  src={cardPreviewUrl}
+                  alt={`${theme.title} Order Pass Card`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-xs text-coffee-700 animate-pulse">
+                  Preparing your {theme.title} Pass Card...
+                </div>
+              )}
+            </div>
+            {cardPreviewUrl && (
+              <div className="mt-1 flex items-center justify-center gap-2">
+                <a
+                  href={cardPreviewUrl}
+                  download={`CoffeeLand-${diningOption}-Pass.jpg`}
+                  className="inline-flex items-center gap-1.5 text-[11px] font-bold text-coffee-700 hover:text-espresso-950 transition-colors py-1 px-3 rounded-full bg-white border border-amber-900/15 shadow-2xs"
+                  title="Download this Pass Card Image"
+                >
+                  <Download className="w-3.5 h-3.5 text-terracotta" />
+                  <span>Download Pass Image</span>
+                </a>
+              </div>
+            )}
           </div>
 
           {/* ============================================================ */}

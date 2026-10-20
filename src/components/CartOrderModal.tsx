@@ -16,10 +16,11 @@ import {
   Sparkles,
   ArrowRight,
   ShoppingBag as CartIcon,
+  Download,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CartItem } from '../hooks/useCart';
-import { DiningOption, sendOrderToWhatsApp } from '../services/whatsappOrderService';
+import { DiningOption, sendOrderToWhatsApp, generatePersonalizedCardBlob } from '../services/whatsappOrderService';
 
 interface CartOrderModalProps {
   isOpen: boolean;
@@ -54,6 +55,8 @@ export const CartOrderModal: React.FC<CartOrderModalProps> = ({
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [tableNumber, setTableNumber] = useState('');
   const [customNote, setCustomNote] = useState('');
+  const [cardBlob, setCardBlob] = useState<Blob | null>(null);
+  const [cardPreviewUrl, setCardPreviewUrl] = useState<string | null>(null);
 
   // Auto-populate customer profile if previously entered
   useEffect(() => {
@@ -69,6 +72,48 @@ export const CartOrderModal: React.FC<CartOrderModalProps> = ({
       console.warn('Could not read customer profile', e);
     }
   }, [isOpen]);
+
+  // Pre-generate pass card image so it is ready immediately for sharing/clipboard
+  useEffect(() => {
+    if (!isOpen || items.length === 0) return;
+    let isCancelled = false;
+
+    let note = customNote.trim();
+    if (diningOption === 'Delivery' && deliveryAddress.trim()) {
+      note = `Deliver To: ${deliveryAddress.trim()}${note ? ` | Note: ${note}` : ''}`;
+    } else if (diningOption === 'Dine-In' && tableNumber.trim()) {
+      note = `Table #${tableNumber.trim()}${note ? ` | Note: ${note}` : ''}`;
+    }
+
+    const itemSummary =
+      items.length === 1
+        ? `${items[0].quantity}x ${items[0].product.name}`
+        : `${items.length} Items`;
+
+    generatePersonalizedCardBlob({
+      customerName: customerName.trim() || 'Direct Guest',
+      customerPhone: customerPhone.trim(),
+      itemName: itemSummary,
+      price: totalPrice,
+      diningOption,
+      customNote: note || undefined,
+      items: items.map((i) => ({
+        name: i.product.name,
+        price: i.product.price,
+        quantity: i.quantity,
+      })),
+    }).then((blob) => {
+      if (!isCancelled && blob) {
+        setCardBlob(blob);
+        const url = URL.createObjectURL(blob);
+        setCardPreviewUrl(url);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isOpen, items, totalPrice, diningOption, customerName, customerPhone, deliveryAddress, tableNumber, customNote]);
 
   if (!isOpen) return null;
 
@@ -112,7 +157,7 @@ export const CartOrderModal: React.FC<CartOrderModalProps> = ({
     },
   }[diningOption];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return;
 
@@ -140,6 +185,26 @@ export const CartOrderModal: React.FC<CartOrderModalProps> = ({
       finalNote = `Table #${tableNumber.trim()}${finalNote ? ` | Note: ${finalNote}` : ''}`;
     }
 
+    let activeBlob = cardBlob;
+    if (!activeBlob) {
+      activeBlob = await generatePersonalizedCardBlob({
+        customerName: trimmedName,
+        customerPhone: trimmedPhone,
+        itemName:
+          items.length === 1
+            ? `${items[0].quantity}x ${items[0].product.name}`
+            : `${items.length} Items`,
+        price: totalPrice,
+        diningOption,
+        customNote: finalNote || undefined,
+        items: items.map((i) => ({
+          name: i.product.name,
+          price: i.product.price,
+          quantity: i.quantity,
+        })),
+      });
+    }
+
     // Multi-item payload
     const orderPayload = {
       customerName: trimmedName,
@@ -158,6 +223,7 @@ export const CartOrderModal: React.FC<CartOrderModalProps> = ({
         price: i.product.price,
         quantity: i.quantity,
       })),
+      cardBlob: activeBlob,
     };
 
     // 1. Direct synchronous dispatch straight to owner's WhatsApp (+91 95425 25665)
@@ -420,6 +486,36 @@ export const CartOrderModal: React.FC<CartOrderModalProps> = ({
                     <span className="font-serif font-black text-base text-espresso-950">
                       ₹{totalPrice}
                     </span>
+                  </div>
+
+                  {/* Official Pass Card Live Image Preview */}
+                  <div className="pt-1 text-center">
+                    <div className="relative rounded-2xl overflow-hidden border border-amber-900/20 shadow-md aspect-[736/522] w-full max-w-[340px] mx-auto bg-parchment-200">
+                      {cardPreviewUrl ? (
+                        <img
+                          src={cardPreviewUrl}
+                          alt={`${theme.title} Order Pass Card`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs text-coffee-700 animate-pulse">
+                          Preparing your {theme.title} Pass Card...
+                        </div>
+                      )}
+                    </div>
+                    {cardPreviewUrl && (
+                      <div className="mt-1 flex items-center justify-center gap-2">
+                        <a
+                          href={cardPreviewUrl}
+                          download={`CoffeeLand-${diningOption}-Order-Pass.jpg`}
+                          className="inline-flex items-center gap-1.5 text-[11px] font-bold text-coffee-700 hover:text-espresso-950 transition-colors py-1 px-3 rounded-full bg-white border border-amber-900/15 shadow-2xs"
+                          title="Download this Pass Card Image"
+                        >
+                          <Download className="w-3.5 h-3.5 text-terracotta" />
+                          <span>Download Pass Image</span>
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
 

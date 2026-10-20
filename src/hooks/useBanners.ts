@@ -273,6 +273,7 @@ export const useBanners = () => {
     diningOption?: 'Dine-In' | 'Delivery' | 'Takeaway';
     promoCode?: string;
     customNote?: string;
+    cardBlob?: Blob | null;
   }) => {
     let finalCustomerName = data.customerName?.trim();
     let finalCustomerPhone = data.customerPhone?.trim();
@@ -292,9 +293,6 @@ export const useBanners = () => {
 
     const dining = data.diningOption || 'Dine-In';
     const tagEmoji = dining === 'Dine-In' ? '🔴' : dining === 'Delivery' ? '🔵' : '🟢';
-    const tagColor = dining === 'Dine-In' ? 'RED' : dining === 'Delivery' ? 'BLUE' : 'GREEN';
-    const typeLabel = dining === 'Dine-In' ? 'DINE-IN ORDER' : dining === 'Delivery' ? 'HOME DELIVERY ORDER' : 'TAKEAWAY PARCEL ORDER';
-    const subLabel = dining === 'Dine-In' ? 'Fresh Table Service' : dining === 'Delivery' ? 'Doorstep Express Delivery' : 'Express Counter Pickup';
 
     const shortColdMessage = `Hello Coffee Land! 👋
 I would like to place a ${tagEmoji} *${dining} Order*:
@@ -346,6 +344,7 @@ ${data.customNote ? `📝 *Details:* ${data.customNote}\n` : ''}Please confirm m
       customNote: data.customNote,
       promoCode: data.promoCode,
       orderId: newInquiry.id,
+      cardBlob: data.cardBlob,
     });
 
     return newInquiry;
