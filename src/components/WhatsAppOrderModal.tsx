@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, MessageCircle, User, Phone, FileText, CheckCircle2, UtensilsCrossed, Truck, ShoppingBag, MapPin, Sparkles, Download, Share2 } from 'lucide-react';
+import { X, MessageCircle, User, Phone, FileText, CheckCircle2, UtensilsCrossed, Truck, ShoppingBag, MapPin, Sparkles, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { generatePersonalizedCardBlob, sharePassCardImageWithCaption } from '../services/whatsappOrderService';
+import { generatePersonalizedCardBlob } from '../services/whatsappOrderService';
 
 export interface WhatsAppOrderTarget {
   itemName: string;
@@ -150,28 +150,7 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
     },
   }[diningOption];
 
-  const handleShareCard = async () => {
-    const trimmedName = customerName.trim() || 'Direct Guest';
-    const trimmedPhone = customerPhone.trim();
-    let finalNote = customNote.trim();
-    if (diningOption === 'Delivery' && deliveryAddress.trim()) {
-      finalNote = `Deliver To: ${deliveryAddress.trim()}${finalNote ? ` | Note: ${finalNote}` : ''}`;
-    } else if (diningOption === 'Dine-In' && tableNumber.trim()) {
-      finalNote = `Table #${tableNumber.trim()}${finalNote ? ` | Note: ${finalNote}` : ''}`;
-    }
-
-    await sharePassCardImageWithCaption({
-      customerName: trimmedName,
-      customerPhone: trimmedPhone,
-      itemName: orderTarget.itemName,
-      price: orderTarget.price,
-      diningOption,
-      customNote: finalNote || undefined,
-      cardBlob,
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedName = customerName.trim() || 'Direct Guest';
     const trimmedPhone = customerPhone.trim();
@@ -197,6 +176,18 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
       finalNote = `Table #${tableNumber.trim()}${finalNote ? ` | Note: ${finalNote}` : ''}`;
     }
 
+    let activeBlob = cardBlob;
+    if (!activeBlob) {
+      activeBlob = await generatePersonalizedCardBlob({
+        customerName: trimmedName,
+        customerPhone: trimmedPhone,
+        itemName: orderTarget.itemName,
+        price: orderTarget.price,
+        diningOption,
+        customNote: finalNote || undefined,
+      });
+    }
+
     onConfirmOrder({
       customerName: trimmedName,
       customerPhone: trimmedPhone,
@@ -207,7 +198,7 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
       diningOption,
       promoCode: orderTarget.promoCode,
       customNote: finalNote || undefined,
-      cardBlob,
+      cardBlob: activeBlob,
     });
 
     onClose();
@@ -356,7 +347,7 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
               )}
             </div>
             {cardPreviewUrl && (
-              <div className="mt-1 flex items-center justify-center gap-2 flex-wrap">
+              <div className="mt-1 flex items-center justify-center gap-2">
                 <a
                   href={cardPreviewUrl}
                   download={`CoffeeLand-${diningOption}-Pass.jpg`}
@@ -366,18 +357,6 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
                   <Download className="w-3.5 h-3.5 text-terracotta" />
                   <span>Download Pass Image</span>
                 </a>
-
-                {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
-                  <button
-                    type="button"
-                    onClick={handleShareCard}
-                    className="inline-flex items-center gap-1.5 text-[11px] font-bold text-coffee-700 hover:text-espresso-950 transition-colors py-1 px-3 rounded-full bg-white border border-amber-900/15 shadow-2xs"
-                    title="Share Pass Card with Caption"
-                  >
-                    <Share2 className="w-3.5 h-3.5 text-terracotta" />
-                    <span>Share Card Image</span>
-                  </button>
-                )}
               </div>
             )}
           </div>
@@ -471,12 +450,12 @@ export const WhatsAppOrderModal: React.FC<WhatsAppOrderModalProps> = ({
                 className={`w-full py-3.5 px-4 rounded-xl ${theme.btnBg} text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 active:scale-[0.98]`}
               >
                 <MessageCircle className="w-4 h-4 fill-white" />
-                <span>Connect & Send Order to Cafe Owner (+91 95425 25665)</span>
+                <span>Confirm & Send {theme.title} Order via WhatsApp</span>
               </button>
 
               <p className="text-[11px] text-coffee-600 text-center mt-2 flex items-center justify-center gap-1">
                 <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                <span>Direct chat with owner (+91 95425 25665) • Pass card auto-saved to device</span>
+                <span>Connects directly to Coffee Land WhatsApp (+91 95425 25665)</span>
               </p>
             </div>
           </form>

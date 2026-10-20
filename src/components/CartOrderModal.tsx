@@ -17,16 +17,10 @@ import {
   ArrowRight,
   ShoppingBag as CartIcon,
   Download,
-  Share2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CartItem } from '../hooks/useCart';
-import {
-  DiningOption,
-  sendOrderToWhatsApp,
-  generatePersonalizedCardBlob,
-  sharePassCardImageWithCaption,
-} from '../services/whatsappOrderService';
+import { DiningOption, sendOrderToWhatsApp, generatePersonalizedCardBlob } from '../services/whatsappOrderService';
 
 interface CartOrderModalProps {
   isOpen: boolean;
@@ -163,38 +157,7 @@ export const CartOrderModal: React.FC<CartOrderModalProps> = ({
     },
   }[diningOption];
 
-  const handleShareCard = async () => {
-    const trimmedName = customerName.trim() || 'Direct Guest';
-    const trimmedPhone = customerPhone.trim();
-    let finalNote = customNote.trim();
-    if (diningOption === 'Delivery' && deliveryAddress.trim()) {
-      finalNote = `Deliver To: ${deliveryAddress.trim()}${finalNote ? ` | Note: ${finalNote}` : ''}`;
-    } else if (diningOption === 'Dine-In' && tableNumber.trim()) {
-      finalNote = `Table #${tableNumber.trim()}${finalNote ? ` | Note: ${finalNote}` : ''}`;
-    }
-
-    const itemSummary =
-      items.length === 1
-        ? `${items[0].quantity}x ${items[0].product.name}`
-        : `${items.length} Items`;
-
-    await sharePassCardImageWithCaption({
-      customerName: trimmedName,
-      customerPhone: trimmedPhone,
-      itemName: itemSummary,
-      price: totalPrice,
-      diningOption,
-      customNote: finalNote || undefined,
-      items: items.map((i) => ({
-        name: i.product.name,
-        price: i.product.price,
-        quantity: i.quantity,
-      })),
-      cardBlob,
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return;
 
@@ -222,6 +185,26 @@ export const CartOrderModal: React.FC<CartOrderModalProps> = ({
       finalNote = `Table #${tableNumber.trim()}${finalNote ? ` | Note: ${finalNote}` : ''}`;
     }
 
+    let activeBlob = cardBlob;
+    if (!activeBlob) {
+      activeBlob = await generatePersonalizedCardBlob({
+        customerName: trimmedName,
+        customerPhone: trimmedPhone,
+        itemName:
+          items.length === 1
+            ? `${items[0].quantity}x ${items[0].product.name}`
+            : `${items.length} Items`,
+        price: totalPrice,
+        diningOption,
+        customNote: finalNote || undefined,
+        items: items.map((i) => ({
+          name: i.product.name,
+          price: i.product.price,
+          quantity: i.quantity,
+        })),
+      });
+    }
+
     // Multi-item payload
     const orderPayload = {
       customerName: trimmedName,
@@ -240,7 +223,7 @@ export const CartOrderModal: React.FC<CartOrderModalProps> = ({
         price: i.product.price,
         quantity: i.quantity,
       })),
-      cardBlob,
+      cardBlob: activeBlob,
     };
 
     // 1. Direct synchronous dispatch straight to owner's WhatsApp (+91 95425 25665)
@@ -521,7 +504,7 @@ export const CartOrderModal: React.FC<CartOrderModalProps> = ({
                       )}
                     </div>
                     {cardPreviewUrl && (
-                      <div className="mt-1 flex items-center justify-center gap-2 flex-wrap">
+                      <div className="mt-1 flex items-center justify-center gap-2">
                         <a
                           href={cardPreviewUrl}
                           download={`CoffeeLand-${diningOption}-Order-Pass.jpg`}
@@ -531,18 +514,6 @@ export const CartOrderModal: React.FC<CartOrderModalProps> = ({
                           <Download className="w-3.5 h-3.5 text-terracotta" />
                           <span>Download Pass Image</span>
                         </a>
-
-                        {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
-                          <button
-                            type="button"
-                            onClick={handleShareCard}
-                            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-coffee-700 hover:text-espresso-950 transition-colors py-1 px-3 rounded-full bg-white border border-amber-900/15 shadow-2xs"
-                            title="Share Pass Card with Caption"
-                          >
-                            <Share2 className="w-3.5 h-3.5 text-terracotta" />
-                            <span>Share Card Image</span>
-                          </button>
-                        )}
                       </div>
                     )}
                   </div>
@@ -635,12 +606,12 @@ export const CartOrderModal: React.FC<CartOrderModalProps> = ({
                       className={`w-full py-3.5 px-4 rounded-xl ${theme.btnBg} text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 active:scale-[0.98]`}
                     >
                       <MessageCircle className="w-4 h-4 fill-white" />
-                      <span>Connect & Send Order to Cafe Owner (+91 95425 25665)</span>
+                      <span>Send {theme.title} Order via WhatsApp ({totalCount} items • ₹{totalPrice})</span>
                     </button>
 
                     <p className="text-[11px] text-coffee-600 text-center mt-2 flex items-center justify-center gap-1">
                       <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                      <span>Direct chat with owner (+91 95425 25665) • Pass card auto-saved to device</span>
+                      <span>Dispatches directly to Coffee Land WhatsApp (+91 95425 25665)</span>
                     </p>
                   </div>
                 </form>
