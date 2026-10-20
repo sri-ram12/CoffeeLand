@@ -1,13 +1,15 @@
 import React from 'react';
 import { Product } from '../types/product';
-import { Heart, Sparkles, Eye, Clock, Flame } from 'lucide-react';
+import { Heart, Sparkles, Eye, Clock, Flame, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { HotFoodVapourEffect, isHotFoodItem } from './HotFoodVapourEffect';
 
 interface ProductCardProps {
   product: Product;
   isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
   onSelectProduct: (product: Product) => void;
+  onOrderProduct?: (product: Product) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -15,7 +17,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   isFavorite,
   onToggleFavorite,
   onSelectProduct,
+  onOrderProduct,
 }) => {
+  const isHot = isHotFoodItem(product.category, product.name);
+
   return (
     <motion.div
       layout
@@ -23,7 +28,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.35 }}
-      className="group relative rounded-2xl bg-white overflow-hidden flex flex-col justify-between border border-terracotta/20 hover:border-terracotta/50 shadow-sm hover:shadow-md transition-all duration-300 h-full"
+      onClick={() => onSelectProduct(product)}
+      className="group relative rounded-2xl bg-white overflow-hidden flex flex-col justify-between border border-terracotta/20 hover:border-terracotta/50 shadow-sm hover:shadow-md transition-all duration-300 h-full cursor-pointer"
     >
       {/* Top Image Container */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#EDE0CC]">
@@ -31,15 +37,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           src={product.image}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 ${
+            product.inStock === false ? 'opacity-65 grayscale-[25%]' : ''
+          }`}
         />
+
+        {/* Hot Food Vapour and Fog Steam Animation */}
+        {product.inStock !== false && isHot && (
+          <HotFoodVapourEffect intensity="medium" />
+        )}
 
         {/* Gradient Overlay for Text Legibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
         {/* Badges on Top Left */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 items-center z-10">
-          {product.badge && (
+          {product.inStock === false ? (
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-red-600 text-white shadow-md border border-red-400/30 animate-pulse">
+              Out of Stock
+            </span>
+          ) : product.badge ? (
             <span
               className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase backdrop-blur-md shadow-xs ${
                 product.badge === 'Bestseller'
@@ -53,7 +70,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             >
               {product.badge}
             </span>
-          )}
+          ) : null}
         </div>
 
         {/* Dietary Indicator (Veg / Non-veg) & Favorite on Top Right */}
@@ -125,13 +142,45 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {product.portion || 'Artisanal Preparation'}
           </span>
 
-          <button
-            onClick={() => onSelectProduct(product)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-terracotta hover:bg-terracotta-600 text-white text-xs font-bold tracking-wide transition-all duration-200 shadow-xs active:scale-95"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>View Details</span>
-          </button>
+          {product.inStock === false ? (
+            <button
+              onClick={() => onSelectProduct(product)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-200 text-zinc-600 text-xs font-bold tracking-wide transition-all duration-200 shadow-xs hover:bg-zinc-300"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+              <span>Out of Stock</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectProduct(product);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-amber-900/10 hover:bg-amber-900/20 text-espresso-950 text-xs font-bold transition-all"
+                title="View full recipe and preparation details"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span className="hidden xs:inline">Details</span>
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onOrderProduct) {
+                    onOrderProduct(product);
+                  } else {
+                    onSelectProduct(product);
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold tracking-wide transition-all duration-200 shadow-xs active:scale-95"
+                title="Order this dish on WhatsApp"
+              >
+                <MessageCircle className="w-3.5 h-3.5 fill-white" />
+                <span>Order</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

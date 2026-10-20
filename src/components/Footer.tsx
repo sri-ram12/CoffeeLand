@@ -4,10 +4,9 @@ import { Coffee, ArrowUp, MapPin, Phone, Mail, QrCode, Camera, Download } from '
 interface FooterProps {
   onOpenQRCode?: () => void;
   onOpenReviewModal?: () => void;
-  onOpenAdmin?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenQRCode, onOpenReviewModal, onOpenAdmin }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenQRCode, onOpenReviewModal }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -18,7 +17,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenQRCode, onOpenReviewModal,
   };
 
   return (
-    <footer className="bg-[#E5D5BD] border-t border-terracotta/25 pt-16 pb-16 text-espresso-950 relative overflow-hidden">
+    <footer className="bg-[#E5D5BD] border-t border-terracotta/25 pt-12 pb-12 text-espresso-950 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-terracotta/15">
           {/* Brand Info with Circular Logo */}
@@ -34,7 +33,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenQRCode, onOpenReviewModal,
                   Coffee <span className="font-serif italic font-semibold text-terracotta">Land</span>
                 </span>
                 <span className="text-[10px] tracking-[0.22em] uppercase text-terracotta-700 font-bold mt-0.5 font-heading">
-                  RESTO & CAFE • VIZAG
+                  RESTO & CAFE • THAGARAPUVALASA
                 </span>
               </div>
             </div>
@@ -185,18 +184,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenQRCode, onOpenReviewModal,
         </div>
 
         {/* Bottom Bar: Copyright & Return to Top */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-coffee-600 font-medium">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-coffee-600 font-medium">
           <p className="flex flex-wrap items-center gap-2">
             <span>© {new Date().getFullYear()} COFFEE LAND RESTO & CAFE (Sangivalasa, Visakhapatnam). All rights reserved.</span>
-            <span className="hidden sm:inline">•</span>
-            <a
-              href="/admin"
-              className="text-terracotta hover:underline font-bold transition-colors inline-flex items-center gap-1"
-              title="Separate Link for Cafe Owner"
-            >
-              <span>Owner Portal (/admin)</span>
-              <span>↗</span>
-            </a>
           </p>
 
           <button

@@ -1,4 +1,4 @@
-import { Product } from '../types/product';
+import { Product, KotOrder } from '../types/product';
 import { OfferBanner, WhatsAppInquiry } from '../types/banner';
 import { Review } from '../types/review';
 
@@ -79,16 +79,37 @@ export const api = {
   async getProducts(): Promise<Product[]> {
     try {
       const res = await fetch(`${API_BASE}/products`);
-      if (res.ok) return await res.json();
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) {
+          localStorage.setItem('coffeeland_products_v1', JSON.stringify(data));
+          return data;
+        }
+      }
     } catch (e) {
       console.warn('Backend unavailable, falling back to local data');
     }
-    // Fallback: load from local storage or default
+    // Fallback: load from local storage
+    try {
+      const saved = localStorage.getItem('coffeeland_products_v1');
+      if (saved) return JSON.parse(saved);
+    } catch {}
     return [];
   },
 
   async updateProduct(id: string, updates: Partial<Product>): Promise<Product | null> {
     try {
+      // Update in localStorage immediately
+      const saved = localStorage.getItem('coffeeland_products_v1');
+      if (saved) {
+        const list: Product[] = JSON.parse(saved);
+        const idx = list.findIndex(p => p.id === id);
+        if (idx !== -1) {
+          list[idx] = { ...list[idx], ...updates };
+          localStorage.setItem('coffeeland_products_v1', JSON.stringify(list));
+        }
+      }
+
       const res = await fetch(`${API_BASE}/products/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -192,6 +213,7 @@ export const api = {
     category?: string;
     price: number;
     inquiryType?: string;
+    diningOption?: 'Dine-In' | 'Delivery' | 'Takeaway';
     promoCode?: string;
     customNote?: string;
   }): Promise<WhatsAppInquiry | null> {
@@ -264,8 +286,64 @@ export const api = {
     return null;
   },
 
+  // Counter POS & KOT Orders (Offline Dining, Takeaway, Delivery)
+  async getPosOrders(): Promise<KotOrder[]> {
+    try {
+      const res = await fetch(`${API_BASE}/pos-orders`);
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Backend unavailable for POS orders');
+    }
+    return [];
+  },
+
+  async addPosOrder(order: Partial<KotOrder>): Promise<KotOrder | null> {
+    try {
+      const res = await fetch(`${API_BASE}/pos-orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(order)
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.error('Failed to record POS order via API:', e);
+    }
+    return null;
+  },
+
+  async updatePosOrderStatus(id: string, status: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_BASE}/pos-orders/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      return res.ok;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  async deletePosOrder(id: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_BASE}/pos-orders/${id}`, { method: 'DELETE' });
+      return res.ok;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  async clearPosOrders(): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_BASE}/pos-orders`, { method: 'DELETE' });
+      return res.ok;
+    } catch (e) {
+      return false;
+    }
+  },
+
   // Server Excel Download URL Helper
-  getExportUrl(type: 'inquiries' | 'banners' | 'menu'): string {
+  getExportUrl(type: 'inquiries' | 'banners' | 'menu' | 'pos-orders' | 'daily-sales'): string {
     return `${API_BASE}/export/${type}`;
   }
 };

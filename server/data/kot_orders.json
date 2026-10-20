@@ -1,0 +1,23 @@
+[
+  {
+    "id": "kot-test-101",
+    "kotNumber": 101,
+    "orderType": "Dine-In",
+    "tableNumber": "Table 1",
+    "customerName": "Sri Ram",
+    "customerPhone": "9542525665",
+    "items": [
+      {
+        "id": "prod-1",
+        "name": "Americano",
+        "price": 99,
+        "quantity": 1,
+        "category": "hot-coffee"
+      }
+    ],
+    "chefNotes": "",
+    "timestamp": "2026-10-20T11:10:54.192Z",
+    "totalAmount": 99,
+    "status": "Preparing"
+  }
+]

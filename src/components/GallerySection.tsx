@@ -100,23 +100,23 @@ export const GallerySection: React.FC = () => {
   };
 
   return (
-    <section id="gallery" className="py-24 bg-[#EDE0CC] relative overflow-hidden">
+    <section id="gallery" className="py-10 sm:py-14 bg-[#EDE0CC] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-terracotta/10 border border-terracotta/25 text-terracotta text-xs font-bold uppercase tracking-widest mb-4">
+        <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-terracotta/10 border border-terracotta/25 text-terracotta text-xs font-bold uppercase tracking-widest mb-2.5">
             <Camera className="w-3.5 h-3.5" />
-            <span>Visual Journey & Video Highlights</span>
+            <span>Visual Highlights</span>
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-espresso-950 mb-3">
-            Ambience, Food & Cafe Reels
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-espresso-950 mb-2">
+            Ambience & Culinary Gallery
           </h2>
-          <p className="text-sm sm:text-base text-coffee-800">
-            A glimpse into the aromas, handcrafted tastes, relaxing outdoor dining, and cozy moments that await you at Coffee Land Resto & Cafe (Vizag).
+          <p className="text-xs sm:text-sm md:text-base text-coffee-800">
+            A glimpse into handcrafted tastes, relaxing outdoor dining, and cozy moments at Coffee Land.
           </p>
 
           {/* Gallery Category Filter Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-4 sm:mt-5">
             {[
               { id: 'all', label: 'All Photos & Reels' },
               { id: 'coffee', label: 'Coffee Craft' },

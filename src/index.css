@@ -207,4 +207,179 @@
   .animate-float {
     animation: floatSlow 6s ease-in-out infinite;
   }
+
+  /* Hot Food Vapour and Fog Rising Animations */
+  @keyframes steamRise1 {
+    0% {
+      transform: translateY(18px) translateX(0) scale(0.85);
+      opacity: 0;
+    }
+    20% {
+      opacity: 0.75;
+    }
+    60% {
+      transform: translateY(-28px) translateX(6px) scale(1.15);
+      opacity: 0.5;
+    }
+    100% {
+      transform: translateY(-75px) translateX(-4px) scale(1.45);
+      opacity: 0;
+    }
+  }
+
+  @keyframes steamRise2 {
+    0% {
+      transform: translateY(22px) translateX(0) scale(0.8);
+      opacity: 0;
+    }
+    25% {
+      opacity: 0.8;
+    }
+    65% {
+      transform: translateY(-35px) translateX(-8px) scale(1.2);
+      opacity: 0.45;
+    }
+    100% {
+      transform: translateY(-85px) translateX(6px) scale(1.5);
+      opacity: 0;
+    }
+  }
+
+  @keyframes steamRise3 {
+    0% {
+      transform: translateY(15px) translateX(0) scale(0.9);
+      opacity: 0;
+    }
+    30% {
+      opacity: 0.7;
+    }
+    70% {
+      transform: translateY(-30px) translateX(8px) scale(1.18);
+      opacity: 0.4;
+    }
+    100% {
+      transform: translateY(-70px) translateX(-6px) scale(1.4);
+      opacity: 0;
+    }
+  }
+
+  @keyframes steamRise4 {
+    0% {
+      transform: translateY(20px) translateX(0) scale(0.85);
+      opacity: 0;
+    }
+    20% {
+      opacity: 0.65;
+    }
+    60% {
+      transform: translateY(-32px) translateX(-6px) scale(1.15);
+      opacity: 0.4;
+    }
+    100% {
+      transform: translateY(-80px) translateX(4px) scale(1.4);
+      opacity: 0;
+    }
+  }
+
+  @keyframes heatFogPulse {
+    0%, 100% {
+      opacity: 0.25;
+      transform: translateX(-50%) scale(0.95);
+    }
+    50% {
+      opacity: 0.65;
+      transform: translateX(-50%) scale(1.08);
+    }
+  }
+
+  @keyframes fogDrift {
+    0%, 100% {
+      transform: translateY(0) scale(0.92);
+      opacity: 0.2;
+    }
+    50% {
+      transform: translateY(-16px) scale(1.12);
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes fogDrift2 {
+    0%, 100% {
+      transform: translateY(0) scale(0.96);
+      opacity: 0.15;
+    }
+    50% {
+      transform: translateY(-22px) scale(1.18);
+      opacity: 0.5;
+    }
+  }
+
+  .animate-steam-rise-1 {
+    animation: steamRise1 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  .animate-steam-rise-2 {
+    animation: steamRise2 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation-delay: 0.7s;
+  }
+
+  .animate-steam-rise-3 {
+    animation: steamRise3 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation-delay: 1.4s;
+  }
+
+  .animate-steam-rise-4 {
+    animation: steamRise4 4.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation-delay: 2.1s;
+  }
+
+  .animate-heat-fog {
+    animation: heatFogPulse 4.5s ease-in-out infinite;
+  }
+
+  .animate-fog-drift {
+    animation: fogDrift 5.2s ease-in-out infinite;
+  }
+
+  .animate-fog-drift-2 {
+    animation: fogDrift2 6s ease-in-out infinite;
+    animation-delay: 1.2s;
+  }
+}
+
+/* ==================================================================== */
+/* THERMAL RECEIPT & KOT PRINTING RULES (58mm / 80mm)                   */
+/* ==================================================================== */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide the entire website during printing */
+  header, nav, footer, main, section, aside, .no-print {
+    display: none !important;
+  }
+
+  /* Show only the dedicated thermal slip */
+  #thermal-print-slip {
+    display: block !important;
+    position: static !important;
+    width: 76mm !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 1.5mm !important;
+    color: #000000 !important;
+    background: #ffffff !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+
+  @page {
+    margin: 0;
+    size: auto;
+  }
 }

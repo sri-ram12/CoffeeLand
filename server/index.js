@@ -253,6 +253,7 @@ app.post('/api/inquiries', (req, res) => {
     category: req.body.category || 'Specialty Dish',
     price: Number(req.body.price) || 0,
     inquiryType: req.body.inquiryType || 'Menu Item',
+    diningOption: req.body.diningOption || 'Dine-In',
     promoCode: req.body.promoCode || undefined,
     message: req.body.customNote || defaultMsg,
     timestamp: new Date().toISOString(),
@@ -290,6 +291,69 @@ app.delete('/api/inquiries/:id', (req, res) => {
 app.delete('/api/inquiries', (req, res) => {
   writeJson('inquiries.json', []);
   res.json({ success: true, message: 'All inquiries cleared' });
+});
+
+// ==========================================
+// 4.5. COUNTER POS & KOT ORDERS (Dine-In, Takeaway, Delivery, WhatsApp)
+// ==========================================
+app.get('/api/pos-orders', (req, res) => {
+  const orders = readJson('kot_orders.json', []);
+  res.json(orders);
+});
+
+app.post('/api/pos-orders', (req, res) => {
+  const orders = readJson('kot_orders.json', []);
+  const newOrder = {
+    id: req.body.id || `kot-ord-${Date.now()}`,
+    kotNumber: Number(req.body.kotNumber) || (orders.length > 0 ? (orders[0].kotNumber || 100) + 1 : 101),
+    orderType: req.body.orderType || 'Dine-In',
+    tableNumber: req.body.tableNumber || 'Table 1',
+    customerName: req.body.customerName || 'Counter Guest',
+    customerPhone: req.body.customerPhone || '',
+    items: Array.isArray(req.body.items) ? req.body.items : [],
+    chefNotes: req.body.chefNotes || '',
+    timestamp: req.body.timestamp || new Date().toISOString(),
+    totalAmount: Number(req.body.totalAmount) || 0,
+    status: req.body.status || 'Preparing'
+  };
+
+  const existingIdx = orders.findIndex(o => o.id === newOrder.id);
+  if (existingIdx >= 0) {
+    orders[existingIdx] = newOrder;
+  } else {
+    orders.unshift(newOrder);
+  }
+
+  writeJson('kot_orders.json', orders);
+  res.status(201).json(newOrder);
+});
+
+app.put('/api/pos-orders/:id', (req, res) => {
+  const orders = readJson('kot_orders.json', []);
+  const index = orders.findIndex(o => o.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ message: 'POS order not found' });
+  }
+
+  orders[index] = {
+    ...orders[index],
+    ...req.body
+  };
+
+  writeJson('kot_orders.json', orders);
+  res.json(orders[index]);
+});
+
+app.delete('/api/pos-orders/:id', (req, res) => {
+  let orders = readJson('kot_orders.json', []);
+  orders = orders.filter(o => o.id !== req.params.id);
+  writeJson('kot_orders.json', orders);
+  res.json({ success: true, message: 'POS order deleted' });
+});
+
+app.delete('/api/pos-orders', (req, res) => {
+  writeJson('kot_orders.json', []);
+  res.json({ success: true, message: 'All POS orders cleared' });
 });
 
 // ==========================================
@@ -351,6 +415,7 @@ app.get('/api/export/:type', (req, res) => {
       'Customer Name': inq.customerName || 'Website Diner',
       'Phone Number': inq.customerPhone || 'Direct WhatsApp',
       'Item Name': inq.itemName,
+      'Dining Option': inq.diningOption || 'Dine-In',
       'Category': inq.category || 'Specialty',
       'Price (₹)': inq.price,
       'Inquiry Type': inq.inquiryType,
@@ -362,8 +427,8 @@ app.get('/api/export/:type', (req, res) => {
     const ws = XLSX.utils.json_to_sheet(rows);
     ws['!cols'] = [
       { wch: 6 }, { wch: 20 }, { wch: 22 }, { wch: 18 }, { wch: 16 },
-      { wch: 28 }, { wch: 22 }, { wch: 12 }, { wch: 16 }, { wch: 14 },
-      { wch: 14 }, { wch: 50 }
+      { wch: 28 }, { wch: 16 }, { wch: 22 }, { wch: 12 }, { wch: 16 },
+      { wch: 14 }, { wch: 14 }, { wch: 50 }
     ];
     XLSX.utils.book_append_sheet(wb, ws, 'WhatsApp Inquiries');
     const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
@@ -428,7 +493,111 @@ app.get('/api/export/:type', (req, res) => {
     return res.send(buffer);
   }
 
-  res.status(400).json({ error: 'Invalid export type. Use inquiries, banners, or menu.' });
+  if (type === 'pos-orders') {
+    const orders = readJson('kot_orders.json', []);
+    const rows = orders.map((ord, idx) => ({
+      'S.No': idx + 1,
+      'KOT Token': `#KOT-${ord.kotNumber}`,
+      'Date & Time': new Date(ord.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+      'Order Type': ord.orderType,
+      'Table No': ord.tableNumber || 'N/A',
+      'Customer Name': ord.customerName || 'Counter Guest',
+      'Phone': ord.customerPhone || 'N/A',
+      'Items Ordered': (ord.items || []).map(i => `${i.quantity}x ${i.name}`).join(' | '),
+      'Chef Instructions': ord.chefNotes || 'Standard preparation',
+      'Total Bill (₹)': ord.totalAmount,
+      'Order Status': ord.status
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows.length > 0 ? rows : [{
+      'S.No': 1,
+      'KOT Token': 'No offline orders yet',
+      'Date & Time': new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+      'Order Type': 'Dine-In',
+      'Table No': '-',
+      'Customer Name': '-',
+      'Phone': '-',
+      'Items Ordered': '-',
+      'Chef Instructions': '-',
+      'Total Bill (₹)': 0,
+      'Order Status': 'Active'
+    }]);
+
+    ws['!cols'] = [
+      { wch: 6 }, { wch: 14 }, { wch: 22 }, { wch: 14 }, { wch: 12 },
+      { wch: 20 }, { wch: 16 }, { wch: 45 }, { wch: 25 }, { wch: 14 },
+      { wch: 14 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, 'Counter POS & KOT Orders');
+    const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    res.setHeader('Content-Disposition', `attachment; filename="CoffeeLand_Counter_POS_Orders_${dateStr}.xlsx"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    return res.send(buffer);
+  }
+
+  if (type === 'daily-sales') {
+    const inquiries = readJson('inquiries.json', []);
+    const orders = readJson('kot_orders.json', []);
+
+    // Tab 1: Combined Master Summary
+    const kotTotal = orders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+    const waTotal = inquiries.reduce((sum, i) => sum + (Number(i.price) || 0), 0);
+    const combinedTotal = kotTotal + waTotal;
+
+    const summaryRows = [
+      { 'Metric': 'Report Date', 'Value': dateStr },
+      { 'Metric': 'Total Revenue (Combined)', 'Value': `₹${combinedTotal}` },
+      { 'Metric': 'Counter POS & KOT Revenue', 'Value': `₹${kotTotal}` },
+      { 'Metric': 'WhatsApp Orders Revenue', 'Value': `₹${waTotal}` },
+      { 'Metric': 'Total Offline KOT Orders', 'Value': orders.length },
+      { 'Metric': 'Total WhatsApp Customer Orders', 'Value': inquiries.length },
+      { 'Metric': 'Total All Orders Count', 'Value': orders.length + inquiries.length }
+    ];
+    const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
+    wsSummary['!cols'] = [{ wch: 35 }, { wch: 25 }];
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Daily Sales Summary');
+
+    // Tab 2: WhatsApp Orders
+    const waRows = inquiries.map((inq, idx) => ({
+      'S.No': idx + 1,
+      'Inquiry ID': inq.id,
+      'Date & Time': new Date(inq.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+      'Customer Name': inq.customerName || 'Website Diner',
+      'Phone Number': inq.customerPhone || 'Direct WhatsApp',
+      'Item Name': inq.itemName,
+      'Category': inq.category || 'Specialty',
+      'Price (₹)': inq.price,
+      'Promo Code': inq.promoCode || 'N/A',
+      'Status': inq.status,
+      'Customer Note': inq.message
+    }));
+    const wsWa = XLSX.utils.json_to_sheet(waRows.length > 0 ? waRows : [{ 'Message': 'No WhatsApp orders recorded yet.' }]);
+    XLSX.utils.book_append_sheet(wb, wsWa, 'WhatsApp Orders');
+
+    // Tab 3: Offline KOT Orders
+    const kotRows = orders.map((ord, idx) => ({
+      'S.No': idx + 1,
+      'KOT Token': `#KOT-${ord.kotNumber}`,
+      'Date & Time': new Date(ord.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+      'Order Type': ord.orderType,
+      'Table No': ord.tableNumber || 'N/A',
+      'Customer Name': ord.customerName || 'Counter Guest',
+      'Phone': ord.customerPhone || 'N/A',
+      'Items Ordered': (ord.items || []).map(i => `${i.quantity}x ${i.name}`).join(' | '),
+      'Chef Instructions': ord.chefNotes || 'Standard preparation',
+      'Total Bill (₹)': ord.totalAmount,
+      'Status': ord.status
+    }));
+    const wsKot = XLSX.utils.json_to_sheet(kotRows.length > 0 ? kotRows : [{ 'Message': 'No offline counter orders recorded yet.' }]);
+    XLSX.utils.book_append_sheet(wb, wsKot, 'Counter POS Orders');
+
+    const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    res.setHeader('Content-Disposition', `attachment; filename="CoffeeLand_Master_Daily_Sales_${dateStr}.xlsx"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    return res.send(buffer);
+  }
+
+  res.status(400).json({ error: 'Invalid export type. Use inquiries, pos-orders, daily-sales, banners, or menu.' });
 });
 
 // ==========================================

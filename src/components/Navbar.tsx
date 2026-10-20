@@ -22,17 +22,14 @@ import { Link } from 'react-router-dom';
 interface NavbarProps {
   favoriteCount: number;
   onOpenFavorites: () => void;
-  onOpenQRCode: () => void;
+  onOpenQRCode?: () => void;
   onOpenReviewModal: () => void;
-  onOpenAdmin?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   favoriteCount,
   onOpenFavorites,
-  onOpenQRCode,
   onOpenReviewModal,
-  onOpenAdmin = () => {},
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -119,7 +116,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   Coffee <span className="font-serif italic font-semibold text-terracotta">Land</span>
                 </span>
                 <span className="text-[9px] sm:text-[10px] tracking-[0.22em] uppercase text-terracotta-700 font-bold mt-1 font-heading">
-                  RESTO & CAFE • VIZAG
+                  RESTO & CAFE • THAGARAPUVALASA
                 </span>
               </div>
             </a>
@@ -156,49 +153,28 @@ export const Navbar: React.FC<NavbarProps> = ({
               })}
             </nav>
 
-            {/* Fast Action Tools: QR, Review, Favorites */}
+            {/* Fast Action Tools: Order Now, Review & Favorites */}
             <div className="flex items-center gap-2 sm:gap-2.5">
-              {/* Google Maps Location Button */}
+              {/* Order Now Button - Tackles the Overall Menu Area */}
               <a
-                href="https://maps.app.goo.gl/Xkpi9H6ueRbUqH4UA"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-full bg-white hover:bg-emerald-50 text-espresso-900 border border-emerald-500/40 hover:border-emerald-600 text-xs font-bold transition-all shadow-sm group"
-                title="Open Coffeeland in Google Maps (Sangivalasa, Vizag)"
+                href="#menu"
+                onClick={(e) => handleScrollTo(e, '#menu')}
+                className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95 ring-2 ring-red-400/30"
+                title="Explore Menu & Order Online via WhatsApp"
               >
-                <MapPin className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
-                <span>Location</span>
+                <Utensils className="w-3.5 h-3.5" />
+                <span>ORDER NOW</span>
               </a>
-
-              {/* Scan QR Modal Trigger (Shown on tablet/desktop, mobile uses drawer and dock) */}
-              <button
-                onClick={onOpenQRCode}
-                className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-full bg-white hover:bg-parchment-200 text-espresso-900 border border-terracotta/30 hover:border-terracotta text-xs font-bold transition-all shadow-sm"
-                title="Scan Website QR Code"
-              >
-                <QrCode className="w-4 h-4 text-terracotta" />
-                <span>Scan QR</span>
-              </button>
 
               {/* Upload Photo & Review Button */}
               <button
                 onClick={onOpenReviewModal}
-                className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-terracotta hover:bg-terracotta-600 text-white text-xs font-bold shadow-md transition-all hover:scale-105"
+                className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full bg-terracotta hover:bg-terracotta-600 text-white text-xs font-bold shadow-md transition-all hover:scale-105 active:scale-95"
                 title="Share your review and photos"
               >
                 <Camera className="w-4 h-4" />
                 <span>Write Review</span>
               </button>
-
-              {/* Separate Owner Admin Portal Link (Shown on tablet/desktop, mobile uses drawer) */}
-              <Link
-                to="/admin"
-                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full bg-amber-50 hover:bg-amber-100 text-espresso-950 border border-amber-300 text-xs font-bold transition-all shadow-xs"
-                title="Dedicated Owner Admin Portal (/admin)"
-              >
-                <Settings className="w-3.5 h-3.5 text-terracotta" />
-                <span className="hidden xl:inline">Admin</span>
-              </Link>
 
               {/* Favorites Button with Counter Badge */}
               <button
@@ -238,6 +214,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="fixed inset-x-0 top-16 z-40 bg-[#EDE0CC]/98 border-b border-terracotta/25 backdrop-blur-xl px-6 py-6 shadow-2xl lg:hidden max-h-[85vh] overflow-y-auto"
           >
             <div className="flex flex-col space-y-3">
+              {/* Prominent Mobile Order Now Button */}
+              <a
+                href="#menu"
+                onClick={(e) => handleScrollTo(e, '#menu')}
+                className="w-full py-3 px-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 ring-2 ring-red-400/40"
+              >
+                <Utensils className="w-4 h-4" />
+                <span>ORDER NOW (EXPLORE 150+ MENU)</span>
+              </a>
+
               {navLinks.map((link) => {
                 const IconComp = link.icon;
                 const isActive = activeSection === link.href;
@@ -275,49 +261,29 @@ export const Navbar: React.FC<NavbarProps> = ({
                 );
               })}
 
-              <div className="pt-3 border-t border-terracotta/20 grid grid-cols-4 gap-2">
-                <a
-                  href="https://maps.app.goo.gl/Xkpi9H6ueRbUqH4UA"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-1 p-2.5 rounded-xl bg-white border border-emerald-500/30 text-espresso-950 text-xs font-bold shadow-xs"
-                  title="Open in Google Maps"
-                >
-                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Map</span>
-                </a>
-
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onOpenQRCode();
-                  }}
-                  className="flex items-center justify-center gap-1 p-2.5 rounded-xl bg-white border border-terracotta/30 text-espresso-950 text-xs font-bold shadow-xs"
-                >
-                  <QrCode className="w-3.5 h-3.5 text-terracotta" />
-                  <span>QR</span>
-                </button>
-
+              <div className="pt-3 border-t border-terracotta/20 grid grid-cols-2 gap-2.5">
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     onOpenReviewModal();
                   }}
-                  className="flex items-center justify-center gap-1.5 p-3 rounded-xl bg-terracotta text-white text-xs font-bold shadow-md"
+                  className="flex items-center justify-center gap-2 p-3 rounded-xl bg-terracotta text-white text-xs font-bold shadow-md hover:bg-terracotta-600 transition-colors"
                 >
                   <Camera className="w-4 h-4" />
-                  <span>Review</span>
+                  <span>Write Review</span>
                 </button>
 
-                <Link
-                  to="/admin"
+                <a
+                  href="https://maps.app.goo.gl/Xkpi9H6ueRbUqH4UA"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-1.5 p-3 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-espresso-950 text-xs font-bold shadow-sm"
+                  className="flex items-center justify-center gap-2 p-3 rounded-xl bg-white border border-emerald-500/40 text-espresso-950 text-xs font-bold shadow-xs hover:bg-emerald-50 transition-colors"
+                  title="Open in Google Maps"
                 >
-                  <Settings className="w-4 h-4 text-terracotta" />
-                  <span>Admin</span>
-                </Link>
+                  <MapPin className="w-4 h-4 text-emerald-600" />
+                  <span>Google Maps</span>
+                </a>
               </div>
             </div>
           </motion.div>

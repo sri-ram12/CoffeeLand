@@ -27,7 +27,7 @@ export const AboutSection: React.FC = () => {
   ];
 
   return (
-    <section id="about" className="py-24 bg-[#EDE0CC] relative overflow-hidden">
+    <section id="about" className="py-10 sm:py-14 bg-[#EDE0CC] relative overflow-hidden">
       {/* Subtle background ornamentation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">

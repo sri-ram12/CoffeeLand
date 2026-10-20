@@ -10,12 +10,12 @@ import { LiveFoodReels } from './components/LiveFoodReels';
 import { ReviewsSection } from './components/ReviewsSection';
 import { ReviewModal } from './components/ReviewModal';
 import { QRCodeModal } from './components/QRCodeModal';
+import { WhatsAppOrderModal, WhatsAppOrderTarget } from './components/WhatsAppOrderModal';
 import { AboutSection } from './components/AboutSection';
 import { GallerySection } from './components/GallerySection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { ScrollToTop } from './components/ScrollToTop';
-import { AdminPanelModal } from './components/AdminPanelModal';
 import { useFavorites } from './hooks/useFavorites';
 import { useMenu } from './hooks/useMenu';
 import { useReviews } from './hooks/useReviews';
@@ -70,7 +70,6 @@ export const App: React.FC = () => {
 
   const [isQRCodeOpen, setIsQRCodeOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [catalogViewMode, setCatalogViewMode] = useState<'cards' | 'compact' | 'dashed'>('cards');
   const [customProducts, setCustomProducts] = useState<Product[]>([]);
 
@@ -107,8 +106,10 @@ export const App: React.FC = () => {
     }
   };
 
+  const [activeOrderTarget, setActiveOrderTarget] = useState<WhatsAppOrderTarget | null>(null);
+
   const handleClaimOffer = (banner: OfferBanner) => {
-    sendWhatsAppInquiry({
+    setActiveOrderTarget({
       itemName: banner.itemName,
       price: banner.offerPrice,
       category: banner.category,
@@ -118,7 +119,7 @@ export const App: React.FC = () => {
   };
 
   const handleHeroOrderWhatsApp = (name: string, price: number, category?: string) => {
-    sendWhatsAppInquiry({
+    setActiveOrderTarget({
       itemName: name,
       price: price,
       category: category,
@@ -127,7 +128,7 @@ export const App: React.FC = () => {
   };
 
   const handleProductWhatsAppOrder = (product: Product) => {
-    sendWhatsAppInquiry({
+    setActiveOrderTarget({
       itemName: product.name,
       price: product.price,
       category: product.category,
@@ -137,13 +138,11 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#EDE0CC] text-espresso-950 flex flex-col font-sans selection:bg-terracotta selection:text-white pb-24 md:pb-0">
-      {/* Navigation Header with Fast Options & Admin Console */}
+      {/* Navigation Header with Fast Options */}
       <Navbar
         favoriteCount={favoriteCount}
         onOpenFavorites={handleOpenFavorites}
-        onOpenQRCode={() => setIsQRCodeOpen(true)}
         onOpenReviewModal={() => setIsReviewModalOpen(true)}
-        onOpenAdmin={() => setIsAdminModalOpen(true)}
       />
 
       {/* Floating / Sticky Fast Access Dock (Desktop scroll + Mobile Bottom Bar) */}
@@ -162,7 +161,6 @@ export const App: React.FC = () => {
       <HeroSection
         billboardBanner={activeBillboardBanner}
         billboardBanners={billboardBanners}
-        onOpenAdmin={() => setIsAdminModalOpen(true)}
         onOrderWhatsApp={handleHeroOrderWhatsApp}
       />
 
@@ -170,31 +168,27 @@ export const App: React.FC = () => {
       <section
         id="menu"
         ref={menuSectionRef}
-        className="py-24 bg-[#EDE0CC] relative overflow-hidden scroll-mt-12"
+        className="py-10 sm:py-14 bg-[#EDE0CC] relative overflow-hidden scroll-mt-12"
       >
         {/* Soft background ambient radial gradient */}
         <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-terracotta/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-10 left-0 w-[500px] h-[500px] bg-caramel/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Menu Section Header */}
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-terracotta/10 border border-terracotta/25 text-terracotta text-xs font-bold uppercase tracking-widest mb-4">
-              <Utensils className="w-3.5 h-3.5" />
-              <span>Interactive Food & Beverage Catalog</span>
-            </div>
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-espresso-950 mb-4">
-              Explore Menu By Category
+          {/* Menu Section Header - Clean & Focused */}
+          <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-espresso-950 mb-2">
+              Explore Our Menu
             </h2>
-            <p className="text-sm sm:text-base text-coffee-800 max-w-2xl mx-auto leading-relaxed">
-              Filter by dietary preference, price, or flavor profile across all 150+ authentic items from Coffee Land Resto & Cafe.
+            <p className="text-xs sm:text-sm md:text-base text-coffee-800 max-w-2xl mx-auto leading-relaxed">
+              Handcrafted coffees, stone-baked pizzas, gourmet burgers & authentic desserts prepared fresh upon order.
             </p>
             {/* Quick Action: Download Official Menu PDF */}
-            <div className="mt-5 flex items-center justify-center gap-3">
+            <div className="mt-3 flex items-center justify-center gap-3">
               <a
                 href="/coffelandmenu.pdf"
                 download="CoffeeLand-Menu.pdf"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white hover:bg-terracotta hover:text-white border border-terracotta/30 text-xs font-bold text-espresso-900 transition-all shadow-xs group"
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white hover:bg-terracotta hover:text-white border border-terracotta/30 text-xs font-bold text-espresso-900 transition-all shadow-2xs group"
                 title="Download original printed menu PDF"
               >
                 <Download className="w-3.5 h-3.5 text-terracotta group-hover:text-white transition-colors" />
@@ -204,7 +198,7 @@ export const App: React.FC = () => {
           </div>
 
           {/* Interactive Filtering and Category Controls */}
-          <div className="mb-12">
+          <div className="mb-6 sm:mb-8">
             <CategoryFilter
               categories={categories}
               selectedCategory={selectedCategory}
@@ -233,6 +227,7 @@ export const App: React.FC = () => {
             isFavorite={isFavorite}
             onToggleFavorite={toggleFavorite}
             onSelectProduct={setSelectedProduct}
+            onOrderProduct={handleProductWhatsAppOrder}
             onResetFilters={resetFilters}
             viewMode={catalogViewMode}
           />
@@ -242,7 +237,7 @@ export const App: React.FC = () => {
       {/* Live Food Video Reels (Autoplay one by one through autoscrolling) */}
       <LiveFoodReels
         onOrderOnWhatsApp={(dish, price, cat) =>
-          sendWhatsAppInquiry({
+          setActiveOrderTarget({
             itemName: dish,
             price,
             category: cat,
@@ -277,11 +272,10 @@ export const App: React.FC = () => {
         onToggleLike={toggleLikeReview}
       />
 
-      {/* Footer with Admin Console Link */}
+      {/* Footer */}
       <Footer
         onOpenQRCode={() => setIsQRCodeOpen(true)}
         onOpenReviewModal={() => setIsReviewModalOpen(true)}
-        onOpenAdmin={() => setIsAdminModalOpen(true)}
       />
 
       {/* Product Details Modal with WhatsApp Chat Button */}
@@ -291,6 +285,15 @@ export const App: React.FC = () => {
         isFavorite={selectedProduct ? isFavorite(selectedProduct.id) : false}
         onToggleFavorite={toggleFavorite}
         onOrderWhatsApp={handleProductWhatsAppOrder}
+      />
+
+      {/* WhatsApp Order & Inquiry Capture Modal */}
+      <WhatsAppOrderModal
+        orderTarget={activeOrderTarget}
+        onClose={() => setActiveOrderTarget(null)}
+        onConfirmOrder={(orderData) => {
+          sendWhatsAppInquiry(orderData);
+        }}
       />
 
       {/* Website QR Code Modal */}
@@ -305,30 +308,6 @@ export const App: React.FC = () => {
         onClose={() => setIsReviewModalOpen(false)}
         onSubmitReview={addReview}
         products={allProducts}
-      />
-
-      {/* Admin Panel Modal for Owner (Billboard Banner, Excel Reports, WhatsApp Logs, Food Items) */}
-      <AdminPanelModal
-        isOpen={isAdminModalOpen}
-        onClose={() => setIsAdminModalOpen(false)}
-        billboardBanners={billboardBanners}
-        onAddBillboardBanner={addBillboardBanner}
-        onUpdateBillboardBanner={updateBillboardBanner}
-        onDeleteBillboardBanner={deleteBillboardBanner}
-        onToggleBillboardBannerStatus={toggleBillboardBannerStatus}
-        onResetBillboardBanners={resetBillboardBanners}
-        banners={banners}
-        onAddBanner={addBanner}
-        onUpdateBanner={updateBanner}
-        onDeleteBanner={deleteBanner}
-        onToggleBannerStatus={toggleBannerStatus}
-        onResetBanners={resetBanners}
-        products={customProducts.length > 0 ? customProducts : allProducts}
-        onUpdateProduct={handleUpdateProduct}
-        inquiries={inquiries}
-        onUpdateInquiryStatus={updateInquiryStatus}
-        onDeleteInquiry={deleteInquiry}
-        onClearInquiries={clearInquiries}
       />
 
       {/* Floating Return to Top Button */}

@@ -40,28 +40,28 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   });
 
   return (
-    <section id="reviews" className="py-24 bg-[#EDE0CC] relative scroll-mt-12 overflow-hidden">
+    <section id="reviews" className="py-10 sm:py-14 bg-[#EDE0CC] relative scroll-mt-12 overflow-hidden">
       {/* Background radial atmosphere */}
       <div className="absolute top-1/3 left-0 w-96 h-96 bg-terracotta/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-0 w-96 h-96 bg-caramel/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header with Google Maps Rating Badge */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-terracotta/10 border border-terracotta/25 text-terracotta text-xs font-bold uppercase tracking-widest mb-4">
+        <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-terracotta/10 border border-terracotta/25 text-terracotta text-xs font-bold uppercase tracking-widest mb-2.5">
             <Camera className="w-3.5 h-3.5" />
-            <span>Google Maps 4.7 ★ Rated Resto & Cafe</span>
+            <span>4.7 ★ Rated Resto & Cafe</span>
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-espresso-950 mb-3">
-            Loved By Coffee & Food Lovers
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-espresso-950 mb-2">
+            Guest Reviews & Ratings
           </h2>
-          <p className="text-sm sm:text-base text-coffee-800 max-w-2xl mx-auto leading-relaxed">
-            Real reviews and candid snapshots uploaded directly by our guests from their phones and tables at Coffee Land Resto & Cafe (Sangivalasa, Vizag).
+          <p className="text-xs sm:text-sm md:text-base text-coffee-800 max-w-2xl mx-auto leading-relaxed">
+            Real guest reviews and photos from visits to Coffee Land Resto & Cafe (Sangivalasa, Vizag).
           </p>
         </div>
 
         {/* Rating Breakdown & CTA Banner */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 mb-12 border border-terracotta/20 shadow-lg">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 mb-6 sm:mb-8 border border-terracotta/20 shadow-lg">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
             {/* Overall Score with Google Maps reference */}
             <div className="md:col-span-4 text-center md:text-left flex flex-col items-center md:items-start justify-center border-b md:border-b-0 md:border-r border-terracotta/15 pb-6 md:pb-0 md:pr-8">

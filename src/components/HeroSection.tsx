@@ -9,7 +9,6 @@ import { BillboardHeroBanner } from './BillboardHeroBanner';
 interface HeroSectionProps {
   billboardBanner?: BillboardBanner;
   billboardBanners?: BillboardBanner[];
-  onOpenAdmin?: () => void;
   onOrderWhatsApp?: (dishName: string, price: number, category?: string) => void;
   onSelectBillboardBanner?: (banner: BillboardBanner) => void;
 }
@@ -17,7 +16,6 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = ({
   billboardBanner,
   billboardBanners = [],
-  onOpenAdmin = () => {},
   onOrderWhatsApp = () => {},
   onSelectBillboardBanner = () => {}
 }) => {
@@ -41,7 +39,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       discountBadgeText: '50% OFF',
       discountBadgeSub: 'Get Up To',
       deliveryNote: 'Free Home Delivery',
-      phone: '323-517-4946',
+      phone: '+91 90329 92524',
       websiteUrl: 'www.coffeeland.in',
       buttonText: 'ORDER NOW',
       image: '/banners/pizza_board.png',
@@ -54,7 +52,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   return (
     <section
       id="home"
-      className="relative min-h-[90vh] flex flex-col justify-start pt-24 sm:pt-28 pb-16 overflow-hidden bg-[#EDE0CC]"
+      className="relative flex flex-col justify-start pt-20 sm:pt-24 pb-8 sm:pb-10 overflow-hidden bg-[#EDE0CC]"
     >
       {/* Lightweight & Subtle Cafe Ambient Decor */}
       <HeroBackgroundDecor />
@@ -63,10 +61,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* ============================================================ */}
         {/* OFFICIAL BRANDING HERO */}
         {/* ============================================================ */}
-        <div className="text-center flex flex-col items-center max-w-4xl mx-auto mb-10 sm:mb-14">
+        <div className="text-center flex flex-col items-center max-w-4xl mx-auto mb-6 sm:mb-8">
           {/* Refined Brand Logo Emblem */}
-          <div className="relative mb-4 group cursor-pointer" onClick={() => scrollTo('featured-banner')}>
-            <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full p-1 bg-gradient-to-br from-terracotta via-amber-400 to-[#5C1F0E] shadow-xl">
+          <div className="relative mb-3 group cursor-pointer" onClick={() => scrollTo('menu')}>
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 bg-gradient-to-br from-terracotta via-amber-400 to-[#5C1F0E] shadow-xl">
               <img
                 src="/logo.png"
                 alt="Coffee Land Resto & Cafe"
@@ -76,41 +74,34 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
 
           {/* Official Ribbon Tag */}
-          <div className="inline-block bg-terracotta border-2 border-terracotta-600 px-4 sm:px-6 py-1.5 sm:py-2 rounded-xl shadow-md mb-3 max-w-[95vw]">
-            <span className="font-heading font-bold text-white tracking-wider sm:tracking-widest text-[10px] sm:text-xs md:text-sm uppercase block text-center">
+          <div className="inline-block bg-terracotta border-2 border-terracotta-600 px-4 sm:px-5 py-1 rounded-xl shadow-md mb-2.5 max-w-[95vw]">
+            <span className="font-heading font-bold text-white tracking-wider sm:tracking-widest text-[10px] sm:text-xs uppercase block text-center">
               GOOD FOOD • GREAT COFFEE • BETTER TOGETHER
             </span>
           </div>
 
-          {/* Main Title: COFFEE LAND RESTO & CAFE */}
-          <h1 className="font-display tracking-wider text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-espresso-950 uppercase mb-2 px-2">
-            COFFEE LAND RESTO & CAFE
+          {/* Main Brand Title: COFFEE LAND */}
+          <h1 className="font-display tracking-wider text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-espresso-950 uppercase mb-0.5 px-2">
+            COFFEE LAND
           </h1>
 
-          {/* Cursive Subtitle: Official Menu & Culinary Collection • Vizag */}
-          <p className="font-handwriting text-xl sm:text-3xl md:text-4xl text-terracotta font-bold mb-3 px-2">
-            Official Menu & Culinary Collection • Vizag
+          {/* Cursive Subtitle: Resto & Cafe in Maroon */}
+          <p className="font-handwriting text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#800000] font-bold mb-2 px-2 tracking-wide">
+            Resto & Cafe
           </p>
 
           {/* Description Paragraph */}
-          <p className="text-sm sm:text-base text-coffee-800 max-w-2xl mx-auto leading-relaxed">
-            Every handcrafted specialty from our official printed menu — explore all 6 pages with authentic pricing, chef recipes, and download options.
+          <p className="text-xs sm:text-sm md:text-base text-coffee-800 max-w-2xl mx-auto leading-relaxed">
+            Artisanal coffee, handcrafted wood-fired pizzas, gourmet brioche burgers & authentic desserts made fresh daily in Sangivalasa, Vizag.
           </p>
 
-          {/* Direct Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+          {/* Direct Action Buttons - Clean & Essential */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
             <button
               onClick={() => scrollTo('menu')}
               className="px-6 py-2.5 rounded-full bg-terracotta hover:bg-terracotta-600 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95"
             >
-              Explore 150+ Menu
-            </button>
-
-            <button
-              onClick={() => scrollTo('featured-banner')}
-              className="px-5 py-2.5 rounded-full bg-white hover:bg-amber-50 text-espresso-950 border border-terracotta/30 font-bold text-xs sm:text-sm shadow-xs transition-all hover:border-terracotta"
-            >
-              Featured Promo Banner
+              Explore Menu (150+ Items)
             </button>
 
             <button
@@ -125,19 +116,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
         {/* ============================================================ */}
         {/* BILLBOARD HERO BANNER (MATCHING REFERENCE USER IMAGE) */}
-        {/* Replaces the old today exclusive offers deals */}
         {/* ============================================================ */}
         <div id="featured-banner" className="w-full scroll-mt-20">
           <BillboardHeroBanner
             banner={currentBillboard}
             bannersList={billboardBanners}
-            onOpenAdmin={onOpenAdmin}
             onOrderWhatsApp={onOrderWhatsApp}
             onSelectBanner={onSelectBillboardBanner}
           />
 
-          {/* 5 Bottom Feature Badges (Borderless) */}
-          <div className="mt-12 pt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs font-bold text-coffee-800 uppercase tracking-widest">
+          {/* 5 Bottom Feature Badges (Borderless & Clean) */}
+          <div className="mt-6 pt-3 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs font-bold text-coffee-800 uppercase tracking-wider">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-terracotta" />
               <span>Artisanal Coffee</span>

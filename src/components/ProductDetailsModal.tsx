@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { Product } from '../types/product';
-import { X, Heart, Clock, Flame, Sparkles, ChefHat, Info, CheckCircle2, MessageCircle } from 'lucide-react';
+import { X, Heart, Clock, Flame, Sparkles, ChefHat, Info, CheckCircle2, MessageCircle, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { HotFoodVapourEffect, isHotFoodItem } from './HotFoodVapourEffect';
 
 interface ProductDetailsModalProps {
   product: Product | null;
@@ -74,6 +75,12 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
               alt={product.name}
               className="w-full h-full object-cover"
             />
+
+            {/* Hot Food Vapour and Fog Rising Animation */}
+            {product.inStock !== false && isHotFoodItem(product.category, product.name) && (
+              <HotFoodVapourEffect intensity="high" />
+            )}
+
             <div className="absolute inset-0 bg-gradient-to-t from-[#EDE0CC]/90 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-[#EDE0CC]/70 pointer-events-none" />
 
             {/* Badges on Modal Image */}
@@ -188,21 +195,37 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
 
             {/* Note on In-Store Ordering & WhatsApp Chat */}
             <div className="pt-4 border-t border-amber-900/10 space-y-3">
-              <div className="text-xs text-[#6A584D] flex items-start gap-2 bg-amber-50/80 border border-amber-200/60 p-3 rounded-xl">
-                <Info className="w-4 h-4 text-[#802B12] flex-shrink-0 mt-0.5" />
-                <p>
-                  Available for dine-in & takeaway at our cafe on Temples Bypass Road, Thagarapuvalasa Vizag.
-                </p>
-              </div>
+              {product.inStock === false ? (
+                <div className="text-xs text-red-900 flex items-center gap-2 bg-red-100 border border-red-300 p-3 rounded-xl font-bold">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>This item is currently Out of Stock. Please try another delicious specialty!</span>
+                </div>
+              ) : (
+                <div className="text-xs text-[#6A584D] flex items-start gap-2 bg-amber-50/80 border border-amber-200/60 p-3 rounded-xl">
+                  <Info className="w-4 h-4 text-[#802B12] flex-shrink-0 mt-0.5" />
+                  <p>
+                    Available for dine-in & takeaway at our cafe on Temples Bypass Road, Thagarapuvalasa Vizag.
+                  </p>
+                </div>
+              )}
 
               {onOrderWhatsApp && (
-                <button
-                  onClick={() => onOrderWhatsApp(product)}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Chat with Owner on WhatsApp for {product.name} (₹{product.price})</span>
-                </button>
+                product.inStock === false ? (
+                  <button
+                    disabled
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-zinc-300 text-zinc-500 font-bold text-sm cursor-not-allowed shadow-none"
+                  >
+                    <span>Currently Unavailable (Out of Stock)</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => onOrderWhatsApp(product)}
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Order on WhatsApp • {product.name} (₹{product.price})</span>
+                  </button>
+                )
               )}
             </div>
           </div>

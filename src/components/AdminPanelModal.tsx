@@ -99,7 +99,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   const [bbDiscountBadgeText, setBbDiscountBadgeText] = useState('50% OFF');
   const [bbDiscountBadgeSub, setBbDiscountBadgeSub] = useState('Get Up To');
   const [bbDeliveryNote, setBbDeliveryNote] = useState('Free Home Delivery');
-  const [bbPhone, setBbPhone] = useState('323-517-4946');
+  const [bbPhone, setBbPhone] = useState('+91 90329 92524');
   const [bbWebsiteUrl, setBbWebsiteUrl] = useState('WWW.COFFEELAND.IN');
   const [bbButtonText, setBbButtonText] = useState('ORDER NOW');
   const [bbImage, setBbImage] = useState('/banners/pizza_board.jpg');
@@ -119,7 +119,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
       setBbDiscountBadgeText(activeBillboard.discountBadgeText || '50% OFF');
       setBbDiscountBadgeSub(activeBillboard.discountBadgeSub || 'Get Up To');
       setBbDeliveryNote(activeBillboard.deliveryNote || 'Free Home Delivery');
-      setBbPhone(activeBillboard.phone || '323-517-4946');
+      setBbPhone(activeBillboard.phone || '+91 90329 92524');
       setBbWebsiteUrl(activeBillboard.websiteUrl || 'WWW.COFFEELAND.IN');
       setBbButtonText(activeBillboard.buttonText || 'ORDER NOW');
       setBbImage(activeBillboard.image || '/banners/pizza_board.jpg');
@@ -176,7 +176,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     setBbDiscountBadgeText('50% OFF');
     setBbDiscountBadgeSub('Get Up To');
     setBbDeliveryNote('Free Home Delivery');
-    setBbPhone('323-517-4946');
+    setBbPhone('+91 90329 92524');
     setBbWebsiteUrl('WWW.COFFEELAND.IN');
     setBbButtonText('ORDER NOW');
     setBbImage('/banners/pizza_board.jpg');
@@ -633,7 +633,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                               </span>
                               <div className="flex flex-col">
                                 <span className="font-sans font-black text-xs sm:text-sm text-neutral-950 tracking-wider">
-                                  ☎ {bbPhone || '323-517-4946'}
+                                  ☎ {bbPhone || '+91 90329 92524'}
                                 </span>
                                 <span className="text-[9px] text-red-600 font-bold tracking-widest uppercase">
                                   {bbWebsiteUrl || 'WWW.COFFEELAND.IN'}
@@ -719,7 +719,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                             </h2>
 
                             <span className="font-sans font-bold text-xs text-white tracking-wider">
-                              <span className="text-amber-400 font-black">P :</span> {bbPhone || '0123 456 7890'}
+                              <span className="text-amber-400 font-black">P :</span> {bbPhone || '+91 95425 25665'}
                             </span>
 
                             <div className="pt-2 flex items-center gap-4">
@@ -807,7 +807,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                                 {bbDeliveryNote || 'FREE DELIVERY'}
                               </span>
                               <span className="font-sans font-black text-sm text-white">
-                                {bbPhone || '8568 0269 5476'}
+                                {bbPhone || '+91 90329 92524'}
                               </span>
                             </div>
 
@@ -891,7 +891,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                             setBbHighlightText('SUPER');
                             setBbDiscountBadgeText('50% OFF');
                             setBbDiscountBadgeSub('Get Up To');
-                            setBbPhone('323-517-4946');
+                            setBbPhone('+91 90329 92524');
                             setBbDeliveryNote('Free Home Delivery');
                           }
                         }}
@@ -916,9 +916,9 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                             setBbImage('/banners/burger_double.png');
                             setBbScriptText('Special fresh');
                             setBbHighlightText('FRESH');
-                            setBbDiscountBadgeText('10 $');
+                            setBbDiscountBadgeText('₹149');
                             setBbDiscountBadgeSub('Only');
-                            setBbPhone('0123 456 7890');
+                            setBbPhone('+91 95425 25665');
                             setBbDeliveryNote('Hot & Juicy Double Patty');
                           }
                         }}
@@ -930,7 +930,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                       >
                         <span className="font-bold text-xs text-neutral-900 block">🍔 Burgundy Wave</span>
                         <span className="text-[11px] text-coffee-600 block mt-0.5">
-                          Special Fresh Burger, Yellow Curve & Only 10 $
+                          Special Fresh Burger, Yellow Curve & Only ₹149
                         </span>
                       </button>
 
@@ -943,9 +943,9 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                             setBbImage('/banners/pizza_pan.png');
                             setBbScriptText("Today's Special");
                             setBbHighlightText("TODAY'S");
-                            setBbDiscountBadgeText('15 $');
+                            setBbDiscountBadgeText('₹199');
                             setBbDiscountBadgeSub('Price');
-                            setBbPhone('8568 0269 5476');
+                            setBbPhone('+91 90329 92524');
                             setBbDeliveryNote('FREE DELIVERY');
                           }
                         }}
@@ -997,7 +997,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                               setBbHighlightText('SUPER');
                               setBbDiscountBadgeText('50% OFF');
                               setBbDiscountBadgeSub('Get Up To');
-                              setBbPhone('323-517-4946');
+                              setBbPhone('+91 90329 92524');
                               setBbDeliveryNote('Free Home Delivery');
                             }}
                             className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white text-espresso-900 border border-neutral-300 hover:bg-neutral-100"
@@ -1012,14 +1012,14 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                               setBbImage('/banners/burger_double.png');
                               setBbScriptText('Special fresh');
                               setBbHighlightText('FRESH');
-                              setBbDiscountBadgeText('10 $');
+                              setBbDiscountBadgeText('₹149');
                               setBbDiscountBadgeSub('Only');
-                              setBbPhone('0123 456 7890');
+                              setBbPhone('+91 95425 25665');
                               setBbDeliveryNote('Hot & Juicy Double Patty');
                             }}
                             className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white text-espresso-900 border border-neutral-300 hover:bg-neutral-100"
                           >
-                            Ref 2: Fresh Burger 10$
+                            Ref 2: Fresh Burger ₹149
                           </button>
                           <button
                             type="button"
@@ -1029,9 +1029,9 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                               setBbImage('/banners/pizza_pan.png');
                               setBbScriptText("Today's Special");
                               setBbHighlightText("TODAY'S");
-                              setBbDiscountBadgeText('15 $');
+                              setBbDiscountBadgeText('₹199');
                               setBbDiscountBadgeSub('Price');
-                              setBbPhone('8568 0269 5476');
+                              setBbPhone('+91 90329 92524');
                               setBbDeliveryNote('FREE DELIVERY');
                             }}
                             className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white text-espresso-900 border border-neutral-300 hover:bg-neutral-100"
@@ -1267,7 +1267,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           type="text"
                           value={bbPhone}
                           onChange={(e) => setBbPhone(e.target.value)}
-                          placeholder="e.g. 323-517-4946, 0123 456 7890, 8568 0269 5476"
+                          placeholder="e.g. +91 90329 92524, +91 95425 25665"
                           className="w-full px-3.5 py-2 rounded-xl bg-[#EDE0CC] border border-amber-900/20 text-xs font-bold text-espresso-950 focus:border-red-600 outline-none"
                         />
                       </div>
@@ -1608,15 +1608,27 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                     {inquiries.map((inq) => (
                       <div
                         key={inq.id}
-                        className="p-4 rounded-2xl bg-white border border-amber-900/15 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                        className={`p-4 rounded-2xl bg-white border shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
+                          inq.diningOption === 'Delivery'
+                            ? 'border-blue-300'
+                            : inq.diningOption === 'Takeaway'
+                            ? 'border-emerald-300'
+                            : 'border-red-300'
+                        }`}
                       >
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-serif font-bold text-sm text-espresso-950">
                               {inq.customerName}
                             </span>
-                            <span className="px-2 py-0.5 rounded-full bg-amber-100 text-terracotta text-[10px] font-bold">
-                              {inq.inquiryType}
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              inq.diningOption === 'Delivery'
+                                ? 'bg-blue-100 text-blue-800'
+                                : inq.diningOption === 'Takeaway'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {inq.diningOption === 'Delivery' ? '🔵 Delivery Pass' : inq.diningOption === 'Takeaway' ? '🟢 Takeaway Pass' : '🔴 Dine-In Pass'}
                             </span>
                             <span className="text-[11px] text-coffee-500">
                               {new Date(inq.timestamp).toLocaleString('en-IN', {
@@ -1630,7 +1642,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                             {inq.itemName} • ₹{inq.price} {inq.promoCode && `(Code: ${inq.promoCode})`}
                           </p>
 
-                          <p className="text-xs text-coffee-800 bg-[#EDE0CC] p-2 rounded-xl mt-1.5 border border-amber-900/10">
+                          <p className="text-xs text-coffee-800 bg-[#EDE0CC] p-2 rounded-xl mt-1.5 border border-amber-900/10 font-mono">
                             "{inq.message}"
                           </p>
                         </div>

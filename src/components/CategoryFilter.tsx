@@ -39,9 +39,9 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   onViewModeChange,
 }) => {
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-3.5">
       {/* Top Controls: Search, Sort, and Quick Toggles */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
         {/* Search Input Bar */}
         <div className="relative flex-1 max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-terracotta">
@@ -52,7 +52,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search cappuccino, waffles, pizza..."
-            className="w-full pl-10 pr-10 py-2.5 rounded-full bg-white border border-terracotta/25 text-espresso-950 placeholder-espresso-400 text-sm focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta transition-all shadow-xs"
+            className="w-full pl-10 pr-10 py-2 rounded-full bg-white border border-terracotta/25 text-espresso-950 placeholder-espresso-400 text-sm focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta transition-all shadow-xs"
           />
           {searchQuery && (
             <button
@@ -66,11 +66,11 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
         </div>
 
         {/* Filter & Sort Controls */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           {/* Veg Only Toggle */}
           <button
             onClick={onToggleVegOnly}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 border ${
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 border ${
               vegOnly
                 ? 'bg-emerald-50 border-emerald-600 text-emerald-800 shadow-xs'
                 : 'bg-white border-terracotta/20 text-espresso-800 hover:border-terracotta/40 shadow-xs'
@@ -86,7 +86,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
           {/* Favorites Only Toggle */}
           <button
             onClick={onToggleFavoritesOnly}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 border ${
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 border ${
               favoritesOnly
                 ? 'bg-terracotta text-white border-terracotta shadow-xs'
                 : 'bg-white border-terracotta/20 text-espresso-800 hover:border-terracotta/40 shadow-xs'
@@ -115,10 +115,10 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
             <select
               value={sortBy}
               onChange={(e) => onSortChange(e.target.value as SortOption)}
-              className="appearance-none pl-9 pr-8 py-2 rounded-full bg-white border border-terracotta/25 text-espresso-950 text-xs font-medium focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta cursor-pointer transition-all shadow-xs"
+              className="appearance-none pl-9 pr-8 py-1.5 rounded-full bg-white border border-terracotta/25 text-espresso-950 text-xs font-medium focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta cursor-pointer transition-all shadow-xs"
             >
               <option value="featured" className="bg-white text-espresso-950">
-                Sort: Featured & Specials
+                Sort: Featured
               </option>
               <option value="price-asc" className="bg-white text-espresso-950">
                 Price: Low to High
@@ -133,51 +133,6 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
                 Name: Z to A
               </option>
             </select>
-          </div>
-
-          {/* View Mode Toggle: Interactive Cards (Default) | Compact | 3-Dashed Option */}
-          <div className="inline-flex items-center p-1 rounded-full bg-white border border-terracotta/25 shadow-xs">
-            <button
-              type="button"
-              onClick={() => onViewModeChange?.('cards')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                viewMode === 'cards'
-                  ? 'bg-terracotta text-white shadow-xs'
-                  : 'text-espresso-700 hover:text-terracotta'
-              }`}
-              title="Interactive Cards View (Default)"
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Cards (Default)</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onViewModeChange?.('compact')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                viewMode === 'compact'
-                  ? 'bg-terracotta text-white shadow-xs'
-                  : 'text-espresso-700 hover:text-terracotta'
-              }`}
-              title="Compact 3-Column Grid"
-            >
-              <Grid3x3 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Compact</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onViewModeChange?.('dashed')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                viewMode === 'dashed'
-                  ? 'bg-terracotta text-white shadow-xs'
-                  : 'text-espresso-700 hover:text-terracotta'
-              }`}
-              title="3-Dashed Menu Board View"
-            >
-              <span className="font-mono font-black text-sm leading-none">≡</span>
-              <span className="hidden sm:inline">3-Dashed</span>
-            </button>
           </div>
         </div>
       </div>

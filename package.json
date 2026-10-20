@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5173 --host",
-    "server": "node server/index.js",
+    "server": "node --watch server/index.js",
     "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
     "build": "tsc && vite build",
     "start": "node server/index.js",

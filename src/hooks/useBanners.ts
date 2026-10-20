@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { OfferBanner, BillboardBanner, WhatsAppInquiry } from '../types/banner';
+import { api } from '../services/api';
 
 const BANNERS_STORAGE_KEY = 'coffeeland_offer_banners_v1';
-const BILLBOARD_BANNERS_STORAGE_KEY = 'coffeeland_billboard_banners_v5';
+const BILLBOARD_BANNERS_STORAGE_KEY = 'coffeeland_billboard_banners_v6';
 const INQUIRIES_STORAGE_KEY = 'coffeeland_whatsapp_inquiries_v1';
 
 export const DEFAULT_BILLBOARD_BANNERS: BillboardBanner[] = [
@@ -17,7 +18,7 @@ export const DEFAULT_BILLBOARD_BANNERS: BillboardBanner[] = [
     discountBadgeText: '50% OFF',
     discountBadgeSub: 'Get Up To',
     deliveryNote: 'Free Home Delivery',
-    phone: '323-517-4946',
+    phone: '+91 90329 92524',
     websiteUrl: 'WWW.COFFEELAND.IN',
     buttonText: 'ORDER NOW',
     image: '/banners/pizza_board.png',
@@ -34,10 +35,10 @@ export const DEFAULT_BILLBOARD_BANNERS: BillboardBanner[] = [
     foodName: 'Burger',
     menuTag: 'SPECIAL',
     limitedOfferTag: 'LIMITED TIME',
-    discountBadgeText: '10 $',
+    discountBadgeText: '₹149',
     discountBadgeSub: 'Only',
     deliveryNote: 'Hot & Juicy Double Patty',
-    phone: '0123 456 7890',
+    phone: '+91 95425 25665',
     websiteUrl: 'WWW.COFFEELAND.IN',
     buttonText: 'ORDER NOW',
     image: '/banners/burger_double.png',
@@ -54,10 +55,10 @@ export const DEFAULT_BILLBOARD_BANNERS: BillboardBanner[] = [
     foodName: 'PIZZA',
     menuTag: 'SPECIAL',
     limitedOfferTag: 'LIMITED TIME OFFER',
-    discountBadgeText: '15 $',
+    discountBadgeText: '₹199',
     discountBadgeSub: 'Price',
     deliveryNote: 'FREE DELIVERY',
-    phone: '8568 0269 5476',
+    phone: '+91 90329 92524',
     websiteUrl: 'WWW.COFFEELAND.IN',
     buttonText: 'ORDER NOW',
     image: '/banners/pizza_pan.png',
@@ -161,47 +162,7 @@ export const DEFAULT_OFFER_BANNERS: OfferBanner[] = [
   }
 ];
 
-export const INITIAL_WHATSAPP_INQUIRIES: WhatsAppInquiry[] = [
-  {
-    id: 'inq-101',
-    customerName: 'Kavita Rao',
-    customerPhone: '+91 98480 11223',
-    itemName: 'Lotus Biscoff Kunafa',
-    category: 'Signature Desserts',
-    price: 199,
-    inquiryType: 'Offer Banner',
-    promoCode: 'KUNAFA50',
-    message: 'Hi Coffee Land! Inquiring about the Lotus Biscoff Kunafa offer (FLAT ₹50 OFF). Is it available right now for takeaway?',
-    timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-    status: 'Confirmed'
-  },
-  {
-    id: 'inq-102',
-    customerName: 'Aditya Varma',
-    customerPhone: '+91 99630 44556',
-    itemName: "Chef's Spl Non-Veg Burger",
-    category: 'Gourmet Brioche Burgers',
-    price: 159,
-    inquiryType: 'Offer Banner',
-    promoCode: 'BURGER20',
-    message: 'Hello, I want to reserve a table for 3 near ANITS college and claim the Weekend Burger Crave Fest offer.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 130).toISOString(),
-    status: 'Confirmed'
-  },
-  {
-    id: 'inq-103',
-    customerName: 'Suresh Naidu',
-    customerPhone: '+91 94401 88990',
-    itemName: 'Neapolitan Margarita Pizza',
-    category: 'Artisanal Pizzas',
-    price: 169,
-    inquiryType: 'Menu Item',
-    promoCode: 'PIZZAFEST',
-    message: 'Hi, can I order 2 Margarita Pizzas and 2 Cappuccinos for pickup in 20 minutes?',
-    timestamp: new Date(Date.now() - 1000 * 60 * 320).toISOString(),
-    status: 'Completed'
-  }
-];
+export const INITIAL_WHATSAPP_INQUIRIES: WhatsAppInquiry[] = [];
 
 export const useBanners = () => {
   const [banners, setBanners] = useState<OfferBanner[]>(() => {
@@ -217,12 +178,37 @@ export const useBanners = () => {
   const [inquiries, setInquiries] = useState<WhatsAppInquiry[]>(() => {
     try {
       const saved = localStorage.getItem(INQUIRIES_STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed: WhatsAppInquiry[] = JSON.parse(saved);
+        // Clean out legacy mock test orders so only real customer orders remain
+        const realOnly = parsed.filter(i => 
+          !['inq-101', 'inq-102', 'inq-103'].includes(i.id) &&
+          !['Kavita Rao', 'Aditya Varma', 'Suresh Naidu'].includes(i.customerName)
+        );
+        return realOnly;
+      }
     } catch (e) {
       console.error('Failed to parse saved inquiries', e);
     }
-    return INITIAL_WHATSAPP_INQUIRIES;
+    return [];
   });
+
+  // Synchronize inquiries with server
+  useEffect(() => {
+    let isMounted = true;
+    async function syncInquiries() {
+      try {
+        const serverInquiries = await api.getInquiries();
+        if (isMounted && Array.isArray(serverInquiries) && serverInquiries.length > 0) {
+          setInquiries(serverInquiries);
+        }
+      } catch (err) {
+        console.warn('Could not sync inquiries from server:', err);
+      }
+    }
+    syncInquiries();
+    return () => { isMounted = false; };
+  }, []);
 
   // Persist banners
   useEffect(() => {
@@ -276,7 +262,6 @@ export const useBanners = () => {
     setBanners(DEFAULT_OFFER_BANNERS);
   };
 
-  // Record customer WhatsApp inquiry and generate wa.me link
   const sendWhatsAppInquiry = (data: {
     customerName?: string;
     customerPhone?: string;
@@ -284,27 +269,80 @@ export const useBanners = () => {
     category?: string;
     price: number;
     inquiryType: 'Offer Banner' | 'Menu Item' | 'Table Query' | 'Direct Order';
+    diningOption?: 'Dine-In' | 'Delivery' | 'Takeaway';
     promoCode?: string;
     customNote?: string;
   }) => {
-    const defaultMsg = `Hello Coffee Land (Sangivalasa, Vizag)! I am interested in ordering/inquiring about: *${data.itemName}* (Price: ₹${data.price}${data.promoCode ? ` | Promo: ${data.promoCode}` : ''}). Please confirm availability!`;
-    const message = data.customNote || defaultMsg;
+    let finalCustomerName = data.customerName?.trim();
+    let finalCustomerPhone = data.customerPhone?.trim();
+
+    if (!finalCustomerName || !finalCustomerPhone) {
+      try {
+        const storedProfile = localStorage.getItem('coffeeland_customer_profile');
+        if (storedProfile) {
+          const profile = JSON.parse(storedProfile);
+          if (!finalCustomerName && profile.name) finalCustomerName = profile.name;
+          if (!finalCustomerPhone && profile.phone) finalCustomerPhone = profile.phone;
+        }
+      } catch (e) {
+        console.warn('Error reading customer profile', e);
+      }
+    }
+
+    const dining = data.diningOption || 'Dine-In';
+    const tagEmoji = dining === 'Dine-In' ? '🔴' : dining === 'Delivery' ? '🔵' : '🟢';
+    const tagColor = dining === 'Dine-In' ? 'RED' : dining === 'Delivery' ? 'BLUE' : 'GREEN';
+    const typeLabel = dining === 'Dine-In' ? 'DINE-IN ORDER' : dining === 'Delivery' ? 'HOME DELIVERY ORDER' : 'TAKEAWAY PARCEL ORDER';
+    const subLabel = dining === 'Dine-In' ? 'Fresh Table Service' : dining === 'Delivery' ? 'Doorstep Express Delivery' : 'Express Counter Pickup';
+
+    const orderWhatsAppText = `🎀${tagEmoji}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${tagEmoji}🎀
+           *${typeLabel}*
+        _${subLabel}_
+  ${tagEmoji} *COFFEE LAND RESTO & CAFE* (${tagColor} PASS)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 📌 *TO:* Coffee Land Resto & Cafe
+         Temples Bypass Rd, Sangivalasa
+ 👤 *FROM:* ${finalCustomerName || 'Direct Guest'}${finalCustomerPhone ? ` (${finalCustomerPhone})` : ''}
+────────────────────────────────────
+ 🍽️ *ITEM:* ${data.itemName}
+ 🏷️ *CATEGORY:* ${data.category || 'Specialty Dish'}
+ 💰 *TOTAL:* ₹${data.price}${data.promoCode ? ` (Promo: ${data.promoCode})` : ''}
+${data.customNote ? ` 📝 *NOTE / ADDRESS:* ${data.customNote}\n` : ''} ⏰ *ORDER TIME:* ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ✨ Please prepare & confirm this ${typeLabel}! ✨`;
+
+    const message = orderWhatsAppText;
 
     const newInquiry: WhatsAppInquiry = {
       id: `inq-${Date.now()}`,
-      customerName: data.customerName || 'Website Diner',
-      customerPhone: data.customerPhone || '',
+      customerName: finalCustomerName || 'Direct Guest',
+      customerPhone: finalCustomerPhone || '',
       itemName: data.itemName,
       category: data.category || 'Specialty Dish',
       price: data.price,
       inquiryType: data.inquiryType,
+      diningOption: dining,
       promoCode: data.promoCode,
       message,
       timestamp: new Date().toISOString(),
       status: 'Inquired'
     };
 
+    // Update local state and storage
     setInquiries((prev) => [newInquiry, ...prev]);
+
+    // Send to backend server database so owner admin panel and Excel reports get it live
+    api.addInquiry({
+      customerName: newInquiry.customerName,
+      customerPhone: newInquiry.customerPhone,
+      itemName: newInquiry.itemName,
+      category: newInquiry.category,
+      price: newInquiry.price,
+      inquiryType: newInquiry.inquiryType,
+      diningOption: dining,
+      promoCode: newInquiry.promoCode,
+      customNote: message
+    }).catch((err) => console.warn('Could not post inquiry to server database:', err));
 
     // Open WhatsApp with owner's number (+91 95425 25665)
     const phone = '919542525665';
@@ -324,14 +362,20 @@ export const useBanners = () => {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length >= 3) {
-          const sanitized = parsed.map((b: BillboardBanner) => ({
-            ...b,
-            image: b.image
-              ?.replace('/banners/pizza_board.jpg', '/banners/pizza_board.png')
-              ?.replace('/banners/burger_double.jpg', '/banners/burger_double.png')
-              ?.replace('/banners/pizza_pan.jpg', '/banners/pizza_pan.png') || b.image,
-            isActive: true // Guarantee autoscroll works across all 3 banners
-          }));
+          const sanitized = parsed.map((b: BillboardBanner, idx: number) => {
+            const hasDummyPhone = !b.phone || b.phone.includes('323') || b.phone.includes('0123') || b.phone.includes('8568');
+            const cleanPhone = hasDummyPhone ? (idx === 1 ? '+91 95425 25665' : '+91 90329 92524') : b.phone;
+            return {
+              ...b,
+              phone: cleanPhone,
+              discountBadgeText: b.discountBadgeText === '10 $' ? '₹149' : b.discountBadgeText === '15 $' ? '₹199' : b.discountBadgeText,
+              image: b.image
+                ?.replace('/banners/pizza_board.jpg', '/banners/pizza_board.png')
+                ?.replace('/banners/burger_double.jpg', '/banners/burger_double.png')
+                ?.replace('/banners/pizza_pan.jpg', '/banners/pizza_pan.png') || b.image,
+              isActive: true // Guarantee autoscroll works across all 3 banners
+            };
+          });
           return sanitized;
         }
       }

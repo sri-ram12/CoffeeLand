@@ -14,7 +14,8 @@
     "calories": "180 kcal",
     "menuPage": 2,
     "isFeatured": true,
-    "featuredCategory": "bestselling-coffee"
+    "featuredCategory": "bestselling-coffee",
+    "inStock": true
   },
   {
     "id": "cl-cinnamon-americano",

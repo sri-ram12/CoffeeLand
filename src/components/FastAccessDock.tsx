@@ -176,15 +176,6 @@ export const FastAccessDock: React.FC<FastAccessDockProps> = ({
                     <span className="hidden xl:inline">Reviews</span>
                   </button>
 
-                  {/* QR Code */}
-                  <button
-                    onClick={onOpenQRCode}
-                    className="p-2 rounded-full bg-[#EDE0CC] hover:bg-[#E5D5BD] text-espresso-800 hover:text-terracotta border border-terracotta/20 transition-colors shadow-xs"
-                    title="Scan Website QR"
-                  >
-                    <QrCode className="w-4 h-4 text-terracotta" />
-                  </button>
-
                   {/* Favorites badge */}
                   <button
                     onClick={onOpenFavorites}
@@ -206,8 +197,8 @@ export const FastAccessDock: React.FC<FastAccessDockProps> = ({
       </AnimatePresence>
 
       {/* MOBILE END-TO-END BOTTOM ACCESS BAR (Always visible on mobile devices) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#EDE0CC]/98 backdrop-blur-xl border-t border-terracotta/25 px-3 py-2 shadow-2xl safe-area-bottom">
-        <div className="grid grid-cols-5 items-center justify-around gap-1 text-center">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#EDE0CC]/98 backdrop-blur-xl border-t border-terracotta/25 px-4 py-2 shadow-2xl safe-area-bottom">
+        <div className="grid grid-cols-4 items-center justify-around gap-2 text-center">
           {/* 1. Home */}
           <button
             onClick={scrollToTop}
@@ -233,31 +224,22 @@ export const FastAccessDock: React.FC<FastAccessDockProps> = ({
           {/* 3. Center Upload & Review Button */}
           <button
             onClick={onOpenReviewModal}
-            className="flex flex-col items-center justify-center -mt-5"
+            className="flex flex-col items-center justify-center -mt-4"
           >
-            <div className="w-12 h-12 rounded-full bg-terracotta hover:bg-terracotta-600 text-white flex items-center justify-center shadow-lg border-2 border-[#EDE0CC] hover:scale-105 transition-transform">
-              <Camera className="w-6 h-6 stroke-[2.2]" />
+            <div className="w-11 h-11 rounded-full bg-terracotta hover:bg-terracotta-600 text-white flex items-center justify-center shadow-lg border-2 border-[#EDE0CC] hover:scale-105 transition-transform">
+              <Camera className="w-5 h-5 stroke-[2.2]" />
             </div>
             <span className="text-[10px] font-bold text-terracotta mt-0.5">Review</span>
           </button>
 
-          {/* 4. Scan QR */}
-          <button
-            onClick={onOpenQRCode}
-            className="flex flex-col items-center justify-center py-1 text-espresso-800 hover:text-terracotta transition-colors"
-          >
-            <QrCode className="w-5 h-5" />
-            <span className="text-[10px] font-bold mt-0.5">Scan QR</span>
-          </button>
-
-          {/* 5. Favorites */}
+          {/* 4. Favorites */}
           <button
             onClick={onOpenFavorites}
             className="relative flex flex-col items-center justify-center py-1 text-espresso-800 hover:text-red-500 transition-colors"
           >
             <Heart className="w-5 h-5" />
             {favoriteCount > 0 && (
-              <span className="absolute 0 top-0.5 right-3 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] font-bold flex items-center justify-center">
+              <span className="absolute 0 top-0.5 right-6 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] font-bold flex items-center justify-center">
                 {favoriteCount}
               </span>
             )}

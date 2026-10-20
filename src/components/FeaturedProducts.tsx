@@ -59,28 +59,28 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   const filteredFeatured = products.filter((p) => p.featuredCategory === activeTab);
 
   return (
-    <section id="featured" className="py-24 bg-[#F5ECE0] relative overflow-hidden">
+    <section id="featured" className="py-10 sm:py-14 bg-[#F5ECE0] relative overflow-hidden">
       {/* Ambient background glow */}
       <div className="absolute top-1/2 left-0 w-96 h-96 bg-terracotta/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-caramel/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-terracotta/10 border border-terracotta/25 text-terracotta text-xs font-bold uppercase tracking-widest mb-4">
+        <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-terracotta/10 border border-terracotta/25 text-terracotta text-xs font-bold uppercase tracking-widest mb-2.5">
             <Award className="w-3.5 h-3.5" />
             <span>Curated Selections</span>
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-espresso-950 mb-3">
-            Featured Highlights & Offers
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-espresso-950 mb-2">
+            Featured Highlights
           </h2>
-          <p className="text-sm sm:text-base text-coffee-800">
-            Handcrafted beverages and freshly prepared delicacies that celebrate our culinary craftsmanship.
+          <p className="text-xs sm:text-sm md:text-base text-coffee-800">
+            Handcrafted beverages and delicacies celebrating our cafe heritage.
           </p>
         </div>
 
         {/* Tab Selection Navigation */}
-        <div className="flex items-center justify-center mb-10 overflow-x-auto pb-2 scrollbar-none no-scrollbar">
+        <div className="flex items-center justify-center mb-6 sm:mb-8 overflow-x-auto pb-2 scrollbar-none no-scrollbar">
           <div className="inline-flex p-1.5 rounded-2xl bg-white border border-terracotta/25 shadow-sm gap-1.5">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.key;

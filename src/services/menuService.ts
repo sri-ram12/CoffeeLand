@@ -22,6 +22,16 @@ class MenuService {
    * Fetch all menu products
    */
   async getProducts(): Promise<Product[]> {
+    try {
+      const saved = localStorage.getItem('coffeeland_products_v1');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.length > 0) {
+          this.products = parsed;
+          return this.products;
+        }
+      }
+    } catch {}
     return Promise.resolve(this.products);
   }
 
@@ -29,6 +39,7 @@ class MenuService {
    * Fetch a single product by ID
    */
   async getProductById(id: string): Promise<Product | undefined> {
+    await this.getProducts();
     const product = this.products.find((p) => p.id === id);
     return Promise.resolve(product);
   }
@@ -44,6 +55,7 @@ class MenuService {
     favoritesOnly?: boolean;
     favoriteIds?: string[];
   }): Promise<Product[]> {
+    await this.getProducts();
     let result = [...this.products];
 
     // Filter by Category

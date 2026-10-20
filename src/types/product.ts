@@ -47,6 +47,7 @@ export interface Product {
   calories?: string;
   isFeatured?: boolean;
   menuPage?: number;
+  inStock?: boolean;
   featuredCategory?:
     | 'bestselling-coffee'
     | 'customer-favorites'
@@ -66,3 +67,26 @@ export interface Category {
 }
 
 export type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'name-asc' | 'name-desc';
+
+export interface KotItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  category: string;
+  notes?: string;
+}
+
+export interface KotOrder {
+  id: string;
+  kotNumber: number;
+  orderType: 'Dine-In' | 'Takeaway' | 'Delivery' | 'WhatsApp';
+  tableNumber: string;
+  customerName: string;
+  customerPhone: string;
+  items: KotItem[];
+  chefNotes: string;
+  timestamp: string;
+  totalAmount: number;
+  status: 'Preparing' | 'Served' | 'Completed';
+}

@@ -39,23 +39,23 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-24 bg-[#EDE0CC] relative overflow-hidden">
+    <section id="contact" className="py-10 sm:py-14 bg-[#EDE0CC] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-terracotta/10 border border-terracotta/25 text-terracotta text-xs font-bold uppercase tracking-widest mb-4">
+        <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-terracotta/10 border border-terracotta/25 text-terracotta text-xs font-bold uppercase tracking-widest mb-2.5">
             <Mail className="w-3.5 h-3.5" />
             <span>Connect & Visit Us</span>
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-espresso-950 mb-4">
-            Visit Coffee Land Resto & Cafe
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-espresso-950 mb-2">
+            Location & Contact
           </h2>
-          <p className="text-sm sm:text-base text-coffee-800">
-            Conveniently situated on Temples Bypass Road near Sangivalasa (Thagarapuvalasa, Vizag). Dine in, pick up takeaway, or reserve a table!
+          <p className="text-xs sm:text-sm md:text-base text-coffee-800">
+            Temples Bypass Road, Sangivalasa (Thagarapuvalasa, Vizag). Dine in, takeaway, or WhatsApp reservations.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
           {/* Left Column: Cafe Info & Real Google Maps Embed */}
           <div className="lg:col-span-5 space-y-6">
             {/* Contact Information Card */}

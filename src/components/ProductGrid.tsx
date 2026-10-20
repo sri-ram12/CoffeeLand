@@ -3,6 +3,7 @@ import { Product, Category, CategoryId } from '../types/product';
 import { ProductCard } from './ProductCard';
 import { Coffee, RotateCcw, Heart, Eye, Sparkles, Filter, ChevronRight, ArrowRight, Utensils } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { HotFoodVapourEffect, isHotFoodItem } from './HotFoodVapourEffect';
 
 export type CatalogViewMode = 'cards' | 'compact' | 'dashed';
 
@@ -14,6 +15,7 @@ interface ProductGridProps {
   isFavorite: (id: string) => boolean;
   onToggleFavorite: (id: string) => void;
   onSelectProduct: (product: Product) => void;
+  onOrderProduct?: (product: Product) => void;
   onResetFilters: () => void;
   viewMode?: CatalogViewMode;
 }
@@ -46,6 +48,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   isFavorite,
   onToggleFavorite,
   onSelectProduct,
+  onOrderProduct,
   onResetFilters,
   viewMode = 'cards',
 }) => {
@@ -136,6 +139,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               isFavorite={isFavorite(product.id)}
               onToggleFavorite={onToggleFavorite}
               onSelectProduct={onSelectProduct}
+              onOrderProduct={onOrderProduct}
             />
           </div>
         ))}
@@ -167,7 +171,13 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   alt={product.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                 />
-                <div className="absolute top-1 left-1">
+
+                {/* Hot Food Vapour and Fog Animation */}
+                {product.inStock !== false && isHotFoodItem(product.category, product.name) && (
+                  <HotFoodVapourEffect intensity="subtle" />
+                )}
+
+                <div className="absolute top-1 left-1 z-20">
                   <span
                     className={`w-3.5 h-3.5 rounded-xs border flex items-center justify-center bg-white/95 shadow-xs ${
                       product.isVeg ? 'border-emerald-600' : 'border-red-600'
@@ -188,12 +198,19 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   <span className="text-[10px] uppercase font-bold text-terracotta tracking-wider block">
                     {product.category.replace('-', ' ')}
                   </span>
-                  <h4
-                    onClick={() => onSelectProduct(product)}
-                    className="font-serif font-bold text-espresso-950 text-sm group-hover:text-terracotta transition-colors truncate cursor-pointer"
-                  >
-                    {product.name}
-                  </h4>
+                  <div className="flex items-center gap-1.5">
+                    <h4
+                      onClick={() => onSelectProduct(product)}
+                      className="font-serif font-bold text-espresso-950 text-sm group-hover:text-terracotta transition-colors truncate cursor-pointer"
+                    >
+                      {product.name}
+                    </h4>
+                    {product.inStock === false && (
+                      <span className="px-1.5 py-0.2 rounded text-[8px] font-black uppercase bg-red-600 text-white shrink-0">
+                        Out of Stock
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[11px] text-coffee-600 line-clamp-1 mb-1">
                     {product.description}
                   </p>
@@ -268,11 +285,15 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                     {product.name}
                   </span>
 
-                  {product.badge && (
+                  {product.inStock === false ? (
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-red-600 text-white shrink-0">
+                      Out of Stock
+                    </span>
+                  ) : product.badge ? (
                     <span className="hidden sm:inline px-2 py-0.5 rounded-full bg-terracotta/10 text-terracotta text-[10px] font-bold shrink-0">
                       {product.badge}
                     </span>
-                  )}
+                  ) : null}
                 </div>
 
                 <div className="flex-1 mx-2 sm:mx-3 border-b-2 border-dashed border-terracotta/35 relative -top-1" />

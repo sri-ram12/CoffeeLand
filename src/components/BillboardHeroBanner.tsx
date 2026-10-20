@@ -12,7 +12,6 @@ import { BillboardBanner, BillboardDesignTheme } from '../types/banner';
 interface BillboardHeroBannerProps {
   banner?: BillboardBanner;
   bannersList?: BillboardBanner[];
-  onOpenAdmin?: () => void;
   onOrderWhatsApp?: (dishName: string, price: number, category?: string) => void;
   onSelectBanner?: (banner: BillboardBanner) => void;
 }
@@ -273,11 +272,11 @@ const WhiteBrickPizzaBanner: React.FC<{
 
             <div className="flex flex-col">
               <a
-                href={`tel:${banner.phone?.replace(/[^0-9+]/g, '') || '+919542525665'}`}
+                href={`tel:${banner.phone?.replace(/[^0-9+]/g, '') || '+919032992524'}`}
                 className="font-sans font-black text-[10px] sm:text-base md:text-xl text-neutral-950 tracking-wider hover:text-red-600 transition-colors flex items-center gap-0.5 sm:gap-1"
               >
                 <Phone className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-red-600 shrink-0" />
-                <span>{banner.phone || '323-517-4946'}</span>
+                <span>{banner.phone || '+91 90329 92524'}</span>
               </a>
               <span className="text-[6px] sm:text-[10px] md:text-xs text-red-600 font-bold tracking-widest uppercase hidden xs:inline">
                 {banner.websiteUrl || 'WWW.COFFEELAND.IN'}
@@ -419,7 +418,7 @@ const BurgundyWaveBurgerBanner: React.FC<{
               className="font-sans font-bold text-[9px] sm:text-sm md:text-base text-white tracking-wider hover:text-amber-300 transition-colors flex items-center gap-1 sm:gap-2"
             >
               <span className="font-black text-amber-400">P :</span>
-              <span>{banner.phone || '0123 456 7890'}</span>
+              <span>{banner.phone || '+91 95425 25665'}</span>
             </a>
           </div>
 
@@ -571,11 +570,11 @@ const NavyTornPizzaBanner: React.FC<{
               {banner.deliveryNote || 'FREE DELIVERY'}
             </span>
             <a
-              href={`tel:${banner.phone?.replace(/[^0-9+]/g, '') || '+919542525665'}`}
+              href={`tel:${banner.phone?.replace(/[^0-9+]/g, '') || '+919032992524'}`}
               className="font-sans font-black text-[10px] sm:text-base md:text-2xl text-white tracking-wider hover:text-amber-300 transition-colors flex items-center gap-1"
             >
               <Phone className="w-2.5 h-2.5 sm:w-4 sm:h-4 text-amber-400" />
-              <span>{banner.phone || '8568 0269 5476'}</span>
+              <span>{banner.phone || '+91 90329 92524'}</span>
             </a>
           </div>
 
