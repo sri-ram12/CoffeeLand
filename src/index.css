@@ -358,19 +358,21 @@
     padding: 0 !important;
   }
 
-  /* Hide the entire website during printing */
-  header, nav, footer, main, section, aside, .no-print {
+  /* Hide navigation, header, footer and explicitly marked no-print elements */
+  header, nav, footer, .no-print {
     display: none !important;
   }
 
-  /* Show only the dedicated thermal slip */
-  #thermal-print-slip {
+  /* Show thermal print slips cleanly with thermal paper formatting */
+  #thermal-print-slip,
+  #thermal-print-portal {
     display: block !important;
+    visibility: visible !important;
     position: static !important;
     width: 76mm !important;
     max-width: 100% !important;
     margin: 0 auto !important;
-    padding: 1.5mm !important;
+    padding: 2mm !important;
     color: #000000 !important;
     background: #ffffff !important;
     font-family: 'Courier New', Courier, monospace !important;
@@ -380,6 +382,7 @@
 
   @page {
     margin: 0;
-    size: auto;
+    size: 80mm 200mm;
   }
 }
+

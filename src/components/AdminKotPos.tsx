@@ -12,10 +12,16 @@ import {
   Phone,
   User,
   Coffee,
-  CheckCircle2
+  CheckCircle2,
+  Copy,
+  Check,
+  X,
+  FileText,
+  SlidersHorizontal
 } from 'lucide-react';
 import { Product } from '../types/product';
 import { api } from '../services/api';
+import { printThermalSlip, generatePlainTextTicket, ThermalPaperWidth } from '../services/thermalPrinter';
 
 export interface KotItem {
   id: string;
@@ -62,8 +68,12 @@ export const AdminKotPos: React.FC<AdminKotPosProps> = ({ products, externalPrin
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  // Print slip payload
+  // Print slip payload & thermal printer options
   const [activePrint, setActivePrint] = useState<{ mode: 'kot' | 'bill'; order: KotOrder } | null>(null);
+  const [paperWidth, setPaperWidth] = useState<ThermalPaperWidth>('80mm');
+  const [autoClearAfterPrint, setAutoClearAfterPrint] = useState<boolean>(true);
+  const [copiedSlip, setCopiedSlip] = useState<boolean>(false);
+  const [isPrinting, setIsPrinting] = useState<boolean>(false);
 
   // KOT Token number counter
   const [kotCounter, setKotCounter] = useState<number>(() => {
@@ -208,7 +218,7 @@ export const AdminKotPos: React.FC<AdminKotPosProps> = ({ products, externalPrin
   const ticketTotal = ticketItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   // Trigger print action for KOT or Bill
-  const handleTriggerPrint = (mode: 'kot' | 'bill', specificOrder?: KotOrder) => {
+  const handleTriggerPrint = async (mode: 'kot' | 'bill', specificOrder?: KotOrder) => {
     let orderToPrint: KotOrder;
 
     if (specificOrder) {
@@ -241,38 +251,81 @@ export const AdminKotPos: React.FC<AdminKotPosProps> = ({ products, externalPrin
       api.addPosOrder(orderToPrint).catch((err) => {
         console.warn('Could not post POS order to server:', err);
       });
+
+      // Clear ticket inputs if auto-clear is enabled
+      if (autoClearAfterPrint) {
+        handleClearTicket();
+      }
     }
 
+    // Set active print modal for visual preview and options
     setActivePrint({ mode, order: orderToPrint });
+    setCopiedSlip(false);
+    setIsPrinting(true);
 
-    // Allow React to render thermal slip in DOM before calling window.print()
-    setTimeout(() => {
-      window.print();
-    }, 150);
+    try {
+      // Trigger reliable isolated thermal print (NO blank pages!)
+      await printThermalSlip(mode, orderToPrint, paperWidth);
+    } catch (e) {
+      console.warn('Direct print error:', e);
+    } finally {
+      setIsPrinting(false);
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* Top Banner / Description */}
+      {/* Top Banner / Description & Printer Settings */}
       <div className="p-5 sm:p-6 rounded-3xl bg-white border border-terracotta/20 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-espresso-950 mb-1">
             <Printer className="w-5 h-5 text-terracotta" />
             <h3 className="font-serif text-xl sm:text-2xl font-bold">Counter POS & Thermal KOT Printing</h3>
             <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold uppercase tracking-wider">
-              58mm & 80mm Ready
+              {paperWidth} Thermal Ready
             </span>
           </div>
           <p className="text-xs sm:text-sm text-coffee-700 leading-relaxed max-w-2xl">
-            Punch orders at the counter and print Kitchen Order Tickets (KOT) for chefs and itemized bills for customers. Compatible with all USB, Bluetooth & Wi-Fi thermal printers.
+            Punch orders at the counter and print Kitchen Order Tickets (KOT) for chefs and itemized bills for customers. Compatible with all 80mm & 58mm USB, Bluetooth & Wi-Fi thermal printers.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-coffee-800">Token Counter:</span>
-          <span className="px-3 py-1 rounded-xl bg-espresso-900 text-amber-300 font-mono font-bold text-sm">
-            #KOT-{kotCounter}
-          </span>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Thermal Paper Width Selector */}
+          <div className="flex items-center gap-1 p-1 rounded-2xl bg-[#EDE0CC]/60 border border-terracotta/20 text-xs">
+            <span className="text-[10px] font-bold uppercase text-coffee-700 px-1.5">Roll:</span>
+            <button
+              type="button"
+              onClick={() => setPaperWidth('80mm')}
+              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+                paperWidth === '80mm'
+                  ? 'bg-espresso-950 text-amber-300 shadow-xs'
+                  : 'text-espresso-800 hover:bg-white/60'
+              }`}
+              title="Standard 80mm (3-inch) Thermal Receipt Roll"
+            >
+              80mm Wide
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaperWidth('58mm')}
+              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+                paperWidth === '58mm'
+                  ? 'bg-espresso-950 text-amber-300 shadow-xs'
+                  : 'text-espresso-800 hover:bg-white/60'
+              }`}
+              title="Compact 58mm (2-inch) Portable Bluetooth POS Roll"
+            >
+              58mm Mini
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-coffee-800">Token Counter:</span>
+            <span className="px-3 py-1 rounded-xl bg-espresso-900 text-amber-300 font-mono font-bold text-sm">
+              #KOT-{kotCounter}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -661,81 +714,261 @@ export const AdminKotPos: React.FC<AdminKotPosProps> = ({ products, externalPrin
       </div>
 
       {/* ================================================================ */}
-      {/* THERMAL PRINT SLIP (Visible ONLY during window.print())           */}
-      {/* ULTRA-SHORT PAPER-SAVER FORMAT FOR 58mm / 80mm THERMAL PRINTERS   */}
+      {/* THERMAL SLIP ON-SCREEN PREVIEW & PRINT CONTROLLER MODAL           */}
       {/* ================================================================ */}
       {activePrint && (
-        <div id="thermal-print-slip" className="hidden">
-          {activePrint.mode === 'kot' ? (
-            /* --- ULTRA-SHORT KOT (KITCHEN TICKET) --- */
-            <div style={{ fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.2', color: '#000', padding: '0', margin: '0' }}>
-              {/* Ultra-Short Header: 2 Lines Only */}
-              <div style={{ fontWeight: '900', fontSize: '16px' }}>
-                KOT #{activePrint.order.kotNumber} | {activePrint.order.tableNumber.toUpperCase()}
-              </div>
-              <div style={{ fontSize: '11px', fontWeight: 'bold' }}>
-                {new Date(activePrint.order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {activePrint.order.orderType.toUpperCase()}
-                {activePrint.order.customerName && activePrint.order.customerName !== 'Guest Customer' && (
-                  <span> • {activePrint.order.customerName}</span>
-                )}
-              </div>
-
-              {/* Single Divider */}
-              <div style={{ borderBottom: '1px dashed #000', margin: '3px 0' }} />
-
-              {/* Compact Items List */}
-              <div style={{ fontSize: '13px', fontWeight: 'bold' }}>
-                {activePrint.order.items.map((item, i) => (
-                  <div key={i} style={{ margin: '2px 0' }}>
-                    <span style={{ fontSize: '15px', fontWeight: '900' }}>{item.quantity}x </span>
-                    <span>{item.name}</span>
-                    {item.notes && (
-                      <span style={{ fontSize: '11px', fontWeight: 'normal', fontStyle: 'italic', display: 'block', paddingLeft: '18px' }}>
-                        * {item.notes}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Instructions if any */}
-              {activePrint.order.chefNotes && (
-                <div style={{ borderTop: '1px dotted #000', marginTop: '3px', paddingTop: '2px', fontSize: '11px', fontWeight: 'bold' }}>
-                  NOTE: {activePrint.order.chefNotes}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-[#FAF6F0] rounded-3xl shadow-2xl border border-terracotta/30 max-w-md w-full overflow-hidden flex flex-col max-h-[92vh]">
+            {/* Modal Header */}
+            <div className="p-4 bg-espresso-950 text-white flex items-center justify-between border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-amber-400/20 flex items-center justify-center text-amber-300">
+                  {activePrint.mode === 'kot' ? <Printer className="w-4 h-4" /> : <Receipt className="w-4 h-4" />}
                 </div>
-              )}
+                <div>
+                  <h4 className="font-serif font-bold text-sm sm:text-base text-amber-300">
+                    {activePrint.mode === 'kot' ? 'Kitchen Order Ticket (KOT)' : 'Customer Bill Receipt'}
+                  </h4>
+                  <p className="text-[11px] text-white/70">
+                    Token #KOT-{activePrint.order.kotNumber} • {activePrint.order.tableNumber}
+                  </p>
+                </div>
+              </div>
 
-              {/* Bottom Cut Line */}
-              <div style={{ borderBottom: '1px dashed #000', margin: '3px 0' }} />
+              <div className="flex items-center gap-2">
+                {/* Paper Width Quick Selector in Modal */}
+                <div className="flex items-center p-0.5 rounded-lg bg-white/10 text-[10px] font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setPaperWidth('80mm')}
+                    className={`px-2 py-0.5 rounded-md transition-colors ${
+                      paperWidth === '80mm' ? 'bg-amber-400 text-espresso-950' : 'text-white/80 hover:text-white'
+                    }`}
+                  >
+                    80mm
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaperWidth('58mm')}
+                    className={`px-2 py-0.5 rounded-md transition-colors ${
+                      paperWidth === '58mm' ? 'bg-amber-400 text-espresso-950' : 'text-white/80 hover:text-white'
+                    }`}
+                  >
+                    58mm
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setActivePrint(null)}
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-          ) : (
-            /* --- ULTRA-SHORT CUSTOMER BILL --- */
-            <div style={{ fontFamily: 'monospace', fontSize: '12px', lineHeight: '1.2', color: '#000', padding: '0', margin: '0' }}>
-              <div style={{ fontWeight: 'bold', fontSize: '14px', textAlign: 'center' }}>COFFEE LAND</div>
-              <div style={{ fontSize: '10px', textAlign: 'center' }}>
-                Bill #{activePrint.order.kotNumber} • {activePrint.order.tableNumber} • {new Date(activePrint.order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </div>
-              <div style={{ borderBottom: '1px dashed #000', margin: '3px 0' }} />
 
-              <div style={{ fontSize: '12px' }}>
-                {activePrint.order.items.map((item, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', margin: '1px 0' }}>
-                    <span>{item.quantity}x {item.name}</span>
-                    <span>₹{item.price * item.quantity}</span>
+            {/* Realistic Thermal Receipt Paper Preview Card */}
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1 flex justify-center bg-[#2B1B16]/5">
+              <div
+                className={`bg-white shadow-lg p-5 text-black border border-neutral-300 rounded-sm font-mono leading-relaxed transition-all ${
+                  paperWidth === '58mm' ? 'w-[230px] text-[11px]' : 'w-[290px] text-xs'
+                }`}
+                style={{
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06)'
+                }}
+              >
+                {/* Cafe Header */}
+                <div className="text-center font-black tracking-widest text-sm uppercase">COFFEE LAND</div>
+                <div className="text-center text-[10px] text-neutral-600 font-sans">
+                  {activePrint.mode === 'kot' ? '★ KITCHEN ORDER TICKET (KOT) ★' : 'Specialty Coffee & Cafe • Sangivalasa'}
+                </div>
+
+                <div className="border-b-2 border-black my-2" />
+
+                {/* Big Token Indicator Box */}
+                <div className="border-2 border-black p-1.5 text-center my-2 bg-neutral-50">
+                  <div className="text-[10px] font-bold tracking-wider text-neutral-600">TOKEN NUMBER</div>
+                  <div className="text-xl sm:text-2xl font-black">#KOT-{activePrint.order.kotNumber}</div>
+                </div>
+
+                {/* Metadata Details */}
+                <div className="text-[10px] sm:text-[11px] space-y-0.5 font-bold">
+                  <div><strong>TYPE:</strong> [ {activePrint.order.orderType.toUpperCase()} ]</div>
+                  <div><strong>TABLE:</strong> {activePrint.order.tableNumber.toUpperCase()}</div>
+                  <div><strong>TIME:</strong> {new Date(activePrint.order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+                  {activePrint.order.customerName && activePrint.order.customerName !== 'Guest Customer' && (
+                    <div><strong>GUEST:</strong> {activePrint.order.customerName}</div>
+                  )}
+                  {activePrint.order.customerPhone && (
+                    <div><strong>PHONE:</strong> {activePrint.order.customerPhone}</div>
+                  )}
+                </div>
+
+                <div className="border-b border-dashed border-black my-2" />
+
+                {/* Item List Header */}
+                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider mb-1">
+                  <span>QTY & ITEM NAME</span>
+                  <span>{activePrint.mode === 'kot' ? 'STATUS' : 'AMOUNT'}</span>
+                </div>
+
+                <div className="border-b-2 border-black my-1" />
+
+                {/* Items */}
+                <div className="space-y-1.5">
+                  {activePrint.order.items.map((item, i) => (
+                    <div key={i}>
+                      <div className="flex justify-between items-start font-bold">
+                        <span className="text-sm font-black mr-1 text-black">{item.quantity}x</span>
+                        <span className="flex-1 text-left">{item.name}</span>
+                        {activePrint.mode === 'bill' && (
+                          <span className="text-right ml-2 font-bold whitespace-nowrap">₹{item.price * item.quantity}</span>
+                        )}
+                        {activePrint.mode === 'kot' && (
+                          <span className="text-[9px] px-1 border border-black font-bold">COOK</span>
+                        )}
+                      </div>
+                      {item.notes && (
+                        <div className="text-[10px] italic pl-4 text-neutral-700">&#8627; {item.notes}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-b border-dashed border-black my-2" />
+
+                {activePrint.mode === 'kot' ? (
+                  <div className="flex justify-between font-bold text-[11px]">
+                    <span>TOTAL ITEMS: {activePrint.order.items.length}</span>
+                    <span>TOTAL QTY: {activePrint.order.items.reduce((s, it) => s + it.quantity, 0)}</span>
                   </div>
-                ))}
-              </div>
+                ) : (
+                  <div className="flex justify-between font-black text-sm border-t-2 border-b-2 border-black py-1 my-2">
+                    <span>NET PAYABLE:</span>
+                    <span>₹{activePrint.order.totalAmount}</span>
+                  </div>
+                )}
 
-              <div style={{ borderTop: '1px dashed #000', marginTop: '3px', paddingTop: '3px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '14px' }}>
+                {activePrint.order.chefNotes && (
+                  <div className="mt-2 p-1.5 bg-neutral-100 border border-black text-[10px] font-bold">
+                    NOTE: {activePrint.order.chefNotes}
+                  </div>
+                )}
+
+                <div className="border-b-2 border-black my-2" />
+                <div className="text-center text-[9px] font-bold">
+                  {activePrint.mode === 'kot'
+                    ? '--- KITCHEN COPY • PUNCHED AT CAFE ---'
+                    : 'THANK YOU FOR VISITING! PLEASE VISIT AGAIN.'}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Bottom Controls */}
+            <div className="p-4 bg-white border-t border-terracotta/20 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <label className="text-xs text-coffee-700 flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={autoClearAfterPrint}
+                  onChange={(e) => setAutoClearAfterPrint(e.target.checked)}
+                  className="rounded text-terracotta focus:ring-terracotta"
+                />
+                <span>Auto-clear ticket on punch</span>
+              </label>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const text = generatePlainTextTicket(activePrint.mode, activePrint.order);
+                    await navigator.clipboard.writeText(text);
+                    setCopiedSlip(true);
+                    setTimeout(() => setCopiedSlip(false), 2000);
+                  }}
+                  className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl border border-terracotta/30 text-xs font-bold text-espresso-950 hover:bg-amber-50 flex items-center justify-center gap-1.5 transition-colors"
+                  title="Copy formatted text to paste into WhatsApp or Bluetooth app"
+                >
+                  {copiedSlip ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-coffee-600" />}
+                  <span>{copiedSlip ? 'Copied Slip!' : 'Copy Text'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => printThermalSlip(activePrint.mode, activePrint.order, paperWidth)}
+                  disabled={isPrinting}
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-espresso-950 hover:bg-black text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 shadow-md transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                >
+                  <Printer className="w-4 h-4 text-amber-300" />
+                  <span>{isPrinting ? 'Printing...' : 'Print Slip Now'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fallback Thermal Slip Container for Native Browser Ctrl+P / Direct Print */}
+      {activePrint && (
+        <div id="thermal-print-slip" className="hidden print:block">
+          <div style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.25', color: '#000', padding: '2mm', margin: '0' }}>
+            <div style={{ fontWeight: '900', fontSize: '16px', textAlign: 'center' }}>
+              COFFEE LAND
+            </div>
+            <div style={{ fontSize: '11px', textAlign: 'center', fontWeight: 'bold' }}>
+              {activePrint.mode === 'kot' ? '* KITCHEN ORDER TICKET (KOT) *' : '* CUSTOMER RECEIPT *'}
+            </div>
+            <div style={{ borderBottom: '2px solid #000', margin: '4px 0' }} />
+            <div style={{ border: '2px solid #000', padding: '4px', textAlign: 'center', margin: '4px 0' }}>
+              <div style={{ fontSize: '11px', fontWeight: 'bold' }}>TOKEN NUMBER</div>
+              <div style={{ fontSize: '20px', fontWeight: '900' }}>#KOT-{activePrint.order.kotNumber}</div>
+            </div>
+            <div style={{ fontSize: '11px', fontWeight: 'bold' }}>
+              <div>TYPE: [ {activePrint.order.orderType.toUpperCase()} ] | {activePrint.order.tableNumber.toUpperCase()}</div>
+              <div>TIME: {new Date(activePrint.order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+              {activePrint.order.customerName && activePrint.order.customerName !== 'Guest Customer' && (
+                <div>GUEST: {activePrint.order.customerName}</div>
+              )}
+            </div>
+            <div style={{ borderBottom: '1px dashed #000', margin: '4px 0' }} />
+            <div style={{ fontSize: '12px', fontWeight: 'bold' }}>
+              {activePrint.order.items.map((item, i) => (
+                <div key={i} style={{ margin: '3px 0' }}>
+                  <span style={{ fontSize: '14px', fontWeight: '900' }}>{item.quantity}x </span>
+                  <span>{item.name}</span>
+                  {activePrint.mode === 'bill' && (
+                    <span style={{ float: 'right' }}>₹{item.price * item.quantity}</span>
+                  )}
+                  {item.notes && (
+                    <div style={{ fontSize: '10px', fontStyle: 'italic', paddingLeft: '20px' }}>
+                      * {item.notes}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div style={{ borderBottom: '1px dashed #000', margin: '4px 0' }} />
+            {activePrint.mode === 'kot' ? (
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '11px' }}>
+                <span>ITEMS: {activePrint.order.items.length}</span>
+                <span>QTY: {activePrint.order.items.reduce((s, it) => s + it.quantity, 0)}</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '900', fontSize: '14px', borderTop: '2px solid #000', borderBottom: '2px solid #000', padding: '3px 0' }}>
                 <span>TOTAL:</span>
                 <span>₹{activePrint.order.totalAmount}</span>
               </div>
-              <div style={{ borderBottom: '1px dashed #000', margin: '3px 0' }} />
-              <div style={{ textAlign: 'center', fontSize: '10px' }}>Thank You! Visit Again.</div>
-            </div>
-          )}
+            )}
+            {activePrint.order.chefNotes && (
+              <div style={{ borderTop: '1px dotted #000', marginTop: '4px', paddingTop: '3px', fontSize: '11px', fontWeight: 'bold' }}>
+                NOTE: {activePrint.order.chefNotes}
+              </div>
+            )}
+            <div style={{ borderBottom: '2px solid #000', margin: '4px 0' }} />
+          </div>
         </div>
       )}
     </div>
   );
 };
+
