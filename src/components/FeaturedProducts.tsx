@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Product } from '../types/product';
 import { Sparkles, Coffee, Flame, Heart, ArrowRight, Eye, Star, Award, Layers } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { handleImageError } from '../utils/imageFallback';
 
 interface FeaturedProductsProps {
   products: Product[];
@@ -124,6 +125,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
                 <img
                   src={item.image}
                   alt={item.name}
+                  onError={(e) => handleImageError(e, item.category)}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />

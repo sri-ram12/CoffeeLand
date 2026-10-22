@@ -3,6 +3,7 @@ import { Product } from '../types/product';
 import { X, Heart, Clock, Flame, Sparkles, ChefHat, Info, CheckCircle2, MessageCircle, AlertCircle, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HotFoodVapourEffect, isHotFoodItem } from './HotFoodVapourEffect';
+import { handleImageError } from '../utils/imageFallback';
 
 interface ProductDetailsModalProps {
   product: Product | null;
@@ -82,6 +83,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
             <img
               src={product.image}
               alt={product.name}
+              onError={(e) => handleImageError(e, product.category)}
               className="w-full h-full object-cover"
             />
 

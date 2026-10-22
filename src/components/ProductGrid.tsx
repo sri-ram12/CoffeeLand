@@ -4,6 +4,7 @@ import { ProductCard } from './ProductCard';
 import { Coffee, RotateCcw, Heart, Eye, Sparkles, Filter, ChevronRight, ArrowRight, Utensils, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HotFoodVapourEffect, isHotFoodItem } from './HotFoodVapourEffect';
+import { handleImageError } from '../utils/imageFallback';
 
 export type CatalogViewMode = 'cards' | 'compact' | 'dashed';
 
@@ -178,6 +179,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 <img
                   src={product.image}
                   alt={product.name}
+                  onError={(e) => handleImageError(e, product.category)}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                 />
 

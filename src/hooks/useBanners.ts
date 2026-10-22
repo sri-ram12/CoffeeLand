@@ -95,7 +95,7 @@ export const DEFAULT_OFFER_BANNERS: OfferBanner[] = [
     offerPrice: 199,
     discountLabel: 'FLAT ₹50 OFF',
     promoCode: 'KUNAFA50',
-    image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9588?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80',
     themeColor: 'amber',
     isActive: true,
     expiryNote: 'Limited Daily Servings',

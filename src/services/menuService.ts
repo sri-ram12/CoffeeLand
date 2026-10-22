@@ -23,7 +23,22 @@ class MenuService {
    */
   async getProducts(): Promise<Product[]> {
     try {
-      const saved = localStorage.getItem('coffeeland_products_v1');
+      // Purge old v1 cache that contained invalid image URLs
+      localStorage.removeItem('coffeeland_products_v1');
+
+      // Attempt live fetch from backend API
+      const res = await fetch('/api/products');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          this.products = data;
+          return this.products;
+        }
+      }
+    } catch {}
+
+    try {
+      const saved = localStorage.getItem('coffeeland_products_v2');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && parsed.length > 0) {
@@ -32,7 +47,8 @@ class MenuService {
         }
       }
     } catch {}
-    return Promise.resolve(this.products);
+
+    return Promise.resolve(PRODUCTS);
   }
 
   /**

@@ -3,6 +3,7 @@ import { Product } from '../types/product';
 import { Heart, Sparkles, Eye, Clock, Flame, MessageCircle, Plus, Minus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { HotFoodVapourEffect, isHotFoodItem } from './HotFoodVapourEffect';
+import { handleImageError } from '../utils/imageFallback';
 
 interface ProductCardProps {
   product: Product;
@@ -43,6 +44,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           src={product.image}
           alt={product.name}
           loading="lazy"
+          onError={(e) => handleImageError(e, product.category)}
           className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 ${
             product.inStock === false ? 'opacity-65 grayscale-[25%]' : ''
           }`}
