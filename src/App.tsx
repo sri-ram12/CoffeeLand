@@ -10,6 +10,7 @@ import { LiveFoodReels } from './components/LiveFoodReels';
 import { ReviewsSection } from './components/ReviewsSection';
 import { ReviewModal } from './components/ReviewModal';
 import { QRCodeModal } from './components/QRCodeModal';
+import { PwaInstallPromptModal } from './components/PwaInstallPromptModal';
 import { WhatsAppOrderModal, WhatsAppOrderTarget } from './components/WhatsAppOrderModal';
 import { FloatingCartBar } from './components/FloatingCartBar';
 import { CartOrderModal } from './components/CartOrderModal';
@@ -476,6 +477,9 @@ export const App: React.FC = () => {
         isOpen={isQRCodeOpen}
         onClose={() => setIsQRCodeOpen(false)}
       />
+
+      {/* Auto PWA Home Screen Install Popup (Triggers on QR scan & mobile visits) */}
+      <PwaInstallPromptModal />
 
       {/* Review & Mobile Photo Uploader Modal */}
       <ReviewModal
