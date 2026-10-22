@@ -75,14 +75,53 @@ export const api = {
     }
   },
 
+  // Emergency Stop & Maintenance Mode
+  async getMaintenanceSettings(): Promise<{ maintenanceMode: boolean; maintenanceReason?: string; stoppedAt?: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/settings`);
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('coffeeland_maintenance_mode', data.maintenanceMode ? 'true' : 'false');
+        if (data.maintenanceReason) {
+          localStorage.setItem('coffeeland_maintenance_reason', data.maintenanceReason);
+        }
+        return data;
+      }
+    } catch {}
+
+    const isLocalMode = localStorage.getItem('coffeeland_maintenance_mode') === 'true';
+    const localReason = localStorage.getItem('coffeeland_maintenance_reason') || 'Scheduled maintenance & security updates in progress.';
+    return { maintenanceMode: isLocalMode, maintenanceReason: localReason };
+  },
+
+  async setMaintenanceSettings(maintenanceMode: boolean, maintenanceReason?: string): Promise<{ success: boolean; maintenanceMode: boolean }> {
+    localStorage.setItem('coffeeland_maintenance_mode', maintenanceMode ? 'true' : 'false');
+    if (maintenanceReason) {
+      localStorage.setItem('coffeeland_maintenance_reason', maintenanceReason);
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/settings/maintenance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ maintenanceMode, maintenanceReason })
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('API sync failed, saved maintenance status locally:', e);
+    }
+    return { success: true, maintenanceMode };
+  },
+
   // Products / Menu Items
   async getProducts(): Promise<Product[]> {
     try {
+      localStorage.removeItem('coffeeland_products_v1');
       const res = await fetch(`${API_BASE}/products`);
       if (res.ok) {
         const data = await res.json();
         if (data && data.length > 0) {
-          localStorage.setItem('coffeeland_products_v1', JSON.stringify(data));
+          localStorage.setItem('coffeeland_products_v2', JSON.stringify(data));
           return data;
         }
       }
@@ -91,7 +130,7 @@ export const api = {
     }
     // Fallback: load from local storage
     try {
-      const saved = localStorage.getItem('coffeeland_products_v1');
+      const saved = localStorage.getItem('coffeeland_products_v2');
       if (saved) return JSON.parse(saved);
     } catch {}
     return [];
@@ -100,13 +139,13 @@ export const api = {
   async updateProduct(id: string, updates: Partial<Product>): Promise<Product | null> {
     try {
       // Update in localStorage immediately
-      const saved = localStorage.getItem('coffeeland_products_v1');
+      const saved = localStorage.getItem('coffeeland_products_v2');
       if (saved) {
         const list: Product[] = JSON.parse(saved);
         const idx = list.findIndex(p => p.id === id);
         if (idx !== -1) {
           list[idx] = { ...list[idx], ...updates };
-          localStorage.setItem('coffeeland_products_v1', JSON.stringify(list));
+          localStorage.setItem('coffeeland_products_v2', JSON.stringify(list));
         }
       }
 
@@ -123,26 +162,74 @@ export const api = {
   },
 
   async addProduct(newProduct: Partial<Product>): Promise<Product | null> {
+    const created: Product = {
+      id: newProduct.id || `cl-custom-${Date.now()}`,
+      name: newProduct.name || 'New Dish / Drink',
+      category: (newProduct.category as any) || 'hot-coffee',
+      price: Number(newProduct.price) || 99,
+      description: newProduct.description || 'Prepared fresh with signature ingredients.',
+      longDescription: newProduct.longDescription || newProduct.description || 'Prepared fresh upon order at Coffee Land Resto & Cafe with signature culinary craftsmanship.',
+      image: newProduct.image || 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
+      isVeg: Boolean(newProduct.isVeg),
+      badge: newProduct.badge || undefined,
+      prepTime: newProduct.prepTime || '10-15 mins',
+      portion: newProduct.portion || '1 Serving',
+      calories: newProduct.calories || '220 kcal',
+      inStock: newProduct.inStock !== false,
+      menuPage: newProduct.menuPage || 1,
+      isFeatured: Boolean(newProduct.isFeatured),
+      featuredCategory: newProduct.featuredCategory || undefined
+    };
+
+    // Save into localStorage immediately so it works even offline
+    try {
+      const saved = localStorage.getItem('coffeeland_products_v2');
+      let list: Product[] = saved ? JSON.parse(saved) : [];
+      if (list.length === 0) {
+        const { PRODUCTS } = await import('../data/products');
+        list = [...PRODUCTS];
+      }
+      list.unshift(created);
+      localStorage.setItem('coffeeland_products_v2', JSON.stringify(list));
+    } catch (err) {
+      console.warn('Failed saving new product to localStorage', err);
+    }
+
     try {
       const res = await fetch(`${API_BASE}/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newProduct)
+        body: JSON.stringify(created)
       });
-      if (res.ok) return await res.json();
+      if (res.ok) {
+        const serverCreated = await res.json();
+        return serverCreated;
+      }
     } catch (e) {
-      console.error('Failed to add product via API:', e);
+      console.warn('API offline, product saved locally to client store');
     }
-    return null;
+    return created;
   },
 
   async deleteProduct(id: string): Promise<boolean> {
+    // Delete from localStorage immediately
+    try {
+      const saved = localStorage.getItem('coffeeland_products_v2');
+      if (saved) {
+        let list: Product[] = JSON.parse(saved);
+        list = list.filter(p => p.id !== id);
+        localStorage.setItem('coffeeland_products_v2', JSON.stringify(list));
+      }
+    } catch (e) {
+      console.warn('Failed to delete product from localStorage', e);
+    }
+
     try {
       const res = await fetch(`${API_BASE}/products/${id}`, { method: 'DELETE' });
       return res.ok;
     } catch (e) {
-      console.error('Failed to delete product via API:', e);
-      return false;
+      console.warn('API offline, deletion recorded locally');
+      return true;
     }
   },
 

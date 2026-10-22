@@ -48,7 +48,12 @@ import {
   UtensilsCrossed,
   Truck,
   ShoppingBag,
-  Layers
+  Layers,
+  ChevronLeft,
+  ChevronRight,
+  ShieldAlert,
+  Power,
+  X
 } from 'lucide-react';
 import { OfferBanner, BannerColorTheme, WhatsAppInquiry } from '../types/banner';
 import { Product } from '../types/product';
@@ -132,6 +137,35 @@ export const AdminPage: React.FC = () => {
   const [stockFilter, setStockFilter] = useState<'all' | 'inStock' | 'outOfStock'>('all');
   const [editedInStock, setEditedInStock] = useState<boolean>(true);
 
+  // Emergency Stop & Maintenance Mode State
+  const [maintenanceMode, setMaintenanceMode] = useState<boolean>(() => {
+    return localStorage.getItem('coffeeland_maintenance_mode') === 'true';
+  });
+  const [maintenanceReason, setMaintenanceReason] = useState<string>(() => {
+    return localStorage.getItem('coffeeland_maintenance_reason') || 'Scheduled maintenance & security updates in progress.';
+  });
+  const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false);
+  const [showMaintenanceConfirm, setShowMaintenanceConfirm] = useState(false);
+
+  // Add New Menu Item Modal State
+  const [isAddingProduct, setIsAddingProduct] = useState(false);
+  const [newProductForm, setNewProductForm] = useState({
+    name: '',
+    category: 'hot-coffee',
+    customCategory: '',
+    price: 99,
+    isVeg: false,
+    description: '',
+    portion: '1 Serving',
+    prepTime: '10-15 mins',
+    badge: '',
+    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
+    inStock: true
+  });
+
+  // Tab bar reference for smooth horizontal scrolling
+  const tabBarRef = useRef<HTMLDivElement>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Test Ping trigger
@@ -183,6 +217,11 @@ export const AdminPage: React.FC = () => {
         const saved = localStorage.getItem('coffeeland_offer_banners_v1');
         if (saved) setBanners(JSON.parse(saved));
       }
+
+      // Fetch maintenance status
+      const maint = await api.getMaintenanceSettings();
+      setMaintenanceMode(maint.maintenanceMode);
+      if (maint.maintenanceReason) setMaintenanceReason(maint.maintenanceReason);
 
       // Fetch products
       const fetchedProducts = await api.getProducts();
@@ -363,6 +402,114 @@ export const AdminPage: React.FC = () => {
     setProducts(prev => prev.map(p => ({ ...p, inStock: true })));
   };
 
+  // Add New Menu Item Handler
+  const handleCreateNewProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProductForm.name.trim() || Number(newProductForm.price) <= 0) {
+      alert('Please provide a valid item name and price.');
+      return;
+    }
+
+    const categoryToUse = newProductForm.category === 'custom'
+      ? (newProductForm.customCategory.trim().toLowerCase().replace(/\s+/g, '-') || 'specialty')
+      : newProductForm.category;
+
+    const created = await api.addProduct({
+      name: newProductForm.name.trim(),
+      category: categoryToUse as any,
+      price: Number(newProductForm.price),
+      isVeg: newProductForm.isVeg,
+      description: newProductForm.description.trim() || 'Handcrafted specialty prepared fresh upon order.',
+      longDescription: newProductForm.description.trim() || 'Handcrafted specialty prepared fresh upon order at Coffee Land Resto & Cafe.',
+      portion: newProductForm.portion.trim() || '1 Serving',
+      prepTime: newProductForm.prepTime.trim() || '10-15 mins',
+      badge: (newProductForm.badge.trim() as any) || undefined,
+      image: newProductForm.image.trim() || 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
+      inStock: newProductForm.inStock
+    });
+
+    if (created) {
+      setProducts(prev => [created, ...prev]);
+      setIsAddingProduct(false);
+      setNewProductForm({
+        name: '',
+        category: 'hot-coffee',
+        customCategory: '',
+        price: 99,
+        isVeg: false,
+        description: '',
+        portion: '1 Serving',
+        prepTime: '10-15 mins',
+        badge: '',
+        image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
+        inStock: true
+      });
+      alert(`✅ Success! "${created.name}" has been added to the Coffee Land menu!`);
+    }
+  };
+
+  const handleDeleteProduct = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to permanently remove "${name}" from the menu?`)) return;
+    await api.deleteProduct(id);
+    setProducts(prev => prev.filter(p => p.id !== id));
+  };
+
+  // Toggle Website Emergency Stop / Maintenance Mode
+  const handleToggleMaintenance = async () => {
+    setIsTogglingMaintenance(true);
+    const targetMode = !maintenanceMode;
+    const res = await api.setMaintenanceSettings(targetMode, maintenanceReason);
+    setMaintenanceMode(res.maintenanceMode);
+    setIsTogglingMaintenance(false);
+    setShowMaintenanceConfirm(false);
+  };
+
+  // Scroll tab buttons left / right
+  const scrollTabs = (direction: 'left' | 'right') => {
+    if (tabBarRef.current) {
+      tabBarRef.current.scrollBy({
+        left: direction === 'left' ? -260 : 260,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Drag-to-scroll support for mouse users on desktop
+  useEffect(() => {
+    const el = tabBarRef.current;
+    if (!el) return;
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    const onMouseDown = (e: MouseEvent) => {
+      isDown = true;
+      startX = e.pageX - el.offsetLeft;
+      scrollLeft = el.scrollLeft;
+    };
+    const onMouseLeave = () => { isDown = false; };
+    const onMouseUp = () => { isDown = false; };
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - el.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      el.scrollLeft = scrollLeft - walk;
+    };
+
+    el.addEventListener('mousedown', onMouseDown);
+    el.addEventListener('mouseleave', onMouseLeave);
+    el.addEventListener('mouseup', onMouseUp);
+    el.addEventListener('mousemove', onMouseMove);
+
+    return () => {
+      el.removeEventListener('mousedown', onMouseDown);
+      el.removeEventListener('mouseleave', onMouseLeave);
+      el.removeEventListener('mouseup', onMouseUp);
+      el.removeEventListener('mousemove', onMouseMove);
+    };
+  }, []);
+
   // WhatsApp Inquiry Status Update
   const handleUpdateInquiryStatus = async (id: string, status: 'Inquired' | 'Confirmed' | 'Completed') => {
     await api.updateInquiryStatus(id, status);
@@ -385,8 +532,8 @@ export const AdminPage: React.FC = () => {
     const matchesCategory = selectedMenuCategory === 'all' || p.category === selectedMenuCategory;
     const matchesStock =
       stockFilter === 'all' ? true :
-      stockFilter === 'inStock' ? (p.inStock !== false) :
-      (p.inStock === false);
+        stockFilter === 'inStock' ? (p.inStock !== false) :
+          (p.inStock === false);
     return matchesSearch && matchesCategory && matchesStock;
   });
 
@@ -429,11 +576,11 @@ export const AdminPage: React.FC = () => {
 
         <div className="max-w-md w-full relative z-10">
           <div className="text-center mb-8">
-            <Link to="/" className="inline-block group mb-4">
-              <div className="relative mx-auto w-20 h-20 rounded-full overflow-hidden border-2 border-terracotta shadow-lg transition-transform group-hover:scale-105">
+            <div className="inline-block mb-4 select-none">
+              <div className="relative mx-auto w-20 h-20 rounded-full overflow-hidden border-2 border-terracotta shadow-lg">
                 <img src="/logo.png" alt="Coffee Land Logo" className="w-full h-full object-cover" />
               </div>
-            </Link>
+            </div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-terracotta/10 border border-terracotta/30 text-terracotta text-xs font-bold uppercase tracking-widest mb-2">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Owner Portal • Sangivalasa, Vizag</span>
@@ -515,9 +662,9 @@ export const AdminPage: React.FC = () => {
       {/* Top Owner Header */}
       <header className="sticky top-0 z-30 bg-white/95 border-b border-terracotta/20 backdrop-blur-md px-4 sm:px-8 py-3.5 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          {/* Brand & Portal Title */}
+          {/* Brand & Portal Title (Non-redirecting to prevent accidental navigation away from admin) */}
           <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="flex items-center gap-2.5 select-none cursor-default">
               <img src="/logo.png" alt="Logo" className="w-10 h-10 rounded-full object-cover border border-terracotta shadow-xs" />
               <div>
                 <span className="font-serif tracking-tight text-xl font-bold text-espresso-950 block leading-tight">
@@ -527,7 +674,7 @@ export const AdminPage: React.FC = () => {
                   Owner Admin Command Center
                 </span>
               </div>
-            </Link>
+            </div>
 
             {/* Server Status Indicator */}
             <button
@@ -538,6 +685,20 @@ export const AdminPage: React.FC = () => {
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>{serverStatus === 'connected' ? '24/7 Server Live' : 'Checking Cloud...'}</span>
               <Activity className="w-3.5 h-3.5 text-emerald-700" />
+            </button>
+
+            {/* Emergency Stop / Maintenance Mode Toggle Button */}
+            <button
+              onClick={() => setShowMaintenanceConfirm(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer ${
+                maintenanceMode
+                  ? 'bg-red-600 hover:bg-red-700 text-white animate-pulse ring-2 ring-red-400'
+                  : 'bg-white hover:bg-red-50 text-red-700 border border-red-300'
+              }`}
+              title="Emergency Stop / Security Maintenance Mode Toggle"
+            >
+              <Power className="w-3.5 h-3.5" />
+              <span>{maintenanceMode ? '🔴 STOPPED (Maintenance Active)' : '🛑 Emergency Stop Website'}</span>
             </button>
           </div>
 
@@ -617,120 +778,171 @@ export const AdminPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Navigation Tabs Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none border-b border-terracotta/15">
+        {/* Emergency Stop Active Notification Banner */}
+        {maintenanceMode && (
+          <div className="mb-6 p-4 sm:p-5 rounded-3xl bg-red-600 text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-2 border-red-700 animate-fadeIn">
+            <div className="flex items-start gap-3.5">
+              <div className="p-2.5 rounded-2xl bg-white/20 text-white shrink-0 mt-0.5">
+                <ShieldAlert className="w-6 h-6 animate-bounce" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-bold text-base sm:text-lg tracking-tight">
+                    EMERGENCY STOP ACTIVE — Website Under Maintenance
+                  </h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-white text-red-700 text-[10px] font-black uppercase tracking-wider">
+                    Public Access Blocked
+                  </span>
+                </div>
+                <p className="text-xs text-red-100 mt-1 max-w-2xl leading-relaxed">
+                  Regular customers visiting your storefront currently see the &ldquo;Website is Under Maintenance&rdquo; emergency safety screen. As Owner, your Admin portal remains 100% active.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={handleToggleMaintenance}
+              disabled={isTogglingMaintenance}
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-amber-50 text-red-700 font-bold text-xs uppercase tracking-wider shadow-md shrink-0 flex items-center gap-2 transition-transform active:scale-95 cursor-pointer"
+            >
+              <Check className="w-4 h-4 text-emerald-600" />
+              <span>{isTogglingMaintenance ? 'Resuming...' : '🟢 Resume Website Now'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Navigation Tabs Bar with Left/Right Horizontal Scroll Chevrons */}
+        <div className="relative mb-6">
+          {/* Left Scroll Arrow */}
           <button
-            onClick={() => setActiveTab('banners')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${
-              activeTab === 'banners'
-                ? 'bg-terracotta text-white shadow-md'
-                : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
-            }`}
+            type="button"
+            onClick={() => scrollTabs('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 sm:-ml-3.5 z-20 w-8 h-8 rounded-full bg-white text-espresso-950 border border-terracotta/30 shadow-md flex items-center justify-center hover:bg-terracotta hover:text-white transition-all cursor-pointer opacity-95 hover:opacity-100 hover:scale-110 active:scale-95"
+            title="Scroll tabs left"
+            aria-label="Scroll tabs left"
           >
-            <Gift className="w-4 h-4" />
-            <span>Offer Banners ({banners.length})</span>
+            <ChevronLeft className="w-4 h-4" />
           </button>
 
+          {/* Right Scroll Arrow */}
           <button
-            onClick={() => setActiveTab('menu')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${
-              activeTab === 'menu'
-                ? 'bg-terracotta text-white shadow-md'
-                : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
-            }`}
+            type="button"
+            onClick={() => scrollTabs('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 -mr-2 sm:-mr-3.5 z-20 w-8 h-8 rounded-full bg-white text-espresso-950 border border-terracotta/30 shadow-md flex items-center justify-center hover:bg-terracotta hover:text-white transition-all cursor-pointer opacity-95 hover:opacity-100 hover:scale-110 active:scale-95"
+            title="Scroll tabs right (Download Excel Sheets, Reviews, Server)"
+            aria-label="Scroll tabs right"
           >
-            <Utensils className="w-4 h-4" />
-            <span>Food Menu Items ({products.length})</span>
-            {outOfStockCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-bold animate-pulse">
-                {outOfStockCount} Out of Stock
-              </span>
-            )}
+            <ChevronRight className="w-4 h-4" />
           </button>
 
-          <button
-            onClick={() => setActiveTab('inquiries')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${
-              activeTab === 'inquiries'
-                ? 'bg-terracotta text-white shadow-md'
-                : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
-            }`}
+          <div
+            ref={tabBarRef}
+            className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-terracotta/40 scrollbar-track-amber-100/40 border-b border-terracotta/15 px-3 sm:px-4 cursor-grab active:cursor-grabbing select-none"
           >
-            <MessageCircle className="w-4 h-4" />
-            <span>WhatsApp Inquiries ({inquiries.length})</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('banners')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${activeTab === 'banners'
+                  ? 'bg-terracotta text-white shadow-md'
+                  : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
+                }`}
+            >
+              <Gift className="w-4 h-4" />
+              <span>Offer Banners ({banners.length})</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('kot')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${
-              activeTab === 'kot'
-                ? 'bg-espresso-950 text-amber-300 shadow-md ring-2 ring-terracotta'
-                : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
-            }`}
-          >
-            <Printer className="w-4 h-4 text-amber-400" />
-            <span>POS & KOT Billing</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('menu')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${activeTab === 'menu'
+                  ? 'bg-terracotta text-white shadow-md'
+                  : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
+                }`}
+            >
+              <Utensils className="w-4 h-4" />
+              <span>Food Menu Items ({products.length})</span>
+              {outOfStockCount > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-bold animate-pulse">
+                  {outOfStockCount} Out of Stock
+                </span>
+              )}
+            </button>
 
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${
-              activeTab === 'analytics'
-                ? 'bg-espresso-950 text-emerald-400 shadow-md ring-2 ring-emerald-500'
-                : 'bg-white hover:bg-emerald-50 text-espresso-800 border border-terracotta/20'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4 text-emerald-600" />
-            <span>Sales Analytics & Graphs</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('inquiries')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${activeTab === 'inquiries'
+                  ? 'bg-terracotta text-white shadow-md'
+                  : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
+                }`}
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>WhatsApp Inquiries ({inquiries.length})</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('raw-materials')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${
-              activeTab === 'raw-materials'
-                ? 'bg-espresso-950 text-amber-300 shadow-md ring-2 ring-amber-400'
-                : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
-            }`}
-          >
-            <Layers className="w-4 h-4 text-terracotta" />
-            <span>Raw Materials (Qty & Rs)</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('kot')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${activeTab === 'kot'
+                  ? 'bg-espresso-950 text-amber-300 shadow-md ring-2 ring-terracotta'
+                  : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
+                }`}
+            >
+              <Printer className="w-4 h-4 text-amber-400" />
+              <span>POS & KOT Billing</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('excel')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${
-              activeTab === 'excel'
-                ? 'bg-emerald-700 text-white shadow-md'
-                : 'bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300'
-            }`}
-          >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            <span>Download Excel Sheets</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${activeTab === 'analytics'
+                  ? 'bg-espresso-950 text-emerald-400 shadow-md ring-2 ring-emerald-500'
+                  : 'bg-white hover:bg-emerald-50 text-espresso-800 border border-terracotta/20'
+                }`}
+            >
+              <BarChart3 className="w-4 h-4 text-emerald-600" />
+              <span>Sales Analytics & Graphs</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('reviews')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${
-              activeTab === 'reviews'
-                ? 'bg-terracotta text-white shadow-md'
-                : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
-            }`}
-          >
-            <Star className="w-4 h-4" />
-            <span>Guest Photo Reviews</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('raw-materials')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${activeTab === 'raw-materials'
+                  ? 'bg-espresso-950 text-amber-300 shadow-md ring-2 ring-amber-400'
+                  : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
+                }`}
+            >
+              <Layers className="w-4 h-4 text-terracotta" />
+              <span>Raw Materials (Qty & Rs)</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('keepalive')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${
-              activeTab === 'keepalive'
-                ? 'bg-emerald-700 text-white shadow-md'
-                : 'bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300'
-            }`}
-          >
-            <Activity className="w-4 h-4 text-emerald-500 animate-pulse" />
-            <span>24/7 Server Keep-Alive</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('excel')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${activeTab === 'excel'
+                  ? 'bg-emerald-700 text-white shadow-md'
+                  : 'bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300'
+                }`}
+            >
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              <span>Download Excel Sheets</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('reviews')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${activeTab === 'reviews'
+                  ? 'bg-terracotta text-white shadow-md'
+                  : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
+                }`}
+            >
+              <Star className="w-4 h-4" />
+              <span>Guest Photo Reviews</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('keepalive')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${activeTab === 'keepalive'
+                  ? 'bg-emerald-700 text-white shadow-md'
+                  : 'bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300'
+                }`}
+            >
+              <Activity className="w-4 h-4 text-emerald-500 animate-pulse" />
+              <span>24/7 Server Keep-Alive</span>
+            </button>
+          </div>
         </div>
 
         {/* ======================================================== */}
@@ -869,11 +1081,10 @@ export const AdminPage: React.FC = () => {
                         key={theme.id}
                         type="button"
                         onClick={() => setBannerForm(prev => ({ ...prev, themeColor: theme.id }))}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
-                          bannerForm.themeColor === theme.id
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${bannerForm.themeColor === theme.id
                             ? 'border-terracotta ring-2 ring-terracotta/30 bg-amber-50'
                             : 'border-amber-900/20 bg-white'
-                        }`}
+                          }`}
                       >
                         <span className={`w-3.5 h-3.5 rounded-full ${theme.previewClass}`} />
                         <span>{theme.label}</span>
@@ -947,11 +1158,10 @@ export const AdminPage: React.FC = () => {
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => handleToggleBannerStatus(b.id)}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors ${
-                          b.isActive
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors ${b.isActive
                             ? 'bg-emerald-100 text-emerald-800'
                             : 'bg-zinc-100 text-zinc-600'
-                        }`}
+                          }`}
                       >
                         {b.isActive ? 'Active' : 'Inactive'}
                       </button>
@@ -1002,11 +1212,10 @@ export const AdminPage: React.FC = () => {
               {/* Card 1: Total Menu Catalog */}
               <div
                 onClick={() => setStockFilter('all')}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                  stockFilter === 'all'
+                className={`p-4 rounded-2xl border transition-all cursor-pointer ${stockFilter === 'all'
                     ? 'bg-amber-100/90 border-terracotta ring-2 ring-terracotta/30'
                     : 'bg-white border-terracotta/20 hover:bg-amber-50'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between text-espresso-900">
                   <span className="text-xs font-bold uppercase tracking-wider">Total Menu Catalog</span>
@@ -1024,11 +1233,10 @@ export const AdminPage: React.FC = () => {
               {/* Card 2: In Stock / Available */}
               <div
                 onClick={() => setStockFilter('inStock')}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                  stockFilter === 'inStock'
+                className={`p-4 rounded-2xl border transition-all cursor-pointer ${stockFilter === 'inStock'
                     ? 'bg-emerald-50 border-emerald-600 ring-2 ring-emerald-400/30'
                     : 'bg-white border-emerald-200 hover:bg-emerald-50/50'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between text-emerald-950">
                   <span className="text-xs font-bold uppercase tracking-wider">In Stock & Ordering</span>
@@ -1046,13 +1254,12 @@ export const AdminPage: React.FC = () => {
               {/* Card 3: Out of Stock (Special Highlighted View) */}
               <div
                 onClick={() => setStockFilter('outOfStock')}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                  stockFilter === 'outOfStock'
+                className={`p-4 rounded-2xl border transition-all cursor-pointer ${stockFilter === 'outOfStock'
                     ? 'bg-red-100 border-red-600 ring-2 ring-red-400/40'
                     : outOfStockCount > 0
-                    ? 'bg-red-50/90 border-red-300 hover:border-red-500 shadow-xs'
-                    : 'bg-white border-terracotta/20 hover:bg-amber-50'
-                }`}
+                      ? 'bg-red-50/90 border-red-300 hover:border-red-500 shadow-xs'
+                      : 'bg-white border-terracotta/20 hover:bg-amber-50'
+                  }`}
               >
                 <div className="flex items-center justify-between text-red-950">
                   <span className="text-xs font-bold uppercase tracking-wider">Out of Stock Items</span>
@@ -1104,34 +1311,31 @@ export const AdminPage: React.FC = () => {
                 <div className="inline-flex p-1 rounded-xl bg-amber-100/60 border border-terracotta/20 text-xs font-bold">
                   <button
                     onClick={() => setStockFilter('all')}
-                    className={`px-3 py-1.5 rounded-lg transition-all ${
-                      stockFilter === 'all'
+                    className={`px-3 py-1.5 rounded-lg transition-all ${stockFilter === 'all'
                         ? 'bg-terracotta text-white shadow-xs'
                         : 'text-espresso-800 hover:text-terracotta'
-                    }`}
+                      }`}
                   >
                     All ({products.length})
                   </button>
                   <button
                     onClick={() => setStockFilter('inStock')}
-                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                      stockFilter === 'inStock'
+                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${stockFilter === 'inStock'
                         ? 'bg-emerald-700 text-white shadow-xs'
                         : 'text-espresso-800 hover:text-emerald-700'
-                    }`}
+                      }`}
                   >
                     <span className="w-2 h-2 rounded-full bg-emerald-500" />
                     <span>In Stock ({inStockCount})</span>
                   </button>
                   <button
                     onClick={() => setStockFilter('outOfStock')}
-                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                      stockFilter === 'outOfStock'
+                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${stockFilter === 'outOfStock'
                         ? 'bg-red-600 text-white shadow-xs'
                         : outOfStockCount > 0
-                        ? 'text-red-700 font-black'
-                        : 'text-espresso-800 hover:text-red-700'
-                    }`}
+                          ? 'text-red-700 font-black'
+                          : 'text-espresso-800 hover:text-red-700'
+                      }`}
                   >
                     <span className={`w-2 h-2 rounded-full ${outOfStockCount > 0 ? 'bg-red-500 animate-pulse' : 'bg-zinc-400'}`} />
                     <span>Out of Stock ({outOfStockCount})</span>
@@ -1140,10 +1344,19 @@ export const AdminPage: React.FC = () => {
 
                 <button
                   onClick={() => exportMenuToExcel(products)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold shadow-xs hover:bg-emerald-800 shrink-0"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold shadow-xs hover:bg-emerald-800 shrink-0 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Export (.xlsx)</span>
+                </button>
+
+                <button
+                  onClick={() => setIsAddingProduct(true)}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-terracotta hover:bg-terracotta-600 text-white text-xs font-bold shadow-sm transition-all hover:scale-[1.02] active:scale-95 shrink-0 cursor-pointer"
+                  title="Add new dish or drink to Coffee Land menu"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Add New Menu Item</span>
                 </button>
               </div>
             </div>
@@ -1221,19 +1434,17 @@ export const AdminPage: React.FC = () => {
                         return (
                           <tr
                             key={p.id}
-                            className={`transition-colors ${
-                              !isAvailable
+                            className={`transition-colors ${!isAvailable
                                 ? 'bg-red-50/50 hover:bg-red-50/80'
                                 : 'hover:bg-amber-50/40'
-                            }`}
+                              }`}
                           >
                             <td className="py-2.5 px-4 flex items-center gap-2.5">
                               <img
                                 src={p.image}
                                 alt={p.name}
-                                className={`w-9 h-9 rounded-lg object-cover shrink-0 border ${
-                                  !isAvailable ? 'opacity-60 grayscale-[30%]' : ''
-                                }`}
+                                className={`w-9 h-9 rounded-lg object-cover shrink-0 border ${!isAvailable ? 'opacity-60 grayscale-[30%]' : ''
+                                  }`}
                               />
                               {isEditing ? (
                                 <input
@@ -1274,9 +1485,8 @@ export const AdminPage: React.FC = () => {
                               )}
                             </td>
                             <td className="py-2.5 px-4">
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                p.isVeg ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
-                              }`}>
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${p.isVeg ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                                }`}>
                                 {p.isVeg ? 'Veg' : 'Non-Veg'}
                               </span>
                             </td>
@@ -1299,11 +1509,10 @@ export const AdminPage: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleToggleProductStock(p.id)}
-                                  className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all flex items-center gap-1.5 shadow-2xs hover:scale-105 active:scale-95 ${
-                                    isAvailable
+                                  className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all flex items-center gap-1.5 shadow-2xs hover:scale-105 active:scale-95 ${isAvailable
                                       ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-red-50 hover:text-red-700 hover:border-red-300'
                                       : 'bg-red-100 text-red-800 border-red-300 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300'
-                                  }`}
+                                    }`}
                                   title={isAvailable ? 'Click to mark as Out of Stock' : 'Click to mark as In Stock'}
                                 >
                                   <span className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-emerald-600' : 'bg-red-600 animate-pulse'}`} />
@@ -1321,13 +1530,22 @@ export const AdminPage: React.FC = () => {
                                   Save
                                 </button>
                               ) : (
-                                <button
-                                  onClick={() => handleStartEditProduct(p)}
-                                  className="p-1.5 hover:text-terracotta"
-                                  title="Edit item price or name"
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
+                                <div className="inline-flex items-center gap-1">
+                                  <button
+                                    onClick={() => handleStartEditProduct(p)}
+                                    className="p-1.5 hover:text-terracotta text-coffee-700 transition-colors rounded-lg hover:bg-amber-100/60"
+                                    title="Edit item price or name"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteProduct(p.id, p.name)}
+                                    className="p-1.5 hover:text-red-700 text-coffee-600 transition-colors rounded-lg hover:bg-red-50"
+                                    title="Delete menu item"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
                               )}
                             </td>
                           </tr>
@@ -1389,11 +1607,10 @@ export const AdminPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setInquiryDiningFilter('all')}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
-                  inquiryDiningFilter === 'all'
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${inquiryDiningFilter === 'all'
                     ? 'bg-espresso-950 text-white shadow-xs'
                     : 'bg-white border border-amber-900/15 text-coffee-800 hover:bg-amber-100/50'
-                }`}
+                  }`}
               >
                 All Orders ({inquiries.length})
               </button>
@@ -1401,11 +1618,10 @@ export const AdminPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setInquiryDiningFilter('Dine-In')}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  inquiryDiningFilter === 'Dine-In'
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${inquiryDiningFilter === 'Dine-In'
                     ? 'bg-red-600 text-white shadow-xs'
                     : 'bg-white border border-red-300 text-red-900 hover:bg-red-50'
-                }`}
+                  }`}
               >
                 <UtensilsCrossed className="w-3.5 h-3.5" />
                 <span>🔴 Dine-In ({inquiries.filter((i) => (i.diningOption || 'Dine-In') === 'Dine-In').length})</span>
@@ -1414,11 +1630,10 @@ export const AdminPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setInquiryDiningFilter('Delivery')}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  inquiryDiningFilter === 'Delivery'
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${inquiryDiningFilter === 'Delivery'
                     ? 'bg-blue-600 text-white shadow-xs'
                     : 'bg-white border border-blue-300 text-blue-900 hover:bg-blue-50'
-                }`}
+                  }`}
               >
                 <Truck className="w-3.5 h-3.5" />
                 <span>🔵 Delivery ({inquiries.filter((i) => i.diningOption === 'Delivery').length})</span>
@@ -1427,11 +1642,10 @@ export const AdminPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setInquiryDiningFilter('Takeaway')}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  inquiryDiningFilter === 'Takeaway'
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${inquiryDiningFilter === 'Takeaway'
                     ? 'bg-emerald-600 text-white shadow-xs'
                     : 'bg-white border border-emerald-300 text-emerald-900 hover:bg-emerald-50'
-                }`}
+                  }`}
               >
                 <ShoppingBag className="w-3.5 h-3.5" />
                 <span>🟢 Takeaway ({inquiries.filter((i) => i.diningOption === 'Takeaway').length})</span>
@@ -1466,19 +1680,19 @@ export const AdminPage: React.FC = () => {
                     const passTheme =
                       dining === 'Delivery'
                         ? {
-                            ribbonDark: '#1E3A8A',
-                            ribbonMain: '#1D4ED8',
-                            ribbonLight: '#2563EB',
-                            borderColor: 'border-blue-300',
-                            badgeBg: 'bg-blue-600 text-white',
-                            badgeLightBg: 'bg-blue-50 text-blue-900 border-blue-200',
-                            label: 'HOME DELIVERY PASS',
-                            colorName: 'Blue Card',
-                            emoji: '🔵',
-                            icon: Truck,
-                          }
+                          ribbonDark: '#1E3A8A',
+                          ribbonMain: '#1D4ED8',
+                          ribbonLight: '#2563EB',
+                          borderColor: 'border-blue-300',
+                          badgeBg: 'bg-blue-600 text-white',
+                          badgeLightBg: 'bg-blue-50 text-blue-900 border-blue-200',
+                          label: 'HOME DELIVERY PASS',
+                          colorName: 'Blue Card',
+                          emoji: '🔵',
+                          icon: Truck,
+                        }
                         : dining === 'Takeaway'
-                        ? {
+                          ? {
                             ribbonDark: '#064E3B',
                             ribbonMain: '#059669',
                             ribbonLight: '#10B981',
@@ -1490,7 +1704,7 @@ export const AdminPage: React.FC = () => {
                             emoji: '🟢',
                             icon: ShoppingBag,
                           }
-                        : {
+                          : {
                             ribbonDark: '#7F1D1D',
                             ribbonMain: '#B91C1C',
                             ribbonLight: '#DC2626',
@@ -1574,13 +1788,12 @@ export const AdminPage: React.FC = () => {
                               <select
                                 value={inq.status}
                                 onChange={(e) => handleUpdateInquiryStatus(inq.id, e.target.value as any)}
-                                className={`text-xs font-bold px-2.5 py-1 rounded-full border ${
-                                  inq.status === 'Completed'
+                                className={`text-xs font-bold px-2.5 py-1 rounded-full border ${inq.status === 'Completed'
                                     ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
                                     : inq.status === 'Confirmed'
-                                    ? 'bg-amber-50 text-amber-800 border-amber-300'
-                                    : 'bg-blue-50 text-blue-800 border-blue-300'
-                                }`}
+                                      ? 'bg-amber-50 text-amber-800 border-amber-300'
+                                      : 'bg-blue-50 text-blue-800 border-blue-300'
+                                  }`}
                               >
                                 <option value="Inquired">Inquired</option>
                                 <option value="Confirmed">Confirmed</option>
@@ -1967,9 +2180,8 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {pingResult && (
-                <div className={`mt-5 p-3.5 rounded-xl text-xs font-mono border flex items-center justify-between ${
-                  pingResult.success ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-200' : 'bg-red-950/60 border-red-500/40 text-red-200'
-                }`}>
+                <div className={`mt-5 p-3.5 rounded-xl text-xs font-mono border flex items-center justify-between ${pingResult.success ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-200' : 'bg-red-950/60 border-red-500/40 text-red-200'
+                  }`}>
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>{pingResult.message}</span>
@@ -2166,6 +2378,373 @@ export const AdminPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* ======================================================== */}
+        {/* MODAL: ADD NEW MENU ITEM */}
+        {/* ======================================================== */}
+        <AnimatePresence>
+          {isAddingProduct && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsAddingProduct(false)}
+                className="fixed inset-0 bg-[#2B1B16]/75 backdrop-blur-sm"
+              />
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                className="relative w-full max-w-xl bg-white rounded-3xl border border-terracotta/20 shadow-2xl p-5 sm:p-7 z-10 text-espresso-950 my-auto max-h-[92vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between pb-3.5 border-b border-amber-900/10 mb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-2xl bg-terracotta text-white flex items-center justify-center shadow-md">
+                      <Plus className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-xl sm:text-2xl font-bold text-espresso-950">
+                        Add New Menu Item
+                      </h3>
+                      <p className="text-xs text-coffee-700">
+                        Add a new dish, drink, or dessert directly into the Coffee Land catalog.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsAddingProduct(false)}
+                    className="p-2 rounded-full hover:bg-amber-100 text-coffee-700 transition-colors cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleCreateNewProduct} className="space-y-4">
+                  {/* Name and Price */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-espresso-900 mb-1">
+                        Item / Dish Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={newProductForm.name}
+                        onChange={(e) => setNewProductForm(f => ({ ...f, name: e.target.value }))}
+                        placeholder="e.g. Vanilla Hazelnut Cold Brew"
+                        className="w-full px-3 py-2.5 rounded-xl border border-amber-900/20 text-xs bg-amber-50/30 focus:outline-none focus:border-terracotta font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-espresso-900 mb-1">
+                        Price (₹) *
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        min="1"
+                        value={newProductForm.price}
+                        onChange={(e) => setNewProductForm(f => ({ ...f, price: Number(e.target.value) }))}
+                        placeholder="199"
+                        className="w-full px-3 py-2.5 rounded-xl border border-amber-900/20 text-xs bg-amber-50/30 focus:outline-none focus:border-terracotta font-bold text-terracotta"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Category Selection */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-espresso-900 mb-1">
+                        Menu Category *
+                      </label>
+                      <select
+                        value={newProductForm.category}
+                        onChange={(e) => setNewProductForm(f => ({ ...f, category: e.target.value }))}
+                        className="w-full px-3 py-2.5 rounded-xl border border-amber-900/20 text-xs bg-white text-espresso-900 font-medium"
+                      >
+                        <option value="hot-coffee">Hot Coffee</option>
+                        <option value="cold-coffee">Cold Coffee</option>
+                        <option value="specialty-coffee">Specialty Brews</option>
+                        <option value="burgers">Burgers &amp; Sandwiches</option>
+                        <option value="pizza">Stone-Baked Pizzas</option>
+                        <option value="fried-chicken">Crispy Fried Chicken</option>
+                        <option value="starters">Starters &amp; Fries</option>
+                        <option value="kunafa">Authentic Kunafa</option>
+                        <option value="waffles">Belgian Waffles</option>
+                        <option value="desserts">Desserts &amp; Gelato</option>
+                        <option value="shakes">Thick Shakes</option>
+                        <option value="mocktails">Mocktails &amp; Coolers</option>
+                        <option value="custom">-- Enter New Custom Category --</option>
+                      </select>
+                    </div>
+
+                    {newProductForm.category === 'custom' ? (
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-espresso-900 mb-1">
+                          Custom Category Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newProductForm.customCategory}
+                          onChange={(e) => setNewProductForm(f => ({ ...f, customCategory: e.target.value }))}
+                          placeholder="e.g. Pasta, Tacos, Sizzlers"
+                          className="w-full px-3 py-2.5 rounded-xl border border-amber-900/20 text-xs bg-amber-50/30 focus:outline-none focus:border-terracotta font-medium"
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-espresso-900 mb-1">
+                          Dietary Type
+                        </label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setNewProductForm(f => ({ ...f, isVeg: true }))}
+                            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                              newProductForm.isVeg
+                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                                : 'bg-white text-emerald-800 border-emerald-300 hover:bg-emerald-50'
+                            }`}
+                          >
+                            <span>🟢 Pure Veg</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setNewProductForm(f => ({ ...f, isVeg: false }))}
+                            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                              !newProductForm.isVeg
+                                ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                                : 'bg-white text-red-800 border-red-300 hover:bg-red-50'
+                            }`}
+                          >
+                            <span>🔴 Non-Veg</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-espresso-900 mb-1">
+                      Description &amp; Ingredients
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={newProductForm.description}
+                      onChange={(e) => setNewProductForm(f => ({ ...f, description: e.target.value }))}
+                      placeholder="e.g. Double espresso infused with artisanal hazelnut syrup and cold whole milk."
+                      className="w-full px-3 py-2 rounded-xl border border-amber-900/20 text-xs bg-amber-50/30 focus:outline-none focus:border-terracotta resize-none"
+                    />
+                  </div>
+
+                  {/* Portion, Prep Time & Badge */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-espresso-900 mb-1">
+                        Portion / Serving
+                      </label>
+                      <input
+                        type="text"
+                        value={newProductForm.portion}
+                        onChange={(e) => setNewProductForm(f => ({ ...f, portion: e.target.value }))}
+                        placeholder="e.g. 1 Serving, 6 Pcs, 350ml"
+                        className="w-full px-3 py-2 rounded-xl border border-amber-900/20 text-xs bg-amber-50/30 focus:outline-none focus:border-terracotta"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-espresso-900 mb-1">
+                        Prep Time
+                      </label>
+                      <input
+                        type="text"
+                        value={newProductForm.prepTime}
+                        onChange={(e) => setNewProductForm(f => ({ ...f, prepTime: e.target.value }))}
+                        placeholder="10-15 mins"
+                        className="w-full px-3 py-2 rounded-xl border border-amber-900/20 text-xs bg-amber-50/30 focus:outline-none focus:border-terracotta"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-espresso-900 mb-1">
+                        Special Badge (Opt)
+                      </label>
+                      <input
+                        type="text"
+                        value={newProductForm.badge}
+                        onChange={(e) => setNewProductForm(f => ({ ...f, badge: e.target.value }))}
+                        placeholder="e.g. Chef Special, Bestseller"
+                        className="w-full px-3 py-2 rounded-xl border border-amber-900/20 text-xs bg-amber-50/30 focus:outline-none focus:border-terracotta"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Image URL & Quick Presets */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-espresso-900 mb-1">
+                      Dish Photo (URL or Choose Preset)
+                    </label>
+                    <input
+                      type="url"
+                      value={newProductForm.image}
+                      onChange={(e) => setNewProductForm(f => ({ ...f, image: e.target.value }))}
+                      placeholder="Paste image URL..."
+                      className="w-full px-3 py-2 rounded-xl border border-amber-900/20 text-xs bg-amber-50/30 focus:outline-none focus:border-terracotta mb-2 font-mono"
+                    />
+                    {/* Quick photo presets */}
+                    <div className="flex flex-wrap gap-1.5 text-[11px]">
+                      <span className="text-coffee-600 font-bold self-center">Presets:</span>
+                      {[
+                        { label: '☕ Espresso', url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80' },
+                        { label: '🥤 Cold Coffee', url: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=600&q=80' },
+                        { label: '🍔 Burger', url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80' },
+                        { label: '🍕 Pizza', url: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80' },
+                        { label: '🍗 Wings', url: 'https://images.unsplash.com/photo-1527477245898-ddce68628b6f?auto=format&fit=crop&w=600&q=80' },
+                        { label: '🧇 Waffle', url: 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?auto=format&fit=crop&w=600&q=80' },
+                        { label: '🍰 Dessert', url: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80' }
+                      ].map((preset) => (
+                        <button
+                          key={preset.label}
+                          type="button"
+                          onClick={() => setNewProductForm(f => ({ ...f, image: preset.url }))}
+                          className="px-2 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-espresso-950 font-semibold transition-colors cursor-pointer"
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* In Stock status */}
+                  <div className="pt-2 flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-900/10">
+                    <div>
+                      <span className="font-bold text-xs text-espresso-950 block">Available In Stock</span>
+                      <span className="text-[10px] text-coffee-700">Customers can order this immediately</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={newProductForm.inStock}
+                        onChange={(e) => setNewProductForm(f => ({ ...f, inStock: e.target.checked }))}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-zinc-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                    </label>
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="pt-3 flex items-center justify-end gap-3 border-t border-amber-900/10">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddingProduct(false)}
+                      className="px-4 py-2.5 rounded-xl border border-amber-900/20 text-xs font-bold text-coffee-700 hover:bg-amber-50 cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 rounded-xl bg-terracotta hover:bg-terracotta-600 text-white text-xs font-bold shadow-md flex items-center gap-2 transition-transform active:scale-95 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Save &amp; Add Item</span>
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* ======================================================== */}
+        {/* MODAL: EMERGENCY STOP & WEBSITE MAINTENANCE CONFIRMATION */}
+        {/* ======================================================== */}
+        <AnimatePresence>
+          {showMaintenanceConfirm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowMaintenanceConfirm(false)}
+                className="fixed inset-0 bg-[#2B1B16]/80 backdrop-blur-sm"
+              />
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                className="relative w-full max-w-lg bg-white rounded-3xl border border-red-300 shadow-2xl p-6 sm:p-8 z-10 text-espresso-950 my-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-start gap-4 mb-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+                    maintenanceMode ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-700 animate-pulse'
+                  }`}>
+                    {maintenanceMode ? <Check className="w-6 h-6" /> : <ShieldAlert className="w-6 h-6" />}
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-espresso-950">
+                      {maintenanceMode ? 'Resume Public Website Access?' : 'Emergency Stop & Website Maintenance'}
+                    </h3>
+                    <p className="text-xs text-coffee-700 mt-1 leading-relaxed">
+                      {maintenanceMode
+                        ? 'This will immediately bring the storefront back online for regular customers and open food ordering.'
+                        : 'This will block public customer ordering and display the official "Website is Under Maintenance" screen. Your Admin portal will remain accessible.'}
+                    </p>
+                  </div>
+                </div>
+
+                {!maintenanceMode && (
+                  <div className="mb-4">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-espresso-900 mb-1">
+                      Maintenance Notice to Show Customers
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={maintenanceReason}
+                      onChange={(e) => setMaintenanceReason(e.target.value)}
+                      placeholder="Enter explanation shown to visitors..."
+                      className="w-full px-3 py-2 rounded-xl border border-amber-900/20 text-xs bg-amber-50/30 focus:outline-none focus:border-red-600 resize-none font-medium"
+                    />
+                  </div>
+                )}
+
+                <div className="pt-4 border-t border-amber-900/10 flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowMaintenanceConfirm(false)}
+                    className="px-4 py-2.5 rounded-xl border border-amber-900/20 text-xs font-bold text-coffee-700 hover:bg-amber-50 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleToggleMaintenance}
+                    disabled={isTogglingMaintenance}
+                    className={`px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-white shadow-md flex items-center gap-2 transition-transform active:scale-95 cursor-pointer ${
+                      maintenanceMode
+                        ? 'bg-emerald-700 hover:bg-emerald-800'
+                        : 'bg-red-600 hover:bg-red-700'
+                    }`}
+                  >
+                    <Power className="w-4 h-4" />
+                    <span>
+                      {isTogglingMaintenance
+                        ? 'Updating Status...'
+                        : maintenanceMode
+                        ? '🟢 Resume Website (Make Live)'
+                        : '🛑 Stop Website Now'}
+                    </span>
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );

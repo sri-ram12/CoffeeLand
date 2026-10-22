@@ -56,7 +56,7 @@ export const HeroBackgroundDecor: React.FC = () => {
         className="absolute top-1/3 -right-24 w-[550px] h-[550px] bg-terracotta/5 rounded-full blur-3xl pointer-events-none"
       />
 
-      {/* 3. Floating Ethereal Coffee Beans (Very Light, Gentle, Latte & Cream Tones) */}
+      {/* 3. Floating Ethereal Coffee Beans (Rich Warm Roasted Arabica Tones - Clearly Visible & Ambient) */}
       {coffeeBeans.map((bean) => (
         <motion.div
           key={bean.id}
@@ -79,20 +79,21 @@ export const HeroBackgroundDecor: React.FC = () => {
             width: bean.size,
             height: bean.size * 1.35,
           }}
-          className="absolute opacity-25 hover:opacity-45 transition-opacity filter drop-shadow-[0_4px_8px_rgba(184,115,51,0.08)] pointer-events-none"
+          className="absolute opacity-60 hover:opacity-85 transition-opacity filter drop-shadow-[0_6px_12px_rgba(43,27,22,0.22)] pointer-events-none"
         >
-          {/* Stylized Realistic Coffee Bean SVG in Soft Warm Biscuit & Cream */}
+          {/* Stylized Realistic Coffee Bean SVG in Rich Warm Roasted Espresso & Caramel */}
           <svg viewBox="0 0 100 135" fill="none" className="w-full h-full">
             <defs>
               <linearGradient id={`beanGrad-${bean.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#EBD7C3" />
-                <stop offset="40%" stopColor="#DFCAAE" />
-                <stop offset="80%" stopColor="#CEB495" />
-                <stop offset="100%" stopColor="#C0A483" />
+                <stop offset="0%" stopColor="#8A4B20" />
+                <stop offset="35%" stopColor="#6C3512" />
+                <stop offset="70%" stopColor="#4E230B" />
+                <stop offset="100%" stopColor="#321405" />
               </linearGradient>
               <linearGradient id={`beanHighlight-${bean.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.35" />
+                <stop offset="60%" stopColor="#E2A76F" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="#8A4B20" stopOpacity="0" />
               </linearGradient>
             </defs>
             {/* Bean Outer Hull */}
@@ -100,7 +101,7 @@ export const HeroBackgroundDecor: React.FC = () => {
               d="M 50 6 C 82 6, 96 36, 96 67.5 C 96 99, 82 129, 50 129 C 18 129, 4 99, 4 67.5 C 4 36, 18 6, 50 6 Z"
               fill={`url(#beanGrad-${bean.id})`}
             />
-            {/* 3D Sheen Highlight */}
+            {/* 3D Roasted Bean Sheen Highlight */}
             <ellipse
               cx="40"
               cy="35"
@@ -109,29 +110,29 @@ export const HeroBackgroundDecor: React.FC = () => {
               fill={`url(#beanHighlight-${bean.id})`}
               transform="rotate(-20 40 35)"
             />
-            {/* Center Characteristic S-Curve Crease */}
+            {/* Center Characteristic S-Curve Crease Groove (Deep Shadow) */}
             <path
               d="M 50 10 Q 64 45, 48 67.5 Q 32 90, 50 125"
-              stroke="#BA9B7B"
-              strokeWidth="4"
+              stroke="#200B02"
+              strokeWidth="5"
+              strokeLinecap="round"
+              opacity="0.9"
+            />
+            {/* Crease Warm Roasted Edge Highlight */}
+            <path
+              d="M 52 12 Q 66 47, 50 68.5 Q 34 91, 52 123"
+              stroke="#B36B36"
+              strokeWidth="2"
               strokeLinecap="round"
               opacity="0.6"
             />
-            {/* Crease Shadow Depth */}
-            <path
-              d="M 51 12 Q 65 47, 49 68.5 Q 33 91, 51 123"
-              stroke="#967757"
-              strokeWidth="2"
-              strokeLinecap="round"
-              opacity="0.35"
-            />
-            {/* Rim Highlight */}
+            {/* Outer Rim Contour Accent */}
             <path
               d="M 26 24 C 16 42, 16 65, 22 82"
-              stroke="#FFF3E0"
+              stroke="#F0C294"
               strokeWidth="2"
               strokeLinecap="round"
-              opacity="0.3"
+              opacity="0.4"
             />
           </svg>
         </motion.div>

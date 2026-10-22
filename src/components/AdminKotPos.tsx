@@ -1020,33 +1020,38 @@ export const AdminKotPos: React.FC<AdminKotPosProps> = ({ products, externalPrin
             </div>
           ) : (
             <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif', fontSize: '12px', lineHeight: '1.3', color: '#000', padding: '1mm', margin: '0' }}>
-              <div style={{ fontWeight: '800', fontSize: '16px', textAlign: 'center', letterSpacing: '0.5px' }}>
-                COFFEE LAND
+              <div style={{ fontWeight: '800', fontSize: '16px', textAlign: 'center', letterSpacing: '0.3px', marginBottom: '2px' }}>
+                Cafe Coffee land
               </div>
-              <div style={{ fontSize: '10px', textAlign: 'center', color: '#333' }}>
-                Specialty Coffee &amp; Cafe • Sangivalasa
+              <div style={{ fontSize: '10px', textAlign: 'center', fontWeight: '600', color: '#111', lineHeight: '1.3', marginBottom: '4px' }}>
+                PV Shankar Ph: 9542525665,Beside Polamamba Temple, Sangivalasa Tagarapuvalasa.
+              </div>
+              <div style={{ borderBottom: '1px dashed #000', margin: '4px 0' }} />
+              <div style={{ fontSize: '11px', fontWeight: 'bold' }}>
+                Name: {activePrint.order.customerName && activePrint.order.customerName !== 'Guest Customer' ? activePrint.order.customerName : ''}
               </div>
               <div style={{ borderBottom: '1px dashed #000', margin: '4px 0' }} />
               <div style={{ fontSize: '11px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span><strong>Bill #:</strong> #{activePrint.order.kotNumber}</span>
-                  <span><strong>{activePrint.order.orderType.toUpperCase()}</strong></span>
+                  <span>Date: {formatReceiptDateTime(activePrint.order.timestamp).split(' ')[0]}</span>
+                  <span><strong>{activePrint.order.orderType === 'Dine-In' ? 'Dine In' : activePrint.order.orderType}: {activePrint.order.tableNumber ? activePrint.order.tableNumber.replace(/table\s*:?\s*/i, '') : '1'}</strong></span>
                 </div>
+                <div>{formatReceiptDateTime(activePrint.order.timestamp).split(' ')[1]}</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span><strong>{formatTableDisplay(activePrint.order.tableNumber, activePrint.order.orderType)}</strong></span>
-                  <span>{formatReceiptDateTime(activePrint.order.timestamp)}</span>
+                  <span>Cashier: biller</span>
+                  <span>Bill No.: {activePrint.order.kotNumber}</span>
                 </div>
-                {activePrint.order.customerName && activePrint.order.customerName !== 'Guest Customer' && (
-                  <div><strong>Customer:</strong> {activePrint.order.customerName}</div>
-                )}
+                <div style={{ fontWeight: '700' }}>
+                  Token No.: {activePrint.order.kotNumber}
+                </div>
               </div>
               <table style={{ width: '100%', borderCollapse: 'collapse', margin: '3px 0', fontSize: '11px' }}>
                 <thead>
                   <tr style={{ borderTop: '1px dashed #000', borderBottom: '1px dashed #000' }}>
-                    <th style={{ textAlign: 'left', width: '50%', padding: '3px 0' }}>Item</th>
-                    <th style={{ textAlign: 'center', width: '14%', padding: '3px 0' }}>Qty</th>
+                    <th style={{ textAlign: 'left', width: '48%', padding: '3px 0' }}>Item</th>
+                    <th style={{ textAlign: 'right', width: '14%', padding: '3px 0' }}>Qty.</th>
                     <th style={{ textAlign: 'right', width: '18%', padding: '3px 0' }}>Price</th>
-                    <th style={{ textAlign: 'right', width: '18%', padding: '3px 0' }}>Total</th>
+                    <th style={{ textAlign: 'right', width: '20%', padding: '3px 0' }}>Amount</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1054,9 +1059,9 @@ export const AdminKotPos: React.FC<AdminKotPosProps> = ({ products, externalPrin
                     <React.Fragment key={i}>
                       <tr style={{ verticalAlign: 'top' }}>
                         <td style={{ textAlign: 'left', fontWeight: 'bold', padding: '2px 0' }}>{item.name}</td>
-                        <td style={{ textAlign: 'center', padding: '2px 0' }}>{item.quantity}</td>
-                        <td style={{ textAlign: 'right', padding: '2px 0' }}>₹{item.price}</td>
-                        <td style={{ textAlign: 'right', fontWeight: 'bold', padding: '2px 0' }}>₹{item.price * item.quantity}</td>
+                        <td style={{ textAlign: 'right', padding: '2px 0' }}>{item.quantity}</td>
+                        <td style={{ textAlign: 'right', padding: '2px 0' }}>{Number(item.price).toFixed(2)}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 'bold', padding: '2px 0' }}>{Number(item.price * item.quantity).toFixed(2)}</td>
                       </tr>
                       {item.notes && (
                         <tr>
@@ -1069,12 +1074,16 @@ export const AdminKotPos: React.FC<AdminKotPosProps> = ({ products, externalPrin
                   ))}
                 </tbody>
               </table>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '800', fontSize: '14px', borderTop: '1px dashed #000', borderBottom: '1px dashed #000', padding: '4px 0', margin: '4px 0' }}>
-                <span>NET PAYABLE:</span>
-                <span>₹{activePrint.order.totalAmount}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: '700', borderTop: '1px dashed #000', paddingTop: '3px' }}>
+                <span>Total Qty: {activePrint.order.items.reduce((acc, i) => acc + i.quantity, 0)}</span>
+                <span>Sub Total {Number(activePrint.order.totalAmount).toFixed(2)}</span>
               </div>
-              <div style={{ textAlign: 'center', fontWeight: '700', fontSize: '10px', marginTop: '4px' }}>
-                THANK YOU FOR VISITING!
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '800', fontSize: '14px', borderTop: '1px dashed #000', borderBottom: '1px dashed #000', padding: '4px 0', margin: '4px 0' }}>
+                <span>Grand Total</span>
+                <span>₹{Number(activePrint.order.totalAmount).toFixed(2)}</span>
+              </div>
+              <div style={{ textAlign: 'center', fontWeight: '700', fontSize: '11px', marginTop: '5px' }}>
+                Thank You, Visit Again.
               </div>
             </div>
           )}

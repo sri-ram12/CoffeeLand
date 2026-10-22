@@ -1,6 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, QrCode, Download, Copy, Check, Smartphone, ExternalLink, CheckCircle2, Coffee, Sparkles } from 'lucide-react';
+import {
+  X,
+  QrCode,
+  Download,
+  Copy,
+  Check,
+  Smartphone,
+  ExternalLink,
+  CheckCircle2,
+  Coffee,
+  Sparkles,
+  Zap,
+  Share2,
+  PlusSquare,
+  ArrowDownToLine
+} from 'lucide-react';
 import QRCode from 'qrcode';
 
 interface QRCodeModalProps {
@@ -10,8 +25,51 @@ interface QRCodeModalProps {
 
 export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
-  const [targetType, setTargetType] = useState<'home' | 'menu' | 'reviews'>('home');
+  const [targetType, setTargetType] = useState<'pwa' | 'home' | 'menu' | 'reviews'>('pwa');
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [installSuccess, setInstallSuccess] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // Listen for beforeinstallprompt event for PWA download
+  useEffect(() => {
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      setInstallSuccess(true);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstalled(true);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choiceResult = await deferredPrompt.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        setInstallSuccess(true);
+      }
+      setDeferredPrompt(null);
+    } else {
+      // Fallback instruction trigger
+      alert("To install CoffeeLand on your phone:\n\n• Android Chrome: Tap Menu (⋮) > 'Install App' or 'Add to Home screen'\n• Apple iPhone (Safari): Tap Share (⎋) > 'Add to Home Screen (⊞)'");
+    }
+  };
 
   // Determine target base URL (falls back to live Render production URL so scanning localhost works on phones!)
   const getBaseUrl = () => {
@@ -25,7 +83,9 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
 
   const baseUrl = getBaseUrl();
   const currentUrl =
-    targetType === 'menu'
+    targetType === 'pwa'
+      ? `${baseUrl}/?pwa=install`
+      : targetType === 'menu'
       ? `${baseUrl}/#menu`
       : targetType === 'reviews'
       ? `${baseUrl}/#reviews`
@@ -35,7 +95,6 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
   useEffect(() => {
     if (!isOpen) return;
 
-    // Small delay to ensure canvas is in DOM
     const timer = setTimeout(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -65,9 +124,8 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
           if (!ctx) return;
 
           const center = canvasWidth / 2;
-          const radius = canvasWidth * 0.12; // 12% radius for high safety within 30% error tolerance
+          const radius = canvasWidth * 0.12;
 
-          // White circular background cushion for the logo
           ctx.save();
           ctx.beginPath();
           ctx.arc(center, center, radius + 4, 0, Math.PI * 2);
@@ -77,7 +135,6 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
           ctx.strokeStyle = '#802B12';
           ctx.stroke();
 
-          // Try loading official cafe logo into the center
           const logoImg = new Image();
           logoImg.src = '/logo.png';
           logoImg.crossOrigin = 'anonymous';
@@ -97,7 +154,6 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
           };
 
           logoImg.onerror = () => {
-            // Fallback decorative center badge if logo image cannot be loaded
             ctx.save();
             ctx.beginPath();
             ctx.arc(center, center, radius, 0, Math.PI * 2);
@@ -146,14 +202,14 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-[#2B1B16]/70 backdrop-blur-md"
+            className="absolute inset-0 bg-[#2B1B16]/75 backdrop-blur-md"
           />
 
           {/* Modal Card */}
@@ -162,7 +218,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-md bg-[#EDE0CC] border border-amber-900/15 rounded-3xl p-5 sm:p-7 shadow-2xl text-[#2B1B16] z-10 max-h-[94vh] overflow-y-auto"
+            className="relative w-full max-w-md bg-[#EDE0CC] border border-amber-900/15 rounded-3xl p-4 sm:p-6 shadow-2xl text-[#2B1B16] z-10 max-h-[94vh] overflow-y-auto"
           >
             {/* Ambient Background Glows */}
             <div className="absolute top-0 right-0 w-48 h-48 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
@@ -178,21 +234,33 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
             </button>
 
             {/* Header */}
-            <div className="text-center mb-4">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/90 border border-amber-300/60 text-[#802B12] text-xs font-bold uppercase tracking-wider mb-2 shadow-xs">
-                <QrCode className="w-3.5 h-3.5" />
-                <span>Official Live QR Code</span>
+            <div className="text-center mb-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                <span>PWA Mobile Web App</span>
               </div>
               <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#2B1B16]">
-                Scan & Dine
+                Scan &amp; Download App
               </h3>
-              <p className="text-xs sm:text-sm text-[#6A584D] mt-1 max-w-xs mx-auto">
-                Scan with any smartphone camera or Google Lens to instantly open Coffee Land!
+              <p className="text-xs text-[#6A584D] mt-1 max-w-xs mx-auto">
+                Scan with any smartphone camera to open and install CoffeeLand directly onto your phone without app stores!
               </p>
             </div>
 
             {/* Destination Toggle Tabs */}
-            <div className="flex items-center justify-center p-1 rounded-2xl bg-[#E5D5BD] border border-amber-900/15 mb-4 text-xs font-semibold gap-1">
+            <div className="flex items-center justify-center p-1 rounded-2xl bg-[#E5D5BD] border border-amber-900/15 mb-3.5 text-xs font-semibold gap-1">
+              <button
+                type="button"
+                onClick={() => setTargetType('pwa')}
+                className={`flex-1 py-1.5 px-2 rounded-xl transition-all flex items-center justify-center gap-1 ${
+                  targetType === 'pwa'
+                    ? 'bg-terracotta text-white font-bold shadow-xs'
+                    : 'text-[#6A584D] hover:text-[#2B1B16]'
+                }`}
+              >
+                <ArrowDownToLine className="w-3.5 h-3.5" />
+                <span>Download App</span>
+              </button>
               <button
                 type="button"
                 onClick={() => setTargetType('home')}
@@ -202,7 +270,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
                     : 'text-[#6A584D] hover:text-[#2B1B16]'
                 }`}
               >
-                Website Home
+                Website
               </button>
               <button
                 type="button"
@@ -213,7 +281,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
                     : 'text-[#6A584D] hover:text-[#2B1B16]'
                 }`}
               >
-                150+ Menu
+                Menu (250+)
               </button>
               <button
                 type="button"
@@ -229,7 +297,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
             </div>
 
             {/* QR Code Container with High-Contrast White Background for Camera Optics */}
-            <div className="relative mx-auto w-64 h-64 bg-white p-3 rounded-2xl shadow-xl flex flex-col items-center justify-center border-4 border-[#802B12]/20">
+            <div className="relative mx-auto w-56 h-56 sm:w-60 sm:h-60 bg-white p-3 rounded-2xl shadow-xl flex flex-col items-center justify-center border-4 border-[#802B12]/20">
               <canvas
                 ref={canvasRef}
                 className="w-full h-full object-contain rounded-xl"
@@ -239,13 +307,52 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
             </div>
 
             {/* Verification Badge */}
-            <div className="flex items-center justify-center gap-1.5 mt-3 text-[11px] font-bold text-emerald-700">
+            <div className="flex items-center justify-center gap-1.5 mt-2.5 text-[11px] font-bold text-emerald-800">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>100% Scannable on iOS, Android & Google Lens</span>
+              <span>Instant Camera Scan on Android &amp; iPhone</span>
+            </div>
+
+            {/* 1-Click Install App on Current Device (PWA Native Prompt) */}
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={handleInstallApp}
+                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-terracotta to-[#802B12] hover:brightness-110 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
+              >
+                <ArrowDownToLine className="w-4 h-4 animate-bounce" />
+                <span>{isInstalled ? 'App Already Installed ✓' : 'Install App Directly on This Device'}</span>
+              </button>
+              {installSuccess && (
+                <p className="text-[11px] text-emerald-700 text-center font-bold mt-1">
+                  App installed to your device home screen!
+                </p>
+              )}
+            </div>
+
+            {/* Step-by-Step PWA Installation Guide for Scanners */}
+            <div className="mt-3 p-3 rounded-2xl bg-white/85 border border-amber-900/15 space-y-2 text-xs">
+              <span className="font-bold text-espresso-950 flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                <Smartphone className="w-3.5 h-3.5 text-terracotta" />
+                <span>How Customers Download via QR:</span>
+              </span>
+              <div className="grid grid-cols-2 gap-2 text-[11px] leading-tight">
+                <div className="p-2 rounded-xl bg-amber-50/70 border border-amber-900/10">
+                  <div className="font-bold text-[#802B12] mb-1">🤖 Android Phone:</div>
+                  <p className="text-coffee-800">
+                    Scan QR &rarr; Tap banner <strong>&ldquo;Add to Home screen&rdquo;</strong> or Chrome menu (&vellip;) &gt; <strong>&ldquo;Install app&rdquo;</strong>.
+                  </p>
+                </div>
+                <div className="p-2 rounded-xl bg-amber-50/70 border border-amber-900/10">
+                  <div className="font-bold text-[#802B12] mb-1">🍎 Apple iPhone:</div>
+                  <p className="text-coffee-800">
+                    Scan in Safari &rarr; Tap Share (<strong>&boxbox;</strong>) &rarr; Tap <strong>&ldquo;Add to Home Screen&rdquo;</strong>.
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Target Link Preview */}
-            <div className="mt-3 p-2.5 rounded-xl bg-white/70 border border-amber-900/15 flex items-center justify-between gap-2 text-xs">
+            <div className="mt-3 p-2 rounded-xl bg-white/70 border border-amber-900/15 flex items-center justify-between gap-2 text-xs">
               <span className="text-[#6A584D] truncate font-mono text-[11px]">
                 {currentUrl}
               </span>
@@ -253,7 +360,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
                 href={currentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#802B12] hover:text-amber-900 font-bold shrink-0 flex items-center gap-1 hover:underline"
+                className="text-[#802B12] hover:text-amber-900 font-bold shrink-0 flex items-center gap-1 hover:underline text-[11px]"
                 title="Open link in new tab"
               >
                 <span>Visit</span>
@@ -261,43 +368,32 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose }) => 
               </a>
             </div>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-3 mt-4">
+            {/* Action Buttons: Save PNG / Copy Link */}
+            <div className="grid grid-cols-2 gap-2.5 mt-3">
               <button
                 onClick={handleDownload}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-amber-50 text-[#2B1B16] text-xs sm:text-sm font-semibold border border-amber-900/20 shadow-sm transition-all hover:scale-[1.02]"
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-amber-50 text-[#2B1B16] text-xs font-semibold border border-amber-900/20 shadow-xs transition-all hover:scale-[1.01]"
               >
-                <Download className="w-4 h-4 text-[#802B12]" />
-                <span>Save High-Res PNG</span>
+                <Download className="w-3.5 h-3.5 text-[#802B12]" />
+                <span>Save PNG Code</span>
               </button>
 
               <button
                 onClick={handleCopy}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl terracotta-btn text-white text-xs sm:text-sm font-bold shadow-md transition-all hover:scale-[1.02]"
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl terracotta-btn text-white text-xs font-bold shadow-xs transition-all hover:scale-[1.01]"
               >
                 {copied ? (
                   <>
-                    <Check className="w-4 h-4" />
+                    <Check className="w-3.5 h-3.5" />
                     <span>Link Copied!</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-4 h-4" />
-                    <span>Copy Link</span>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy Web Link</span>
                   </>
                 )}
               </button>
-            </div>
-
-            {/* Instructions */}
-            <div className="mt-4 p-3 rounded-2xl bg-amber-50/90 border border-amber-200/80 flex items-start gap-2.5 text-xs text-[#6A584D]">
-              <Smartphone className="w-4 h-4 text-[#802B12] shrink-0 mt-0.5" />
-              <div>
-                <span className="text-[#2B1B16] font-semibold">Print & Table Use:</span>
-                <p className="mt-0.5 leading-relaxed text-[11px]">
-                  Download and print this QR code on table tents, cafe counters, takeaway boxes, or flyers. Guests point their phone camera to instantly browse the full menu and order!
-                </p>
-              </div>
             </div>
           </motion.div>
         </div>

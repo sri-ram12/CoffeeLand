@@ -1,5 +1,27 @@
 [
   {
+    "id": "kot-1792667104904",
+    "kotNumber": 108,
+    "orderType": "Dine-In",
+    "tableNumber": "Table 1",
+    "customerName": "Guest Customer",
+    "customerPhone": "",
+    "items": [
+      {
+        "id": "cl-americano",
+        "name": "Americano",
+        "price": 99,
+        "quantity": 1,
+        "category": "hot-coffee",
+        "notes": ""
+      }
+    ],
+    "chefNotes": "",
+    "timestamp": "2026-10-22T11:05:04.904Z",
+    "totalAmount": 99,
+    "status": "Preparing"
+  },
+  {
     "id": "kot-1792657138100",
     "kotNumber": 107,
     "orderType": "Dine-In",

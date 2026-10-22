@@ -288,35 +288,43 @@ export function generateBillHtml(order: KotOrder, paperWidth: ThermalPaperWidth 
       </head>
       <body>
         <div class="bill-container">
-          <div class="text-center" style="font-size: ${is58 ? '15px' : '17px'}; font-weight: 800; letter-spacing: 0.5px;">
-            COFFEE LAND
+          <div class="text-center" style="font-size: ${is58 ? '15px' : '17px'}; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 2px;">
+            Cafe Coffee land
           </div>
-          <div class="text-center" style="font-size: ${is58 ? '9px' : '11px'}; margin-bottom: 3px; color: #333;">
-            Specialty Coffee & Cafe • Sangivalasa
+          <div class="text-center" style="font-size: ${is58 ? '9px' : '11px'}; font-weight: 600; line-height: 1.3; color: #111; margin-bottom: 4px; padding: 0 2px;">
+            PV Shankar Ph: 9542525665,Beside Polamamba Temple, Sangivalasa Tagarapuvalasa.
+          </div>
+
+          <div class="dashed-divider"></div>
+
+          <div style="font-size: ${is58 ? '11px' : '12px'}; font-weight: 700; margin: 2px 0;">
+            Name: ${order.customerName && order.customerName !== 'Guest Customer' ? order.customerName : ''}
           </div>
 
           <div class="dashed-divider"></div>
 
           <div style="font-size: ${is58 ? '10px' : '11px'}; line-height: 1.35;">
             <div style="display: flex; justify-content: space-between;">
-              <span><strong>Bill #:</strong> #${order.kotNumber}</span>
-              <span><strong>${orderTypeDisplay.toUpperCase()}</strong></span>
+              <span>Date: ${formattedDateTime ? formattedDateTime.split(' ')[0] : ''}</span>
+              <span><strong>${orderTypeDisplay}: ${order.tableNumber ? order.tableNumber.replace(/table\s*:?\s*/i, '') : '1'}</strong></span>
             </div>
+            <div>${formattedDateTime ? (formattedDateTime.split(' ')[1] || '') : ''}</div>
             <div style="display: flex; justify-content: space-between;">
-              <span><strong>${tableDisplay}</strong></span>
-              <span>${formattedDateTime}</span>
+              <span>Cashier: biller</span>
+              <span>Bill No.: ${order.kotNumber}</span>
             </div>
-            ${order.customerName && order.customerName !== 'Guest Customer' ? `<div><strong>Customer:</strong> ${order.customerName}</div>` : ''}
-            ${order.customerPhone ? `<div><strong>Phone:</strong> ${order.customerPhone}</div>` : ''}
+            <div style="font-weight: 700;">
+              Token No.: ${order.kotNumber}
+            </div>
           </div>
 
           <table>
             <thead>
               <tr>
-                <th style="text-align: left; width: 50%;">Item</th>
-                <th style="text-align: center; width: 14%;">Qty</th>
+                <th style="text-align: left; width: 48%;">Item</th>
+                <th style="text-align: right; width: 14%;">Qty.</th>
                 <th style="text-align: right; width: 18%;">Price</th>
-                <th style="text-align: right; width: 18%;">Total</th>
+                <th style="text-align: right; width: 20%;">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -325,9 +333,9 @@ export function generateBillHtml(order: KotOrder, paperWidth: ThermalPaperWidth 
                   (item) => `
                 <tr>
                   <td style="text-align: left; font-weight: bold; word-break: break-word;">${item.name}</td>
-                  <td style="text-align: center;">${item.quantity}</td>
-                  <td style="text-align: right;">₹${item.price}</td>
-                  <td style="text-align: right; font-weight: bold;">₹${item.price * item.quantity}</td>
+                  <td style="text-align: right;">${item.quantity}</td>
+                  <td style="text-align: right;">${Number(item.price).toFixed(2)}</td>
+                  <td style="text-align: right; font-weight: bold;">${(item.price * item.quantity).toFixed(2)}</td>
                 </tr>
                 ${item.notes ? `
                   <tr>
@@ -342,16 +350,18 @@ export function generateBillHtml(order: KotOrder, paperWidth: ThermalPaperWidth 
             </tbody>
           </table>
 
-          <div class="grand-total">
-            <span>NET PAYABLE:</span>
-            <span>₹${order.totalAmount}</span>
+          <div style="display: flex; justify-content: space-between; font-size: ${is58 ? '10px' : '12px'}; font-weight: 700; border-top: 1px dashed #000; padding: 3px 0; margin-top: 2px;">
+            <span>Total Qty: ${order.items.reduce((acc, i) => acc + i.quantity, 0)}</span>
+            <span>Sub Total ${(Number(order.totalAmount)).toFixed(2)}</span>
           </div>
 
-          <div class="text-center" style="font-weight: 700; font-size: ${is58 ? '10px' : '11px'}; margin-top: 5px;">
-            THANK YOU FOR VISITING!
+          <div class="grand-total">
+            <span>Grand Total</span>
+            <span>₹${(Number(order.totalAmount)).toFixed(2)}</span>
           </div>
-          <div class="text-center" style="font-size: ${is58 ? '8px' : '9px'}; color: #444;">
-            Please Visit Coffee Land Again
+
+          <div class="text-center" style="font-weight: 700; font-size: ${is58 ? '11px' : '12px'}; margin-top: 6px;">
+            Thank You, Visit Again.
           </div>
         </div>
       </body>
@@ -370,7 +380,8 @@ export function generatePlainTextTicket(mode: 'kot' | 'bill', order: KotOrder): 
 
   if (mode === 'kot') {
     return [
-      '        Running Table',
+      '        Cafe Coffee land',
+      '      Kitchen Order Ticket',
       `       ${formattedDateTime}`,
       `          KOT - ${order.kotNumber}`,
       `           ${orderTypeDisplay}`,
@@ -393,27 +404,37 @@ export function generatePlainTextTicket(mode: 'kot' | 'bill', order: KotOrder): 
       .join('\n');
   }
 
+  const [datePart, timePart] = formattedDateTime.split(' ');
+  const totalQty = order.items.reduce((acc, i) => acc + i.quantity, 0);
+
   return [
-    '        COFFEE LAND CAFE',
-    '        CUSTOMER RECEIPT',
+    '        Cafe Coffee land',
+    'PV Shankar Ph: 9542525665,Beside',
+    'Polamamba Temple, Sangivalasa',
+    'Tagarapuvalasa.',
     line,
-    `BILL #: #${order.kotNumber}`,
-    `${tableDisplay} (${orderTypeDisplay})`,
-    `DATE  : ${formattedDateTime}`,
-    order.customerName && order.customerName !== 'Guest Customer' ? `GUEST : ${order.customerName}` : '',
+    `Name: ${order.customerName && order.customerName !== 'Guest Customer' ? order.customerName : ''}`,
     line,
-    'ITEM                    QTY  AMT',
+    `Date: ${datePart || ''}    ${orderTypeDisplay}: ${order.tableNumber ? order.tableNumber.replace(/table\s*:?\s*/i, '') : '1'}`,
+    `${timePart || ''}`,
+    `Cashier: biller   Bill No.: ${order.kotNumber}`,
+    `Token No.: ${order.kotNumber}`,
+    line,
+    'Item               Qty. Price Amount',
     line,
     ...order.items.map((i) => {
-      const name = i.name.slice(0, 20).padEnd(20, ' ');
+      const name = i.name.slice(0, 17).padEnd(17, ' ');
       const qty = `${i.quantity}`.padStart(3, ' ');
-      const amt = `₹${i.price * i.quantity}`.padStart(5, ' ');
-      return `${name} ${qty} ${amt}`;
+      const price = Number(i.price).toFixed(2).padStart(7, ' ');
+      const amt = Number(i.price * i.quantity).toFixed(2).padStart(7, ' ');
+      return `${name} ${qty} ${price} ${amt}`;
     }),
     line,
-    `TOTAL PAYABLE:            ₹${order.totalAmount}`,
+    `Total Qty: ${totalQty}       Sub Total ${Number(order.totalAmount).toFixed(2)}`,
     line,
-    '  THANK YOU! VISIT AGAIN!',
+    `Grand Total ₹${Number(order.totalAmount).toFixed(2)}`,
+    line,
+    '    Thank You, Visit Again.',
     line
   ]
     .filter(Boolean)

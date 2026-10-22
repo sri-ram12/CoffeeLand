@@ -10,7 +10,7 @@ interface ProductDetailsModalProps {
   onClose: () => void;
   isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
-  onOrderWhatsApp?: (product: Product) => void;
+  onOrderWhatsApp?: (product: Product, quantity?: number) => void;
   onAddToCart?: (product: Product, quantity?: number) => void;
 }
 
@@ -279,7 +279,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
 
                   {onOrderWhatsApp && (
                     <button
-                      onClick={() => onOrderWhatsApp(product)}
+                      onClick={() => onOrderWhatsApp(product, modalQty)}
                       className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
                     >
                       <MessageCircle className="w-4 h-4" />

@@ -21,4 +21,16 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     </BrowserRouter>
   </React.StrictMode>
 );
-
+// Register Progressive Web App (PWA) Service Worker
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((reg) => {
+        console.log('CoffeeLand PWA Service Worker active:', reg.scope);
+      })
+      .catch((err) => {
+        console.warn('PWA Service Worker registration skipped:', err);
+      });
+  });
+}

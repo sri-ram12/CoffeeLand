@@ -97,115 +97,90 @@ export async function generatePersonalizedCardBlob(payload: WhatsAppOrderPayload
 /**
  * Dispatches the order DIRECTLY into the Coffee Land restaurant owner's WhatsApp account:
  * Phone: +91 95425 25665
- * 1. ZERO URL LINKS in the text message - clean order details text only.
- * 2. On Mobile (Android & iOS): uses Web Share API with the real pass card image file,
- *    placing the order details text down in the message caption under the image.
- * 3. On Desktop: opens direct chat with owner and copies pass card to clipboard for 1-click Ctrl+V.
+ * 1. Direct text interaction with the owner (NO image cards in chat).
+ * 2. Formatted clearly LINE-BY-LINE instead of continuous text.
+ * 3. Uses official emojis: 📝 for order, 🍽️ for dine in, 📦 for take away.
+ * 4. Explicitly mentions the selected option color (🔴 Red for Dine-In, 🟢 Green for Takeaway, 🔵 Blue for Delivery).
  */
 export function sendOrderToWhatsApp(payload: WhatsAppOrderPayload): void {
   const phone = '919542525665';
   const dining = payload.diningOption;
-  const emoji = dining === 'Dine-In' ? '🔴' : dining === 'Delivery' ? '🔵' : '🟢';
-  const orderId = payload.orderId || `CL-${Date.now().toString().slice(-6)}`;
 
-  // Build clean message: single item or itemized multi-item list (NO LINK!)
-  let orderDetailsBlock = `🍽️ *Item:* ${payload.itemName} (₹${payload.price})`;
-  if (payload.items && payload.items.length > 1) {
-    const totalQty = payload.items.reduce((sum, i) => sum + i.quantity, 0);
-    const itemListLines = payload.items
-      .map((i) => `• ${i.quantity}x ${i.name} - ₹${i.price * i.quantity}`)
+  // Selected Option Emojis and Color designations
+  const optionInfo =
+    dining === 'Dine-In'
+      ? { emoji: '🍽️', label: 'Dine In', colorTag: '🔴 Red' }
+      : dining === 'Takeaway'
+      ? { emoji: '📦', label: 'Take Away', colorTag: '🟢 Green' }
+      : { emoji: '🚚', label: 'Home Delivery', colorTag: '🔵 Blue' };
+
+  // Current formatted time for owner's reference
+  const now = new Date();
+  const timeString = now.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  // Build line-by-line item list
+  let itemsListText = '';
+  if (payload.items && payload.items.length > 0) {
+    itemsListText = payload.items
+      .map((item) => `• ${item.quantity}x ${item.name} - ₹${item.price * item.quantity}`)
       .join('\n');
-    orderDetailsBlock = `🍽️ *Items (${totalQty} Total):*\n${itemListLines}\n💰 *Total Bill:* ₹${payload.price}`;
+  } else {
+    itemsListText = `• 1x ${payload.itemName} - ₹${payload.price}`;
   }
 
-  // Pure clean text directly from customer to restaurant owner - NO URL LINK!
-  const cleanOrderMessage = `Hello Coffee Land! 👋
-I would like to place a ${emoji} *${dining} Order*:
-${orderDetailsBlock}
-👤 *Guest:* ${payload.customerName || 'Guest'}${payload.customerPhone ? ` (${payload.customerPhone})` : ''}
-${payload.customNote ? `📝 *Details:* ${payload.customNote}\n` : ''}Please confirm my order pass! Thank you.`;
+  // Construct structured line-by-line WhatsApp message
+  const lines: string[] = [
+    '📝 *NEW ORDER - COFFEE LAND*',
+    '',
+    `${optionInfo.emoji} *Order Type:* ${optionInfo.label} (${optionInfo.colorTag})`,
+    `👤 *Customer Name:* ${payload.customerName || 'Direct Guest'}`,
+  ];
 
-  // 1. Try Native Web Share API with Image File (Mobile Chrome/Safari)
-  // Attaches the real card image file with the clean order details down in the message caption
-  if (payload.cardBlob) {
-    try {
-      const cardFile = new File([payload.cardBlob], `CoffeeLand-${dining}-Pass-${orderId}.jpg`, {
-        type: 'image/jpeg',
-      });
-      if (
-        typeof navigator !== 'undefined' &&
-        typeof navigator.share === 'function' &&
-        typeof navigator.canShare === 'function' &&
-        navigator.canShare({ files: [cardFile] })
-      ) {
-        navigator
-          .share({
-            files: [cardFile],
-            text: cleanOrderMessage,
-            title: `Coffee Land ${dining} Order Pass`,
-          })
-          .catch((err) => {
-            if ((err as Error).name !== 'AbortError') {
-              console.warn('Web Share failed, using direct WhatsApp fallback', err);
-            }
-          });
-        return;
-      }
-    } catch (e) {
-      console.warn('File share check failed', e);
-    }
+  if (payload.customerPhone && payload.customerPhone.trim()) {
+    lines.push(`📞 *Phone Number:* ${payload.customerPhone.trim()}`);
   }
 
-  // 2. Direct WhatsApp links targeting owner's exact phone number (+91 95425 25665)
-  const encodedText = encodeURIComponent(cleanOrderMessage);
-  const isMobile =
-    typeof navigator !== 'undefined' &&
-    /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (payload.customNote && payload.customNote.trim()) {
+    const noteIcon = dining === 'Dine-In' ? '🪑' : dining === 'Takeaway' ? '📦' : '🏠';
+    lines.push(`${noteIcon} *Order Details:* ${payload.customNote.trim()}`);
+  }
 
-  const directOwnerApiUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`;
+  if (payload.promoCode && payload.promoCode.trim()) {
+    lines.push(`🏷️ *Promo Code:* ${payload.promoCode.trim()}`);
+  }
+
+  lines.push('');
+  lines.push('📝 *ITEMS ORDERED:*');
+  lines.push(itemsListText);
+  lines.push('');
+  lines.push(`💰 *Total Bill:* ₹${payload.price}`);
+  lines.push(`⏰ *Time:* ${timeString}`);
+  lines.push('');
+  lines.push('Please confirm this order. Thank you! 🙏');
+
+  const fullOrderMessage = lines.join('\n');
+
+  // Direct WhatsApp dispatch targeting owner (+91 95425 25665)
+  const encodedText = encodeURIComponent(fullOrderMessage);
+  const directOwnerUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`;
 
   if (typeof window !== 'undefined') {
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+
     if (isMobile) {
-      window.location.href = directOwnerApiUrl;
+      window.location.href = directOwnerUrl;
     } else {
-      const opened = window.open(directOwnerApiUrl, '_blank');
+      const opened = window.open(directOwnerUrl, '_blank');
       if (!opened || opened.closed || typeof opened.closed === 'undefined') {
-        window.location.href = directOwnerApiUrl;
+        window.location.href = directOwnerUrl;
       }
     }
   }
-
-  // 3. Background copy to clipboard for Desktop (Ctrl+V into chat)
-  const cardBlobPromise = payload.cardBlob
-    ? Promise.resolve(payload.cardBlob)
-    : generatePersonalizedCardBlob(payload);
-
-  cardBlobPromise
-    .then((cardBlob) => {
-      if (cardBlob && typeof navigator !== 'undefined' && navigator.clipboard && typeof ClipboardItem !== 'undefined') {
-        try {
-          const canvas = document.createElement('canvas');
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          img.src = URL.createObjectURL(cardBlob);
-          img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0);
-              canvas.toBlob((pngBlob) => {
-                if (pngBlob) {
-                  navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]).catch(() => {});
-                }
-              }, 'image/png');
-            }
-          };
-        } catch {
-          // Non-blocking clipboard copy
-        }
-      }
-    })
-    .catch(() => {});
 }
 

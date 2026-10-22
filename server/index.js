@@ -97,6 +97,43 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 // ==========================================
+// 1B. EMERGENCY STOP & WEBSITE MAINTENANCE
+// ==========================================
+app.get('/api/settings', (req, res) => {
+  const settings = readJson('settings.json', {
+    maintenanceMode: false,
+    maintenanceReason: 'Scheduled maintenance and security updates in progress. Storefront ordering is temporarily paused.',
+    stoppedAt: null
+  });
+  res.json(settings);
+});
+
+app.post('/api/settings/maintenance', (req, res) => {
+  const settings = readJson('settings.json', {
+    maintenanceMode: false,
+    maintenanceReason: 'Scheduled maintenance and security updates in progress. Storefront ordering is temporarily paused.',
+    stoppedAt: null
+  });
+
+  const { maintenanceMode, maintenanceReason } = req.body;
+  settings.maintenanceMode = Boolean(maintenanceMode);
+  if (maintenanceReason) {
+    settings.maintenanceReason = maintenanceReason;
+  }
+  settings.stoppedAt = settings.maintenanceMode ? new Date().toISOString() : null;
+
+  writeJson('settings.json', settings);
+  res.json({
+    success: true,
+    maintenanceMode: settings.maintenanceMode,
+    maintenanceReason: settings.maintenanceReason,
+    stoppedAt: settings.stoppedAt,
+    message: settings.maintenanceMode ? 'Website has been STOPPED for emergency maintenance.' : 'Website is now LIVE and accessible to the public.'
+  });
+});
+
+
+// ==========================================
 // 2. FOOD MENU ITEMS (250 items catalog)
 // ==========================================
 app.get('/api/products', (req, res) => {
