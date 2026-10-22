@@ -1,4 +1,4 @@
-import { Product, KotOrder } from '../types/product';
+import { Product, KotOrder, RawMaterialEntry } from '../types/product';
 import { OfferBanner, WhatsAppInquiry } from '../types/banner';
 import { Review } from '../types/review';
 
@@ -345,5 +345,119 @@ export const api = {
   // Server Excel Download URL Helper
   getExportUrl(type: 'inquiries' | 'banners' | 'menu' | 'pos-orders' | 'daily-sales'): string {
     return `${API_BASE}/export/${type}`;
+  },
+
+  // Raw Materials Management
+  async getRawMaterials(): Promise<RawMaterialEntry[]> {
+    try {
+      const res = await fetch(`${API_BASE}/raw-materials`);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          localStorage.setItem('coffeeland_raw_materials_v1', JSON.stringify(data));
+          return data;
+        }
+      }
+    } catch (e) {
+      console.warn('API getRawMaterials failed, using offline fallback', e);
+    }
+    try {
+      const saved = localStorage.getItem('coffeeland_raw_materials_v1');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return [];
+  },
+
+  async addRawMaterial(item: Partial<RawMaterialEntry>): Promise<RawMaterialEntry | null> {
+    const fallbackItem: RawMaterialEntry = {
+      id: item.id || `raw-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      name: item.name || 'Raw Material',
+      category: item.category || 'Coffee & Beverages',
+      quantity: Number(item.quantity) || 0,
+      unit: item.unit || 'kg',
+      costRs: Number(item.costRs) || 0,
+      status: item.status || 'Required',
+      supplier: item.supplier || '',
+      date: item.date || new Date().toISOString().split('T')[0],
+      notes: item.notes || ''
+    };
+
+    let resultItem = fallbackItem;
+
+    try {
+      const res = await fetch(`${API_BASE}/raw-materials`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+      });
+      if (res.ok) {
+        resultItem = await res.json();
+      }
+    } catch (e) {
+      console.warn('API addRawMaterial failed, using offline fallback', e);
+    }
+
+    try {
+      const saved = localStorage.getItem('coffeeland_raw_materials_v1');
+      const list: RawMaterialEntry[] = saved ? JSON.parse(saved) : [];
+      const filtered = list.filter(m => String(m.id).trim() !== String(resultItem.id).trim());
+      filtered.unshift(resultItem);
+      localStorage.setItem('coffeeland_raw_materials_v1', JSON.stringify(filtered));
+    } catch {}
+
+    return resultItem;
+  },
+
+  async updateRawMaterial(id: string, updates: Partial<RawMaterialEntry>): Promise<boolean> {
+    const cleanId = String(id).trim();
+
+    try {
+      const saved = localStorage.getItem('coffeeland_raw_materials_v1');
+      if (saved) {
+        const list: RawMaterialEntry[] = JSON.parse(saved);
+        const idx = list.findIndex(m => String(m.id).trim() === cleanId);
+        if (idx !== -1) {
+          list[idx] = { ...list[idx], ...updates };
+          localStorage.setItem('coffeeland_raw_materials_v1', JSON.stringify(list));
+        }
+      }
+    } catch {}
+
+    try {
+      const res = await fetch(`${API_BASE}/raw-materials/${encodeURIComponent(cleanId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (res.ok) return true;
+    } catch (e) {
+      console.warn('API updateRawMaterial failed, updating local storage', e);
+    }
+    return true;
+  },
+
+  async deleteRawMaterial(id: string): Promise<boolean> {
+    const cleanId = String(id).trim();
+
+    // 1. Immediately delete from localStorage cache
+    try {
+      const saved = localStorage.getItem('coffeeland_raw_materials_v1');
+      if (saved) {
+        let list: RawMaterialEntry[] = JSON.parse(saved);
+        list = list.filter(m => String(m.id).trim() !== cleanId);
+        localStorage.setItem('coffeeland_raw_materials_v1', JSON.stringify(list));
+      }
+    } catch (e) {
+      console.warn('Failed to delete from local storage', e);
+    }
+
+    // 2. Send DELETE to backend server
+    try {
+      const res = await fetch(`${API_BASE}/raw-materials/${encodeURIComponent(cleanId)}`, { method: 'DELETE' });
+      if (res.ok) return true;
+    } catch (e) {
+      console.warn('API deleteRawMaterial failed, local storage deleted', e);
+    }
+    return true;
   }
 };

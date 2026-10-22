@@ -21,7 +21,13 @@ import {
 } from 'lucide-react';
 import { Product } from '../types/product';
 import { api } from '../services/api';
-import { printThermalSlip, generatePlainTextTicket, ThermalPaperWidth } from '../services/thermalPrinter';
+import {
+  printThermalSlip,
+  generatePlainTextTicket,
+  formatReceiptDateTime,
+  formatTableDisplay,
+  ThermalPaperWidth
+} from '../services/thermalPrinter';
 
 export interface KotItem {
   id: string;
@@ -768,100 +774,150 @@ export const AdminKotPos: React.FC<AdminKotPosProps> = ({ products, externalPrin
               </div>
             </div>
 
+            {/* Roll Paper Setting Tip Banner */}
+            <div className="px-4 py-2 bg-amber-50 border-b border-amber-200/80 text-[11px] text-amber-950 flex items-center gap-2">
+              <span className="text-sm">💡</span>
+              <p className="leading-tight">
+                <strong>Roll Paper Tip:</strong> In the browser print dialog, select <strong>Margins: None</strong> and <strong>Paper: Roll Paper / 80mm</strong> to stop feeding extra A4 blank length.
+              </p>
+            </div>
+
             {/* Realistic Thermal Receipt Paper Preview Card */}
             <div className="p-4 sm:p-6 overflow-y-auto flex-1 flex justify-center bg-[#2B1B16]/5">
               <div
-                className={`bg-white shadow-lg p-5 text-black border border-neutral-300 rounded-sm font-mono leading-relaxed transition-all ${
+                className={`bg-white shadow-lg p-4 sm:p-5 text-black border border-neutral-300 rounded-sm font-sans leading-relaxed transition-all ${
                   paperWidth === '58mm' ? 'w-[230px] text-[11px]' : 'w-[290px] text-xs'
                 }`}
                 style={{
                   boxShadow: '0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06)'
                 }}
               >
-                {/* Cafe Header */}
-                <div className="text-center font-black tracking-widest text-sm uppercase">COFFEE LAND</div>
-                <div className="text-center text-[10px] text-neutral-600 font-sans">
-                  {activePrint.mode === 'kot' ? '★ KITCHEN ORDER TICKET (KOT) ★' : 'Specialty Coffee & Cafe • Sangivalasa'}
-                </div>
-
-                <div className="border-b-2 border-black my-2" />
-
-                {/* Big Token Indicator Box */}
-                <div className="border-2 border-black p-1.5 text-center my-2 bg-neutral-50">
-                  <div className="text-[10px] font-bold tracking-wider text-neutral-600">TOKEN NUMBER</div>
-                  <div className="text-xl sm:text-2xl font-black">#KOT-{activePrint.order.kotNumber}</div>
-                </div>
-
-                {/* Metadata Details */}
-                <div className="text-[10px] sm:text-[11px] space-y-0.5 font-bold">
-                  <div><strong>TYPE:</strong> [ {activePrint.order.orderType.toUpperCase()} ]</div>
-                  <div><strong>TABLE:</strong> {activePrint.order.tableNumber.toUpperCase()}</div>
-                  <div><strong>TIME:</strong> {new Date(activePrint.order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
-                  {activePrint.order.customerName && activePrint.order.customerName !== 'Guest Customer' && (
-                    <div><strong>GUEST:</strong> {activePrint.order.customerName}</div>
-                  )}
-                  {activePrint.order.customerPhone && (
-                    <div><strong>PHONE:</strong> {activePrint.order.customerPhone}</div>
-                  )}
-                </div>
-
-                <div className="border-b border-dashed border-black my-2" />
-
-                {/* Item List Header */}
-                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider mb-1">
-                  <span>QTY & ITEM NAME</span>
-                  <span>{activePrint.mode === 'kot' ? 'STATUS' : 'AMOUNT'}</span>
-                </div>
-
-                <div className="border-b-2 border-black my-1" />
-
-                {/* Items */}
-                <div className="space-y-1.5">
-                  {activePrint.order.items.map((item, i) => (
-                    <div key={i}>
-                      <div className="flex justify-between items-start font-bold">
-                        <span className="text-sm font-black mr-1 text-black">{item.quantity}x</span>
-                        <span className="flex-1 text-left">{item.name}</span>
-                        {activePrint.mode === 'bill' && (
-                          <span className="text-right ml-2 font-bold whitespace-nowrap">₹{item.price * item.quantity}</span>
-                        )}
-                        {activePrint.mode === 'kot' && (
-                          <span className="text-[9px] px-1 border border-black font-bold">COOK</span>
-                        )}
-                      </div>
-                      {item.notes && (
-                        <div className="text-[10px] italic pl-4 text-neutral-700">&#8627; {item.notes}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                <div className="border-b border-dashed border-black my-2" />
-
                 {activePrint.mode === 'kot' ? (
-                  <div className="flex justify-between font-bold text-[11px]">
-                    <span>TOTAL ITEMS: {activePrint.order.items.length}</span>
-                    <span>TOTAL QTY: {activePrint.order.items.reduce((s, it) => s + it.quantity, 0)}</span>
+                  /* ======================================================== */
+                  /* CLEAN REFERENCE KOT SLIP                                 */
+                  /* ======================================================== */
+                  <div className="text-center font-sans">
+                    <div className="font-semibold text-sm sm:text-base text-black">
+                      {activePrint.order.orderType === 'Dine-In' ? 'Running Table' : activePrint.order.orderType}
+                    </div>
+                    <div className="text-xs sm:text-sm text-neutral-800">
+                      {formatReceiptDateTime(activePrint.order.timestamp)}
+                    </div>
+                    <div className="font-bold text-base sm:text-lg text-black mt-0.5">
+                      KOT - {activePrint.order.kotNumber}
+                    </div>
+                    <div className="font-bold text-xs sm:text-sm text-black">
+                      {activePrint.order.orderType === 'Dine-In' ? 'Dine In' : activePrint.order.orderType}
+                    </div>
+                    <div className="font-extrabold text-sm sm:text-base text-black mb-1">
+                      {formatTableDisplay(activePrint.order.tableNumber, activePrint.order.orderType)}
+                    </div>
+
+                    <div className="border-b border-dashed border-black my-2" />
+
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-dashed border-black text-[11px] sm:text-xs">
+                          <th className="py-1 font-bold text-black text-left w-[54%]">Item</th>
+                          <th className="py-1 font-bold text-black text-center w-[28%] leading-tight">Special<br />Note</th>
+                          <th className="py-1 font-bold text-black text-right w-[18%]">Qty.</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activePrint.order.items.map((item, i) => (
+                          <tr key={i} className="text-xs sm:text-sm align-top">
+                            <td className="py-1 font-bold text-black pr-1">{item.name}</td>
+                            <td className="py-1 text-center text-neutral-700 text-[11px] sm:text-xs">
+                              {item.notes && item.notes.trim() ? item.notes : '--'}
+                            </td>
+                            <td className="py-1 text-right font-bold text-black">{item.quantity}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    {activePrint.order.chefNotes && (
+                      <div className="border-t border-dashed border-black mt-2 pt-1 text-left text-xs font-semibold text-black">
+                        <span>Special Note: </span>
+                        <span className="font-normal">{activePrint.order.chefNotes}</span>
+                      </div>
+                    )}
+
+                    {activePrint.order.customerName && activePrint.order.customerName !== 'Guest Customer' && (
+                      <div className="border-t border-dashed border-black mt-2 pt-1 text-center text-[11px] text-neutral-800">
+                        Guest: {activePrint.order.customerName}
+                        {activePrint.order.customerPhone ? ` • ${activePrint.order.customerPhone}` : ''}
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div className="flex justify-between font-black text-sm border-t-2 border-b-2 border-black py-1 my-2">
-                    <span>NET PAYABLE:</span>
-                    <span>₹{activePrint.order.totalAmount}</span>
+                  /* ======================================================== */
+                  /* CLEAN CUSTOMER BILL RECEIPT                             */
+                  /* ======================================================== */
+                  <div className="font-sans">
+                    <div className="text-center font-extrabold text-base tracking-wider uppercase text-black">COFFEE LAND</div>
+                    <div className="text-center text-[10px] text-neutral-600">Specialty Coffee &amp; Cafe • Sangivalasa</div>
+
+                    <div className="border-b border-dashed border-black my-2" />
+
+                    <div className="text-xs space-y-0.5">
+                      <div className="flex justify-between font-bold">
+                        <span>Bill #: #{activePrint.order.kotNumber}</span>
+                        <span>{activePrint.order.orderType.toUpperCase()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-bold">{formatTableDisplay(activePrint.order.tableNumber, activePrint.order.orderType)}</span>
+                        <span className="text-neutral-700">{formatReceiptDateTime(activePrint.order.timestamp)}</span>
+                      </div>
+                      {activePrint.order.customerName && activePrint.order.customerName !== 'Guest Customer' && (
+                        <div className="text-[11px]">Customer: {activePrint.order.customerName}</div>
+                      )}
+                      {activePrint.order.customerPhone && (
+                        <div className="text-[11px]">Phone: {activePrint.order.customerPhone}</div>
+                      )}
+                    </div>
+
+                    <div className="border-b border-dashed border-black my-2" />
+
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="border-b border-dashed border-black text-[10px] font-bold uppercase">
+                          <th className="py-1 text-left">Item</th>
+                          <th className="py-1 text-center">Qty</th>
+                          <th className="py-1 text-right">Price</th>
+                          <th className="py-1 text-right">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activePrint.order.items.map((item, i) => (
+                          <React.Fragment key={i}>
+                            <tr className="align-top">
+                              <td className="py-1 font-bold text-black">{item.name}</td>
+                              <td className="py-1 text-center">{item.quantity}</td>
+                              <td className="py-1 text-right">₹{item.price}</td>
+                              <td className="py-1 text-right font-bold">₹{item.price * item.quantity}</td>
+                            </tr>
+                            {item.notes && (
+                              <tr>
+                                <td colSpan={4} className="text-[10px] italic text-neutral-600 pl-2 pb-1">
+                                  * {item.notes}
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    <div className="border-t border-b border-dashed border-black my-2 py-1.5 flex justify-between font-extrabold text-sm sm:text-base">
+                      <span>NET PAYABLE:</span>
+                      <span>₹{activePrint.order.totalAmount}</span>
+                    </div>
+
+                    <div className="text-center font-bold text-xs mt-2">THANK YOU FOR VISITING!</div>
+                    <div className="text-center text-[10px] text-neutral-600">Please Visit Coffee Land Again</div>
                   </div>
                 )}
-
-                {activePrint.order.chefNotes && (
-                  <div className="mt-2 p-1.5 bg-neutral-100 border border-black text-[10px] font-bold">
-                    NOTE: {activePrint.order.chefNotes}
-                  </div>
-                )}
-
-                <div className="border-b-2 border-black my-2" />
-                <div className="text-center text-[9px] font-bold">
-                  {activePrint.mode === 'kot'
-                    ? '--- KITCHEN COPY • PUNCHED AT CAFE ---'
-                    : 'THANK YOU FOR VISITING! PLEASE VISIT AGAIN.'}
-                </div>
               </div>
             </div>
 
@@ -911,61 +967,117 @@ export const AdminKotPos: React.FC<AdminKotPosProps> = ({ products, externalPrin
       {/* Fallback Thermal Slip Container for Native Browser Ctrl+P / Direct Print */}
       {activePrint && (
         <div id="thermal-print-slip" className="hidden print:block">
-          <div style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.25', color: '#000', padding: '2mm', margin: '0' }}>
-            <div style={{ fontWeight: '900', fontSize: '16px', textAlign: 'center' }}>
-              COFFEE LAND
-            </div>
-            <div style={{ fontSize: '11px', textAlign: 'center', fontWeight: 'bold' }}>
-              {activePrint.mode === 'kot' ? '* KITCHEN ORDER TICKET (KOT) *' : '* CUSTOMER RECEIPT *'}
-            </div>
-            <div style={{ borderBottom: '2px solid #000', margin: '4px 0' }} />
-            <div style={{ border: '2px solid #000', padding: '4px', textAlign: 'center', margin: '4px 0' }}>
-              <div style={{ fontSize: '11px', fontWeight: 'bold' }}>TOKEN NUMBER</div>
-              <div style={{ fontSize: '20px', fontWeight: '900' }}>#KOT-{activePrint.order.kotNumber}</div>
-            </div>
-            <div style={{ fontSize: '11px', fontWeight: 'bold' }}>
-              <div>TYPE: [ {activePrint.order.orderType.toUpperCase()} ] | {activePrint.order.tableNumber.toUpperCase()}</div>
-              <div>TIME: {new Date(activePrint.order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+          {activePrint.mode === 'kot' ? (
+            <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif', fontSize: '12px', lineHeight: '1.25', color: '#000', padding: '1mm', margin: '0', textAlign: 'center' }}>
+              <div style={{ fontWeight: '600', fontSize: '15px' }}>
+                {activePrint.order.orderType === 'Dine-In' ? 'Running Table' : activePrint.order.orderType}
+              </div>
+              <div style={{ fontSize: '12px', color: '#111', margin: '1px 0' }}>
+                {formatReceiptDateTime(activePrint.order.timestamp)}
+              </div>
+              <div style={{ fontWeight: '700', fontSize: '17px', margin: '1px 0' }}>
+                KOT - {activePrint.order.kotNumber}
+              </div>
+              <div style={{ fontWeight: '700', fontSize: '14px', margin: '1px 0' }}>
+                {activePrint.order.orderType === 'Dine-In' ? 'Dine In' : activePrint.order.orderType}
+              </div>
+              <div style={{ fontWeight: '800', fontSize: '16px', margin: '2px 0 4px' }}>
+                {formatTableDisplay(activePrint.order.tableNumber, activePrint.order.orderType)}
+              </div>
+
+              <table style={{ width: '100%', borderCollapse: 'collapse', margin: '2px 0', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ borderTop: '1px dashed #000', borderBottom: '1px dashed #000', fontSize: '11px' }}>
+                    <th style={{ textAlign: 'left', padding: '3px 0', width: '54%', fontWeight: '700' }}>Item</th>
+                    <th style={{ textAlign: 'center', padding: '3px 0', width: '28%', fontWeight: '700', lineHeight: '1.1' }}>Special<br />Note</th>
+                    <th style={{ textAlign: 'right', padding: '3px 0', width: '18%', fontWeight: '700' }}>Qty.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activePrint.order.items.map((item, i) => (
+                    <tr key={i} style={{ fontSize: '12px', verticalAlign: 'top' }}>
+                      <td style={{ textAlign: 'left', padding: '3px 0', fontWeight: '700', wordBreak: 'break-word' }}>{item.name}</td>
+                      <td style={{ textAlign: 'center', padding: '3px 0', fontWeight: 'normal', fontSize: '11px' }}>
+                        {item.notes && item.notes.trim() ? item.notes : '--'}
+                      </td>
+                      <td style={{ textAlign: 'right', padding: '3px 0', fontWeight: '700' }}>{item.quantity}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {activePrint.order.chefNotes && (
+                <div style={{ borderTop: '1px dashed #000', marginTop: '4px', paddingTop: '3px', textAlign: 'left', fontSize: '11px' }}>
+                  <strong>Special Note:</strong> {activePrint.order.chefNotes}
+                </div>
+              )}
+
               {activePrint.order.customerName && activePrint.order.customerName !== 'Guest Customer' && (
-                <div>GUEST: {activePrint.order.customerName}</div>
+                <div style={{ borderTop: '1px dashed #000', marginTop: '4px', paddingTop: '3px', fontSize: '10px', textAlign: 'center' }}>
+                  Guest: {activePrint.order.customerName}{activePrint.order.customerPhone ? ` • ${activePrint.order.customerPhone}` : ''}
+                </div>
               )}
             </div>
-            <div style={{ borderBottom: '1px dashed #000', margin: '4px 0' }} />
-            <div style={{ fontSize: '12px', fontWeight: 'bold' }}>
-              {activePrint.order.items.map((item, i) => (
-                <div key={i} style={{ margin: '3px 0' }}>
-                  <span style={{ fontSize: '14px', fontWeight: '900' }}>{item.quantity}x </span>
-                  <span>{item.name}</span>
-                  {activePrint.mode === 'bill' && (
-                    <span style={{ float: 'right' }}>₹{item.price * item.quantity}</span>
-                  )}
-                  {item.notes && (
-                    <div style={{ fontSize: '10px', fontStyle: 'italic', paddingLeft: '20px' }}>
-                      * {item.notes}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            <div style={{ borderBottom: '1px dashed #000', margin: '4px 0' }} />
-            {activePrint.mode === 'kot' ? (
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '11px' }}>
-                <span>ITEMS: {activePrint.order.items.length}</span>
-                <span>QTY: {activePrint.order.items.reduce((s, it) => s + it.quantity, 0)}</span>
+          ) : (
+            <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif', fontSize: '12px', lineHeight: '1.3', color: '#000', padding: '1mm', margin: '0' }}>
+              <div style={{ fontWeight: '800', fontSize: '16px', textAlign: 'center', letterSpacing: '0.5px' }}>
+                COFFEE LAND
               </div>
-            ) : (
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '900', fontSize: '14px', borderTop: '2px solid #000', borderBottom: '2px solid #000', padding: '3px 0' }}>
-                <span>TOTAL:</span>
+              <div style={{ fontSize: '10px', textAlign: 'center', color: '#333' }}>
+                Specialty Coffee &amp; Cafe • Sangivalasa
+              </div>
+              <div style={{ borderBottom: '1px dashed #000', margin: '4px 0' }} />
+              <div style={{ fontSize: '11px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span><strong>Bill #:</strong> #{activePrint.order.kotNumber}</span>
+                  <span><strong>{activePrint.order.orderType.toUpperCase()}</strong></span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span><strong>{formatTableDisplay(activePrint.order.tableNumber, activePrint.order.orderType)}</strong></span>
+                  <span>{formatReceiptDateTime(activePrint.order.timestamp)}</span>
+                </div>
+                {activePrint.order.customerName && activePrint.order.customerName !== 'Guest Customer' && (
+                  <div><strong>Customer:</strong> {activePrint.order.customerName}</div>
+                )}
+              </div>
+              <table style={{ width: '100%', borderCollapse: 'collapse', margin: '3px 0', fontSize: '11px' }}>
+                <thead>
+                  <tr style={{ borderTop: '1px dashed #000', borderBottom: '1px dashed #000' }}>
+                    <th style={{ textAlign: 'left', width: '50%', padding: '3px 0' }}>Item</th>
+                    <th style={{ textAlign: 'center', width: '14%', padding: '3px 0' }}>Qty</th>
+                    <th style={{ textAlign: 'right', width: '18%', padding: '3px 0' }}>Price</th>
+                    <th style={{ textAlign: 'right', width: '18%', padding: '3px 0' }}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activePrint.order.items.map((item, i) => (
+                    <React.Fragment key={i}>
+                      <tr style={{ verticalAlign: 'top' }}>
+                        <td style={{ textAlign: 'left', fontWeight: 'bold', padding: '2px 0' }}>{item.name}</td>
+                        <td style={{ textAlign: 'center', padding: '2px 0' }}>{item.quantity}</td>
+                        <td style={{ textAlign: 'right', padding: '2px 0' }}>₹{item.price}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 'bold', padding: '2px 0' }}>₹{item.price * item.quantity}</td>
+                      </tr>
+                      {item.notes && (
+                        <tr>
+                          <td colSpan={4} style={{ fontSize: '9px', fontStyle: 'italic', paddingLeft: '6px', paddingBottom: '2px' }}>
+                            * {item.notes}
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '800', fontSize: '14px', borderTop: '1px dashed #000', borderBottom: '1px dashed #000', padding: '4px 0', margin: '4px 0' }}>
+                <span>NET PAYABLE:</span>
                 <span>₹{activePrint.order.totalAmount}</span>
               </div>
-            )}
-            {activePrint.order.chefNotes && (
-              <div style={{ borderTop: '1px dotted #000', marginTop: '4px', paddingTop: '3px', fontSize: '11px', fontWeight: 'bold' }}>
-                NOTE: {activePrint.order.chefNotes}
+              <div style={{ textAlign: 'center', fontWeight: '700', fontSize: '10px', marginTop: '4px' }}>
+                THANK YOU FOR VISITING!
               </div>
-            )}
-            <div style={{ borderBottom: '2px solid #000', margin: '4px 0' }} />
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -181,11 +181,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                 />
 
-                {/* Hot Food Vapour and Fog Animation */}
-                {product.inStock !== false && isHotFoodItem(product.category, product.name) && (
-                  <HotFoodVapourEffect intensity="subtle" />
-                )}
-
                 <div className="absolute top-1 left-1 z-20">
                   <span
                     className={`w-3.5 h-3.5 rounded-xs border flex items-center justify-center bg-white/95 shadow-xs ${

@@ -25,7 +25,7 @@ export const ScrollToTop: React.FC = () => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full gold-button-gradient text-espresso-950 font-bold flex items-center justify-center shadow-gold hover:scale-110 active:scale-90 transition-all border border-caramel-300"
+          className="hidden md:flex fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full gold-button-gradient text-white font-bold items-center justify-center shadow-gold hover:scale-110 active:scale-90 transition-all border border-caramel-300"
           aria-label="Scroll to top"
           title="Scroll to top"
         >

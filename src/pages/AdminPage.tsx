@@ -47,7 +47,8 @@ import {
   Phone,
   UtensilsCrossed,
   Truck,
-  ShoppingBag
+  ShoppingBag,
+  Layers
 } from 'lucide-react';
 import { OfferBanner, BannerColorTheme, WhatsAppInquiry } from '../types/banner';
 import { Product } from '../types/product';
@@ -62,6 +63,8 @@ import {
 } from '../services/excelExport';
 import { AdminKotPos, KotOrder } from '../components/AdminKotPos';
 import { AdminDailyConsumption } from '../components/AdminDailyConsumption';
+import { AdminSalesAnalytics } from '../components/AdminSalesAnalytics';
+import { AdminRawMaterials } from '../components/AdminRawMaterials';
 
 const COLOR_THEMES: { id: BannerColorTheme; label: string; previewClass: string }[] = [
   { id: 'terracotta', label: 'Terracotta Rust', previewClass: 'bg-[#802B12]' },
@@ -83,7 +86,7 @@ export const AdminPage: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(false);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<'banners' | 'menu' | 'inquiries' | 'kot' | 'analytics' | 'excel' | 'reviews' | 'keepalive'>('banners');
+  const [activeTab, setActiveTab] = useState<'banners' | 'menu' | 'inquiries' | 'kot' | 'analytics' | 'raw-materials' | 'excel' | 'reviews' | 'keepalive'>('banners');
   const [externalPrintKot, setExternalPrintKot] = useState<KotOrder | null>(null);
 
   // Backend Health & Keep-Alive State
@@ -677,8 +680,20 @@ export const AdminPage: React.FC = () => {
                 : 'bg-white hover:bg-emerald-50 text-espresso-800 border border-terracotta/20'
             }`}
           >
-            <TrendingUp className="w-4 h-4 text-emerald-600" />
-            <span>Today's Sales & Raw Materials</span>
+            <BarChart3 className="w-4 h-4 text-emerald-600" />
+            <span>Sales Analytics & Graphs</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('raw-materials')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all shrink-0 ${
+              activeTab === 'raw-materials'
+                ? 'bg-espresso-950 text-amber-300 shadow-md ring-2 ring-amber-400'
+                : 'bg-white hover:bg-amber-50 text-espresso-800 border border-terracotta/20'
+            }`}
+          >
+            <Layers className="w-4 h-4 text-terracotta" />
+            <span>Raw Materials (Qty & Rs)</span>
           </button>
 
           <button
@@ -1694,10 +1709,17 @@ export const AdminPage: React.FC = () => {
         )}
 
         {/* ======================================================== */}
-        {/* TAB 3.6: TODAY'S SALES & RAW MATERIALS CONSUMPTION */}
+        {/* TAB 3.6: VIRTUAL SALES ANALYTICS & GRAPHS (TODAY/WEEK/MONTH) */}
         {/* ======================================================== */}
         {activeTab === 'analytics' && (
-          <AdminDailyConsumption inquiries={inquiries} posOrders={posOrders} />
+          <AdminSalesAnalytics inquiries={inquiries} posOrders={posOrders} />
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 3.7: RAW MATERIALS REQUIREMENTS & INVENTORY (QTY & RS) */}
+        {/* ======================================================== */}
+        {activeTab === 'raw-materials' && (
+          <AdminRawMaterials />
         )}
 
         {/* ======================================================== */}

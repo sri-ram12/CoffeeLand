@@ -25,39 +25,38 @@ export const HeroBackgroundDecor: React.FC = () => {
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
-      {/* 1. Luminous Ambient Color Blurs */}
+      {/* 1. Luminous Ambient Color Blurs (Soft, light, non-dominating) */}
       <motion.div
         animate={{
           scale: [1, 1.15, 1],
-          opacity: [0.18, 0.28, 0.18],
+          opacity: [0.08, 0.14, 0.08],
           x: [-20, 20, -20],
         }}
         transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -top-24 left-1/2 -translate-x-1/2 w-[750px] sm:w-[900px] h-[550px] bg-gradient-to-b from-[#802B12]/20 via-[#B8823F]/15 to-transparent rounded-full blur-3xl pointer-events-none"
+        className="absolute -top-24 left-1/2 -translate-x-1/2 w-[750px] sm:w-[900px] h-[550px] bg-gradient-to-b from-[#802B12]/8 via-[#B8823F]/5 to-transparent rounded-full blur-3xl pointer-events-none"
       />
 
       <motion.div
         animate={{
           scale: [1, 1.2, 1],
-          opacity: [0.12, 0.22, 0.12],
+          opacity: [0.06, 0.12, 0.06],
           y: [-15, 25, -15],
         }}
         transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        className="absolute top-1/4 -left-28 w-[500px] h-[500px] bg-amber-500/15 rounded-full blur-3xl pointer-events-none"
+        className="absolute top-1/4 -left-28 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-3xl pointer-events-none"
       />
 
       <motion.div
         animate={{
           scale: [1.1, 0.95, 1.1],
-          opacity: [0.15, 0.25, 0.15],
+          opacity: [0.06, 0.12, 0.06],
           x: [15, -25, 15],
         }}
         transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        className="absolute top-1/3 -right-24 w-[550px] h-[550px] bg-terracotta/15 rounded-full blur-3xl pointer-events-none"
+        className="absolute top-1/3 -right-24 w-[550px] h-[550px] bg-terracotta/5 rounded-full blur-3xl pointer-events-none"
       />
 
-
-      {/* 3. Floating 3D Animated Coffee Beans with Realistic Depth & Roasted Shine */}
+      {/* 3. Floating Ethereal Coffee Beans (Very Light, Gentle, Latte & Cream Tones) */}
       {coffeeBeans.map((bean) => (
         <motion.div
           key={bean.id}
@@ -80,19 +79,19 @@ export const HeroBackgroundDecor: React.FC = () => {
             width: bean.size,
             height: bean.size * 1.35,
           }}
-          className="absolute opacity-75 hover:opacity-100 transition-opacity filter drop-shadow-[0_8px_12px_rgba(43,27,22,0.35)] pointer-events-none"
+          className="absolute opacity-25 hover:opacity-45 transition-opacity filter drop-shadow-[0_4px_8px_rgba(184,115,51,0.08)] pointer-events-none"
         >
-          {/* Stylized Realistic Coffee Bean SVG */}
+          {/* Stylized Realistic Coffee Bean SVG in Soft Warm Biscuit & Cream */}
           <svg viewBox="0 0 100 135" fill="none" className="w-full h-full">
             <defs>
               <linearGradient id={`beanGrad-${bean.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#9C3B1A" />
-                <stop offset="35%" stopColor="#5E2413" />
-                <stop offset="80%" stopColor="#3A140A" />
-                <stop offset="100%" stopColor="#220B05" />
+                <stop offset="0%" stopColor="#EBD7C3" />
+                <stop offset="40%" stopColor="#DFCAAE" />
+                <stop offset="80%" stopColor="#CEB495" />
+                <stop offset="100%" stopColor="#C0A483" />
               </linearGradient>
               <linearGradient id={`beanHighlight-${bean.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.45" />
+                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.4" />
                 <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
               </linearGradient>
             </defs>
@@ -101,7 +100,7 @@ export const HeroBackgroundDecor: React.FC = () => {
               d="M 50 6 C 82 6, 96 36, 96 67.5 C 96 99, 82 129, 50 129 C 18 129, 4 99, 4 67.5 C 4 36, 18 6, 50 6 Z"
               fill={`url(#beanGrad-${bean.id})`}
             />
-            {/* 3D Roasted Sheen Highlight */}
+            {/* 3D Sheen Highlight */}
             <ellipse
               cx="40"
               cy="35"
@@ -113,26 +112,26 @@ export const HeroBackgroundDecor: React.FC = () => {
             {/* Center Characteristic S-Curve Crease */}
             <path
               d="M 50 10 Q 64 45, 48 67.5 Q 32 90, 50 125"
-              stroke="#E8B878"
-              strokeWidth="5"
+              stroke="#BA9B7B"
+              strokeWidth="4"
               strokeLinecap="round"
-              opacity="0.85"
+              opacity="0.6"
             />
             {/* Crease Shadow Depth */}
             <path
               d="M 51 12 Q 65 47, 49 68.5 Q 33 91, 51 123"
-              stroke="#1A0703"
-              strokeWidth="2.5"
+              stroke="#967757"
+              strokeWidth="2"
               strokeLinecap="round"
-              opacity="0.6"
+              opacity="0.35"
             />
             {/* Rim Highlight */}
             <path
               d="M 26 24 C 16 42, 16 65, 22 82"
-              stroke="#FDE8C7"
-              strokeWidth="2.5"
+              stroke="#FFF3E0"
+              strokeWidth="2"
               strokeLinecap="round"
-              opacity="0.4"
+              opacity="0.3"
             />
           </svg>
         </motion.div>

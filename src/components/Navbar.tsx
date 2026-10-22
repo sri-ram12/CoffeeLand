@@ -116,11 +116,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-terracotta shadow-md transition-transform"
                 />
               </motion.div>
-              <div className="flex flex-col">
+              <div className="flex flex-col min-w-0">
                 <span className="font-serif tracking-tight text-xl sm:text-2xl font-bold text-espresso-950 group-hover:text-terracotta transition-colors leading-none">
                   Coffee <span className="font-serif italic font-semibold text-terracotta">Land</span>
                 </span>
-                <span className="text-[9px] sm:text-[10px] tracking-[0.22em] uppercase text-terracotta-700 font-bold mt-1 font-heading">
+                <span className="text-[8px] xs:text-[9px] sm:text-[10px] tracking-wider sm:tracking-[0.22em] uppercase text-terracotta-700 font-bold mt-0.5 sm:mt-1 font-heading truncate max-w-[170px] xs:max-w-none">
                   RESTO & CAFE • THAGARAPUVALASA
                 </span>
               </div>
@@ -158,52 +158,29 @@ export const Navbar: React.FC<NavbarProps> = ({
               })}
             </nav>
 
-            {/* Fast Action Tools: Orders on WhatsApp, Review, Favorites & Mobile Menu */}
-            <div className="flex items-center gap-2 sm:gap-2.5">
-              {/* Top Orders on WhatsApp Button - Scrolls to #menu for selecting food items (or opens cart if items selected) */}
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (cartCount > 0 && onOpenCart) {
-                    onOpenCart();
-                  } else {
-                    const el = document.querySelector('#menu');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-                className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition-all hover:scale-105 active:scale-95"
-                title="Orders on WhatsApp • Select food items from our 150+ menu"
-              >
-                <MessageCircle className="w-4 h-4 fill-white" />
-                <span className="hidden sm:inline">Orders on WhatsApp</span>
-                <span className="sm:hidden">Orders</span>
-                {cartCount > 0 && (
-                  <span className="px-1.5 py-0.2 bg-white text-emerald-800 rounded-full text-[10px] font-black animate-pulse">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
-
+            {/* Fast Action Tools: Write Review, Favorites & Mobile Menu */}
+            <div className="flex items-center gap-1.5 sm:gap-2.5">
               {/* Upload Photo & Review Button */}
               <button
                 onClick={onOpenReviewModal}
-                className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full bg-terracotta hover:bg-terracotta-600 text-white text-xs font-bold shadow-md transition-all hover:scale-105 active:scale-95"
+                className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-terracotta hover:bg-terracotta-600 text-white text-xs font-bold shadow-md transition-all hover:scale-105 active:scale-95 shrink-0"
                 title="Share your review and photos"
               >
-                <Camera className="w-4 h-4" />
-                <span>Write Review</span>
+                <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden xs:inline">Write Review</span>
+                <span className="xs:hidden">Review</span>
               </button>
 
               {/* Favorites Button with Counter Badge */}
               <button
                 onClick={onOpenFavorites}
-                className="relative p-2.5 rounded-full bg-white border border-terracotta/30 text-espresso-800 hover:text-terracotta hover:border-terracotta transition-all duration-200 shadow-sm"
+                className="relative p-2 sm:p-2.5 rounded-full bg-white border border-terracotta/30 text-espresso-800 hover:text-terracotta hover:border-terracotta transition-all duration-200 shadow-sm shrink-0"
                 title="View Bookmarked Favorites"
                 aria-label="Favorites"
               >
                 <Heart className="w-4 h-4 text-terracotta" />
                 {favoriteCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white font-bold text-[10px] flex items-center justify-center shadow-md animate-pulse">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-red-600 text-white font-bold text-[9px] sm:text-[10px] flex items-center justify-center shadow-md animate-pulse">
                     {favoriteCount}
                   </span>
                 )}
@@ -212,7 +189,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Mobile Hamburger Button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2.5 rounded-full bg-white text-espresso-900 hover:text-terracotta border border-terracotta/30 focus:outline-none shadow-sm"
+                className="lg:hidden p-2 sm:p-2.5 rounded-full bg-white text-espresso-900 hover:text-terracotta border border-terracotta/30 focus:outline-none shadow-sm shrink-0"
                 aria-label="Toggle mobile menu"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}

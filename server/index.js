@@ -357,6 +357,60 @@ app.delete('/api/pos-orders', (req, res) => {
 });
 
 // ==========================================
+// 4.8. RAW MATERIALS INVENTORY & REQUIREMENTS
+// ==========================================
+app.get('/api/raw-materials', (req, res) => {
+  const materials = readJson('raw_materials.json', []);
+  res.json(materials);
+});
+
+app.post('/api/raw-materials', (req, res) => {
+  const materials = readJson('raw_materials.json', []);
+  const newMaterial = {
+    id: req.body.id || `raw-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    name: req.body.name || 'Raw Material',
+    category: req.body.category || 'Coffee & Beverages',
+    quantity: Number(req.body.quantity) || 0,
+    unit: req.body.unit || 'kg',
+    costRs: Number(req.body.costRs) || 0,
+    status: req.body.status || 'Required',
+    supplier: req.body.supplier || '',
+    date: req.body.date || new Date().toISOString().split('T')[0],
+    notes: req.body.notes || ''
+  };
+
+  materials.unshift(newMaterial);
+  writeJson('raw_materials.json', materials);
+  res.status(201).json(newMaterial);
+});
+
+app.put('/api/raw-materials/:id', (req, res) => {
+  const materials = readJson('raw_materials.json', []);
+  const index = materials.findIndex(m => m.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ message: 'Raw material not found' });
+  }
+
+  materials[index] = {
+    ...materials[index],
+    ...req.body
+  };
+
+  writeJson('raw_materials.json', materials);
+  res.json(materials[index]);
+});
+
+app.delete('/api/raw-materials/:id', (req, res) => {
+  let materials = readJson('raw_materials.json', []);
+  const targetId = String(req.params.id || '').trim();
+  const initialCount = materials.length;
+  materials = materials.filter(m => String(m.id || '').trim() !== targetId);
+  writeJson('raw_materials.json', materials);
+  console.log(`[Raw Materials] DELETE id="${targetId}" - count before: ${initialCount}, after: ${materials.length}`);
+  res.json({ success: true, message: 'Raw material deleted', remaining: materials.length });
+});
+
+// ==========================================
 // 5. CUSTOMER RATINGS & PHOTO REVIEWS
 // ==========================================
 app.get('/api/reviews', (req, res) => {

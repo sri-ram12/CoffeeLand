@@ -74,19 +74,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
 
           {/* Official Ribbon Tag */}
-          <div className="inline-block bg-terracotta border-2 border-terracotta-600 px-4 sm:px-5 py-1 rounded-xl shadow-md mb-2.5 max-w-[95vw]">
-            <span className="font-heading font-bold text-white tracking-wider sm:tracking-widest text-[10px] sm:text-xs uppercase block text-center">
+          <div className="inline-block bg-terracotta border-2 border-terracotta-600 px-3 xs:px-4 sm:px-5 py-1 rounded-xl shadow-md mb-2.5 max-w-[95vw]">
+            <span className="font-heading font-bold text-white tracking-wider sm:tracking-widest text-[9px] xs:text-[10px] sm:text-xs uppercase block text-center">
               GOOD FOOD • GREAT COFFEE • BETTER TOGETHER
             </span>
           </div>
 
           {/* Main Brand Title: COFFEE LAND */}
-          <h1 className="font-display tracking-wider text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-espresso-950 uppercase mb-0.5 px-2">
+          <h1 className="font-display tracking-wider text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-espresso-950 uppercase mb-0.5 px-2">
             COFFEE LAND
           </h1>
 
           {/* Cursive Subtitle: Resto & Cafe in Maroon */}
-          <p className="font-handwriting text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#800000] font-bold mb-2 px-2 tracking-wide">
+          <p className="font-handwriting text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#800000] font-bold mb-2 px-2 tracking-wide">
             Resto & Cafe
           </p>
 
@@ -127,7 +127,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           />
 
           {/* 5 Bottom Feature Badges (Borderless & Clean) */}
-          <div className="mt-6 pt-3 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs font-bold text-coffee-800 uppercase tracking-wider">
+          <div className="mt-6 pt-3 flex flex-wrap items-center justify-center gap-2.5 sm:gap-6 text-[10px] xs:text-xs font-bold text-coffee-800 uppercase tracking-wider">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-terracotta" />
               <span>Artisanal Coffee</span>

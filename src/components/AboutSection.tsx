@@ -64,15 +64,15 @@ export const AboutSection: React.FC = () => {
               </div>
 
               {/* Floating Coffee Land Official Logo Seal Badge */}
-              <div className="absolute -top-6 -left-4 sm:-left-6 p-3 sm:p-4 rounded-2xl bg-white border border-terracotta/30 backdrop-blur-md shadow-xl flex items-center gap-3">
+              <div className="absolute -top-5 left-2 sm:-top-6 sm:-left-6 p-2.5 sm:p-4 rounded-2xl bg-white border border-terracotta/30 backdrop-blur-md shadow-xl flex items-center gap-2.5 sm:gap-3 max-w-[85%]">
                 <img
                   src="/logo.png"
                   alt="Coffee Land Seal"
-                  className="w-12 h-12 rounded-full object-cover border-2 border-terracotta shadow-xs"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-terracotta shadow-xs shrink-0"
                 />
-                <div>
-                  <div className="text-[10px] uppercase tracking-widest text-coffee-600 font-bold">Temples Bypass Road</div>
-                  <div className="font-serif font-bold text-espresso-950 text-sm">Thagarapuvalasa, Vizag</div>
+                <div className="min-w-0">
+                  <div className="text-[9px] sm:text-[10px] uppercase tracking-widest text-coffee-600 font-bold truncate">Temples Bypass Road</div>
+                  <div className="font-serif font-bold text-espresso-950 text-xs sm:text-sm truncate">Thagarapuvalasa, Vizag</div>
                 </div>
               </div>
             </div>

@@ -48,11 +48,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           }`}
         />
 
-        {/* Hot Food Vapour and Fog Steam Animation */}
-        {product.inStock !== false && isHot && (
-          <HotFoodVapourEffect intensity="medium" />
-        )}
-
         {/* Gradient Overlay for Text Legibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 

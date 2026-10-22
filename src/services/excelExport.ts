@@ -338,7 +338,43 @@ export const exportMasterBusinessReportToExcel = (
   // Tab 4: Raw Materials Consumption
   const wsRaw = XLSX.utils.json_to_sheet(rawMaterials);
   wsRaw['!cols'] = [{ wch: 36 }, { wch: 22 }, { wch: 16 }, { wch: 12 }, { wch: 16 }, { wch: 18 }];
-  XLSX.utils.book_append_sheet(wb, wsRaw, 'Raw Materials Usage');
+  XLSX.utils.book_append_sheet(wb, wsRaw, 'Recipe Raw Materials Usage');
+
+  // Tab 5: User Entered Raw Materials & Expenses
+  try {
+    const savedMaterialsStr = localStorage.getItem('coffeeland_raw_materials_v1');
+    if (savedMaterialsStr) {
+      const savedMaterials = JSON.parse(savedMaterialsStr);
+      if (Array.isArray(savedMaterials) && savedMaterials.length > 0) {
+        const enteredRows = savedMaterials.map((m: any, idx: number) => ({
+          'S.No': idx + 1,
+          'Material Name': m.name,
+          'Category': m.category,
+          'Quantity': m.quantity,
+          'Unit': m.unit,
+          'Cost in Rs (₹)': m.costRs,
+          'Requirement Status': m.status,
+          'Supplier / Store': m.supplier || '',
+          'Date': m.date || dateStr,
+          'Kitchen Notes': m.notes || ''
+        }));
+        const wsEntered = XLSX.utils.json_to_sheet(enteredRows);
+        wsEntered['!cols'] = [
+          { wch: 6 },
+          { wch: 32 },
+          { wch: 20 },
+          { wch: 10 },
+          { wch: 10 },
+          { wch: 16 },
+          { wch: 20 },
+          { wch: 24 },
+          { wch: 14 },
+          { wch: 28 }
+        ];
+        XLSX.utils.book_append_sheet(wb, wsEntered, 'Entered Raw Materials Log');
+      }
+    }
+  } catch {}
 
   const filename = `CoffeeLand_Master_Sales_Report_${dateStr}.xlsx`;
   XLSX.writeFile(wb, filename);

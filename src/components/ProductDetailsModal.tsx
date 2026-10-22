@@ -85,11 +85,6 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
               className="w-full h-full object-cover"
             />
 
-            {/* Hot Food Vapour and Fog Rising Animation */}
-            {product.inStock !== false && isHotFoodItem(product.category, product.name) && (
-              <HotFoodVapourEffect intensity="high" />
-            )}
-
             <div className="absolute inset-0 bg-gradient-to-t from-[#EDE0CC]/90 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-[#EDE0CC]/70 pointer-events-none" />
 
             {/* Badges on Modal Image */}

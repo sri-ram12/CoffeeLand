@@ -3,27 +3,59 @@ import { KotOrder } from '../types/product';
 export type ThermalPaperWidth = '80mm' | '58mm';
 
 /**
- * Generate clean HTML content for Kitchen Order Ticket (KOT)
+ * Helper to format date and time in DD/MM/YY HH:mm (24-hour)
+ */
+export function formatReceiptDateTime(timestamp: string | Date): string {
+  try {
+    const d = new Date(timestamp);
+    if (isNaN(d.getTime())) return '';
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = String(d.getFullYear()).slice(-2);
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Helper to format table display cleanly (e.g. Table No: 4)
+ */
+export function formatTableDisplay(tableNumber?: string, orderType?: string): string {
+  const table = (tableNumber || '').trim();
+  if (!table) {
+    return orderType === 'Dine-In' ? 'Table No: 1' : (orderType || 'Dine In');
+  }
+  const lower = table.toLowerCase();
+  if (lower.startsWith('table')) {
+    return table.replace(/table\s*:?\s*/i, 'Table No: ');
+  }
+  if (orderType === 'Dine-In' && !isNaN(Number(table))) {
+    return `Table No: ${table}`;
+  }
+  return table;
+}
+
+/**
+ * Generate clean, lightweight HTML content for Kitchen Order Ticket (KOT)
+ * Matches the reference format:
+ *   Running Table
+ *   DD/MM/YY HH:mm
+ *   KOT - XX
+ *   Dine In
+ *   Table No: X
+ *   -----------------------
+ *   Item    Special Note    Qty.
  */
 export function generateKotHtml(order: KotOrder, paperWidth: ThermalPaperWidth = '80mm'): string {
   const is58 = paperWidth === '58mm';
   const widthMm = is58 ? '48mm' : '72mm';
-  const fontSize = is58 ? '11px' : '13px';
-  const titleSize = is58 ? '14px' : '16px';
-  const tokenSize = is58 ? '18px' : '22px';
-
-  const formattedDate = new Date(order.timestamp).toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  });
-  const formattedTime = new Date(order.timestamp).toLocaleTimeString('en-IN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
-
-  const totalQty = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  const formattedDateTime = formatReceiptDateTime(order.timestamp);
+  const tableDisplay = formatTableDisplay(order.tableNumber, order.orderType);
+  const orderTypeDisplay = order.orderType === 'Dine-In' ? 'Dine In' : order.orderType;
+  const statusHeader = order.orderType === 'Dine-In' ? 'Running Table' : orderTypeDisplay;
 
   return `
     <!DOCTYPE html>
@@ -33,7 +65,7 @@ export function generateKotHtml(order: KotOrder, paperWidth: ThermalPaperWidth =
         <title>KOT #${order.kotNumber}</title>
         <style>
           @page {
-            size: ${is58 ? '58mm 200mm' : '80mm 200mm'};
+            size: ${is58 ? '58mm auto' : '80mm auto'};
             margin: 0mm;
           }
           * {
@@ -41,130 +73,135 @@ export function generateKotHtml(order: KotOrder, paperWidth: ThermalPaperWidth =
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-          body {
-            margin: 0;
-            padding: ${is58 ? '2mm' : '3mm'};
-            width: ${widthMm};
-            max-width: 100%;
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100%;
+            height: auto !important;
+            min-height: 0 !important;
             background: #ffffff;
             color: #000000;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: ${fontSize};
-            line-height: 1.25;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
           }
-          .text-center { text-align: center; }
-          .text-right { text-align: right; }
-          .font-bold { font-weight: bold; }
-          .font-black { font-weight: 900; }
-          .divider-solid { border-bottom: 2px solid #000; margin: 4px 0; }
-          .divider-dashed { border-bottom: 1px dashed #000; margin: 4px 0; }
-          .divider-dotted { border-bottom: 1px dotted #000; margin: 3px 0; }
-          .token-box {
-            border: 2px solid #000;
-            padding: 4px;
-            margin: 4px 0;
+          .kot-container {
+            width: ${widthMm};
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 1.5mm 1mm;
             text-align: center;
           }
-          .item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin: 4px 0;
+          .header-status {
+            font-size: ${is58 ? '13px' : '15px'};
+            font-weight: 600;
+            margin-bottom: 1px;
           }
-          .item-qty {
-            font-size: ${titleSize};
-            font-weight: 900;
-            min-width: 28px;
-          }
-          .item-name {
-            flex: 1;
-            padding: 0 4px;
-            font-weight: bold;
-          }
-          .item-notes {
-            font-size: ${is58 ? '9px' : '10px'};
-            font-style: italic;
-            padding-left: 28px;
+          .header-time {
+            font-size: ${is58 ? '11px' : '13px'};
+            margin-bottom: 1px;
             color: #111;
           }
-          .badge {
-            display: inline-block;
-            border: 1px solid #000;
-            padding: 1px 4px;
-            font-weight: bold;
-            font-size: ${is58 ? '9px' : '10px'};
-            margin-top: 2px;
+          .header-kot {
+            font-size: ${is58 ? '15px' : '17px'};
+            font-weight: 700;
+            margin-bottom: 1px;
+          }
+          .header-type {
+            font-size: ${is58 ? '13px' : '15px'};
+            font-weight: 700;
+            margin-bottom: 1px;
+          }
+          .header-table {
+            font-size: ${is58 ? '14px' : '16px'};
+            font-weight: 800;
+            margin-bottom: 3px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2px 0;
+          }
+          th {
+            font-size: ${is58 ? '10px' : '12px'};
+            font-weight: 700;
+            padding: 3px 0;
+            border-top: 1px dashed #000;
+            border-bottom: 1px dashed #000;
+          }
+          td {
+            font-size: ${is58 ? '11px' : '13px'};
+            padding: 3px 0;
+            vertical-align: top;
+          }
+          .col-item {
+            text-align: left;
+            width: 54%;
+            font-weight: 700;
+            word-break: break-word;
+          }
+          .col-note {
+            text-align: center;
+            width: 28%;
+            font-weight: normal;
+            font-size: ${is58 ? '10px' : '11px'};
+            word-break: break-word;
+          }
+          .col-qty {
+            text-align: right;
+            width: 18%;
+            font-weight: 700;
+          }
+          .notes-box {
+            border-top: 1px dashed #000;
+            margin-top: 4px;
+            padding-top: 3px;
+            font-size: ${is58 ? '10px' : '12px'};
+            text-align: left;
           }
         </style>
       </head>
       <body>
-        <div class="text-center font-black" style="font-size: ${titleSize}; letter-spacing: 1px;">
-          COFFEE LAND
-        </div>
-        <div class="text-center font-bold" style="font-size: ${is58 ? '10px' : '11px'};">
-          * KITCHEN ORDER TICKET (KOT) *
-        </div>
+        <div class="kot-container">
+          <div class="header-status">${statusHeader}</div>
+          <div class="header-time">${formattedDateTime}</div>
+          <div class="header-kot">KOT - ${order.kotNumber}</div>
+          <div class="header-type">${orderTypeDisplay}</div>
+          <div class="header-table">${tableDisplay}</div>
 
-        <div class="divider-solid"></div>
+          <table>
+            <thead>
+              <tr>
+                <th class="col-item">Item</th>
+                <th class="col-note" style="line-height: 1.1;">Special<br/>Note</th>
+                <th class="col-qty">Qty.</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items
+                .map(
+                  (item) => `
+                <tr>
+                  <td class="col-item">${item.name}</td>
+                  <td class="col-note">${item.notes && item.notes.trim() ? item.notes : '--'}</td>
+                  <td class="col-qty">${item.quantity}</td>
+                </tr>
+              `
+                )
+                .join('')}
+            </tbody>
+          </table>
 
-        <div class="token-box">
-          <div style="font-size: ${is58 ? '11px' : '12px'}; font-weight: bold;">TOKEN NUMBER</div>
-          <div class="font-black" style="font-size: ${tokenSize};">#KOT-${order.kotNumber}</div>
-        </div>
-
-        <div style="font-size: ${is58 ? '10px' : '11px'};">
-          <div><strong>TYPE:</strong> [ ${order.orderType.toUpperCase()} ]</div>
-          <div><strong>TABLE/REF:</strong> ${order.tableNumber.toUpperCase()}</div>
-          <div><strong>DATE:</strong> ${formattedDate} ${formattedTime}</div>
-          ${order.customerName && order.customerName !== 'Guest Customer' ? `<div><strong>GUEST:</strong> ${order.customerName}</div>` : ''}
-          ${order.customerPhone ? `<div><strong>PHONE:</strong> ${order.customerPhone}</div>` : ''}
-        </div>
-
-        <div class="divider-dashed"></div>
-
-        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: ${is58 ? '9px' : '10px'};">
-          <span>QTY & ITEM NAME</span>
-          <span>STATUS</span>
-        </div>
-
-        <div class="divider-solid"></div>
-
-        <!-- ITEMS LIST -->
-        <div>
-          ${order.items
-            .map(
-              (item) => `
-            <div style="margin-bottom: 5px;">
-              <div class="item-row">
-                <span class="item-qty">${item.quantity}x</span>
-                <span class="item-name">${item.name}</span>
-                <span class="badge">COOK</span>
-              </div>
-              ${item.notes ? `<div class="item-notes">&#8627; NOTES: ${item.notes}</div>` : ''}
+          ${order.chefNotes ? `
+            <div class="notes-box">
+              <strong>Special Note:</strong> ${order.chefNotes}
             </div>
-          `
-            )
-            .join('')}
-        </div>
+          ` : ''}
 
-        <div class="divider-dashed"></div>
-
-        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: ${is58 ? '10px' : '11px'};">
-          <span>TOTAL ITEMS: ${order.items.length}</span>
-          <span>TOTAL QTY: ${totalQty}</span>
-        </div>
-
-        ${order.chefNotes ? `
-          <div class="divider-dotted"></div>
-          <div style="background: #f0f0f0; border: 1px solid #000; padding: 3px; font-weight: bold; font-size: ${is58 ? '9px' : '11px'};">
-            CHEF NOTE: ${order.chefNotes}
-          </div>
-        ` : ''}
-
-        <div class="divider-solid"></div>
-
-        <div class="text-center font-bold" style="font-size: ${is58 ? '9px' : '10px'}; margin-top: 4px;">
-          --- KITCHEN COPY • PUNCHED AT CAFE ---
+          ${order.customerName && order.customerName !== 'Guest Customer' ? `
+            <div class="notes-box" style="font-size: ${is58 ? '9px' : '11px'}; text-align: center;">
+              Guest: ${order.customerName}${order.customerPhone ? ` • ${order.customerPhone}` : ''}
+            </div>
+          ` : ''}
         </div>
       </body>
     </html>
@@ -172,24 +209,14 @@ export function generateKotHtml(order: KotOrder, paperWidth: ThermalPaperWidth =
 }
 
 /**
- * Generate clean HTML content for Customer Bill / Receipt
+ * Generate clean, compact HTML content for Customer Bill / Receipt
  */
 export function generateBillHtml(order: KotOrder, paperWidth: ThermalPaperWidth = '80mm'): string {
   const is58 = paperWidth === '58mm';
   const widthMm = is58 ? '48mm' : '72mm';
-  const fontSize = is58 ? '10px' : '12px';
-  const titleSize = is58 ? '15px' : '17px';
-
-  const formattedDate = new Date(order.timestamp).toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  });
-  const formattedTime = new Date(order.timestamp).toLocaleTimeString('en-IN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
+  const formattedDateTime = formatReceiptDateTime(order.timestamp);
+  const tableDisplay = formatTableDisplay(order.tableNumber, order.orderType);
+  const orderTypeDisplay = order.orderType === 'Dine-In' ? 'Dine In' : order.orderType;
 
   return `
     <!DOCTYPE html>
@@ -199,7 +226,7 @@ export function generateBillHtml(order: KotOrder, paperWidth: ThermalPaperWidth 
         <title>Bill #${order.kotNumber}</title>
         <style>
           @page {
-            size: ${is58 ? '58mm 200mm' : '80mm 200mm'};
+            size: ${is58 ? '58mm auto' : '80mm auto'};
             margin: 0mm;
           }
           * {
@@ -207,111 +234,126 @@ export function generateBillHtml(order: KotOrder, paperWidth: ThermalPaperWidth 
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-          body {
-            margin: 0;
-            padding: ${is58 ? '2mm' : '3mm'};
-            width: ${widthMm};
-            max-width: 100%;
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100%;
+            height: auto !important;
+            min-height: 0 !important;
             background: #ffffff;
             color: #000000;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: ${fontSize};
-            line-height: 1.25;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+          }
+          .bill-container {
+            width: ${widthMm};
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 2mm 1mm;
           }
           .text-center { text-align: center; }
-          .text-right { text-align: right; }
-          .font-bold { font-weight: bold; }
-          .font-black { font-weight: 900; }
-          .divider-solid { border-bottom: 2px solid #000; margin: 4px 0; }
-          .divider-dashed { border-bottom: 1px dashed #000; margin: 4px 0; }
-          .table-header {
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            font-size: ${is58 ? '9px' : '10px'};
+          .dashed-divider {
+            border-bottom: 1px dashed #000;
+            margin: 4px 0;
+            width: 100%;
           }
-          .bill-row {
-            display: flex;
-            justify-content: space-between;
+          table {
+            width: 100%;
+            border-collapse: collapse;
             margin: 3px 0;
           }
-          .grand-total-box {
-            border-top: 2px solid #000;
-            border-bottom: 2px solid #000;
+          th {
+            font-size: ${is58 ? '9px' : '11px'};
+            font-weight: 700;
+            padding: 3px 0;
+            border-top: 1px dashed #000;
+            border-bottom: 1px dashed #000;
+          }
+          td {
+            font-size: ${is58 ? '10px' : '12px'};
+            padding: 3px 0;
+            vertical-align: top;
+          }
+          .grand-total {
+            border-top: 1px dashed #000;
+            border-bottom: 1px dashed #000;
             padding: 4px 0;
-            margin: 6px 0;
+            margin: 5px 0;
             display: flex;
             justify-content: space-between;
-            font-weight: 900;
+            font-weight: 800;
             font-size: ${is58 ? '13px' : '15px'};
           }
         </style>
       </head>
       <body>
-        <div class="text-center font-black" style="font-size: ${titleSize};">
-          COFFEE LAND
-        </div>
-        <div class="text-center" style="font-size: ${is58 ? '8px' : '10px'};">
-          Specialty Coffee, Shakes & Artisan Cafe<br />
-          Sangivalasa, Visakhapatnam, AP<br />
-          WhatsApp: +91 98765 43210
-        </div>
-
-        <div class="divider-solid"></div>
-
-        <div style="font-size: ${is58 ? '9px' : '10px'};">
-          <div style="display: flex; justify-content: space-between;">
-            <span><strong>RECEIPT #:</strong> #${order.kotNumber}</span>
-            <span><strong>${order.orderType.toUpperCase()}</strong></span>
+        <div class="bill-container">
+          <div class="text-center" style="font-size: ${is58 ? '15px' : '17px'}; font-weight: 800; letter-spacing: 0.5px;">
+            COFFEE LAND
           </div>
-          <div style="display: flex; justify-content: space-between;">
-            <span><strong>TABLE:</strong> ${order.tableNumber}</span>
-            <span><strong>TIME:</strong> ${formattedTime}</span>
+          <div class="text-center" style="font-size: ${is58 ? '9px' : '11px'}; margin-bottom: 3px; color: #333;">
+            Specialty Coffee & Cafe • Sangivalasa
           </div>
-          <div><strong>DATE:</strong> ${formattedDate}</div>
-          ${order.customerName && order.customerName !== 'Guest Customer' ? `<div><strong>CUSTOMER:</strong> ${order.customerName}</div>` : ''}
-          ${order.customerPhone ? `<div><strong>PHONE:</strong> ${order.customerPhone}</div>` : ''}
-        </div>
 
-        <div class="divider-dashed"></div>
+          <div class="dashed-divider"></div>
 
-        <div class="table-header">
-          <span style="flex: 2;">ITEM</span>
-          <span style="flex: 1; text-align: center;">QTY</span>
-          <span style="flex: 1; text-align: right;">PRICE</span>
-          <span style="flex: 1; text-align: right;">TOTAL</span>
-        </div>
-
-        <div class="divider-dashed"></div>
-
-        <div>
-          ${order.items
-            .map(
-              (item) => `
-            <div class="bill-row">
-              <span style="flex: 2; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.name}</span>
-              <span style="flex: 1; text-align: center;">${item.quantity}</span>
-              <span style="flex: 1; text-align: right;">₹${item.price}</span>
-              <span style="flex: 1; text-align: right; font-weight: bold;">₹${item.price * item.quantity}</span>
+          <div style="font-size: ${is58 ? '10px' : '11px'}; line-height: 1.35;">
+            <div style="display: flex; justify-content: space-between;">
+              <span><strong>Bill #:</strong> #${order.kotNumber}</span>
+              <span><strong>${orderTypeDisplay.toUpperCase()}</strong></span>
             </div>
-            ${item.notes ? `<div style="font-size: 8px; font-style: italic; padding-left: 8px;">* ${item.notes}</div>` : ''}
-          `
-            )
-            .join('')}
-        </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span><strong>${tableDisplay}</strong></span>
+              <span>${formattedDateTime}</span>
+            </div>
+            ${order.customerName && order.customerName !== 'Guest Customer' ? `<div><strong>Customer:</strong> ${order.customerName}</div>` : ''}
+            ${order.customerPhone ? `<div><strong>Phone:</strong> ${order.customerPhone}</div>` : ''}
+          </div>
 
-        <div class="grand-total-box">
-          <span>NET PAYABLE:</span>
-          <span>₹${order.totalAmount}</span>
-        </div>
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align: left; width: 50%;">Item</th>
+                <th style="text-align: center; width: 14%;">Qty</th>
+                <th style="text-align: right; width: 18%;">Price</th>
+                <th style="text-align: right; width: 18%;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items
+                .map(
+                  (item) => `
+                <tr>
+                  <td style="text-align: left; font-weight: bold; word-break: break-word;">${item.name}</td>
+                  <td style="text-align: center;">${item.quantity}</td>
+                  <td style="text-align: right;">₹${item.price}</td>
+                  <td style="text-align: right; font-weight: bold;">₹${item.price * item.quantity}</td>
+                </tr>
+                ${item.notes ? `
+                  <tr>
+                    <td colspan="4" style="font-size: 9px; font-style: italic; padding-left: 6px; padding-bottom: 2px;">
+                      * ${item.notes}
+                    </td>
+                  </tr>
+                ` : ''}
+              `
+                )
+                .join('')}
+            </tbody>
+          </table>
 
-        <div class="text-center font-bold" style="font-size: ${is58 ? '9px' : '10px'}; margin-top: 6px;">
-          THANK YOU FOR VISITING!
+          <div class="grand-total">
+            <span>NET PAYABLE:</span>
+            <span>₹${order.totalAmount}</span>
+          </div>
+
+          <div class="text-center" style="font-weight: 700; font-size: ${is58 ? '10px' : '11px'}; margin-top: 5px;">
+            THANK YOU FOR VISITING!
+          </div>
+          <div class="text-center" style="font-size: ${is58 ? '8px' : '9px'}; color: #444;">
+            Please Visit Coffee Land Again
+          </div>
         </div>
-        <div class="text-center" style="font-size: ${is58 ? '8px' : '9px'};">
-          Please Visit Coffee Land Again • Have a Great Day!
-        </div>
-        <div class="divider-dashed"></div>
       </body>
     </html>
   `;
@@ -322,44 +364,43 @@ export function generateBillHtml(order: KotOrder, paperWidth: ThermalPaperWidth 
  */
 export function generatePlainTextTicket(mode: 'kot' | 'bill', order: KotOrder): string {
   const line = '--------------------------------';
-  const dline = '================================';
-  const formattedTime = new Date(order.timestamp).toLocaleTimeString('en-IN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
+  const formattedDateTime = formatReceiptDateTime(order.timestamp);
+  const tableDisplay = formatTableDisplay(order.tableNumber, order.orderType);
+  const orderTypeDisplay = order.orderType === 'Dine-In' ? 'Dine In' : order.orderType;
 
   if (mode === 'kot') {
     return [
-      dline,
-      '       COFFEE LAND CAFE',
-      '   KITCHEN ORDER TICKET (KOT)',
-      dline,
-      `TOKEN: #KOT-${order.kotNumber}`,
-      `TYPE : ${order.orderType.toUpperCase()} | ${order.tableNumber.toUpperCase()}`,
-      `TIME : ${formattedTime}`,
-      order.customerName && order.customerName !== 'Guest Customer' ? `GUEST: ${order.customerName}` : '',
+      '        Running Table',
+      `       ${formattedDateTime}`,
+      `          KOT - ${order.kotNumber}`,
+      `           ${orderTypeDisplay}`,
+      `         ${tableDisplay}`,
       line,
-      'QTY   ITEM',
+      'Item            Special     Qty.',
+      '                Note',
       line,
-      ...order.items.map((i) => ` ${i.quantity}x  ${i.name}${i.notes ? `\n      * Note: ${i.notes}` : ''}`),
-      line,
-      `TOTAL ITEMS: ${order.items.length}`,
-      order.chefNotes ? `CHEF NOTE: ${order.chefNotes}` : '',
-      dline
+      ...order.items.map((i) => {
+        const name = i.name.slice(0, 15).padEnd(15, ' ');
+        const note = (i.notes && i.notes.trim() ? i.notes.slice(0, 11) : '--').padEnd(11, ' ');
+        const qty = `${i.quantity}`.padStart(4, ' ');
+        return `${name} ${note} ${qty}`;
+      }),
+      order.chefNotes ? `${line}\nSpecial Note: ${order.chefNotes}` : '',
+      order.customerName && order.customerName !== 'Guest Customer' ? `${line}\nGuest: ${order.customerName} ${order.customerPhone || ''}` : '',
+      line
     ]
       .filter(Boolean)
       .join('\n');
   }
 
   return [
-    dline,
-    '       COFFEE LAND CAFE',
-    '       CUSTOMER RECEIPT',
-    dline,
-    `BILL : #${order.kotNumber}`,
-    `TABLE: ${order.tableNumber} (${order.orderType})`,
-    `TIME : ${formattedTime}`,
+    '        COFFEE LAND CAFE',
+    '        CUSTOMER RECEIPT',
+    line,
+    `BILL #: #${order.kotNumber}`,
+    `${tableDisplay} (${orderTypeDisplay})`,
+    `DATE  : ${formattedDateTime}`,
+    order.customerName && order.customerName !== 'Guest Customer' ? `GUEST : ${order.customerName}` : '',
     line,
     'ITEM                    QTY  AMT',
     line,
@@ -371,10 +412,12 @@ export function generatePlainTextTicket(mode: 'kot' | 'bill', order: KotOrder): 
     }),
     line,
     `TOTAL PAYABLE:            ₹${order.totalAmount}`,
-    dline,
+    line,
     '  THANK YOU! VISIT AGAIN!',
-    dline
-  ].join('\n');
+    line
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 /**

@@ -90,3 +90,17 @@ export interface KotOrder {
   totalAmount: number;
   status: 'Preparing' | 'Served' | 'Completed';
 }
+
+export interface RawMaterialEntry {
+  id: string;
+  name: string;
+  category: 'Coffee & Beverages' | 'Dairy' | 'Bakery' | 'Pantry & Cheese' | 'Poultry & Meat' | 'Packaging' | 'Syrups & Spices' | 'Vegetables & Produce' | 'Other';
+  quantity: number;
+  unit: 'kg' | 'g' | 'Liters' | 'ml' | 'Pieces' | 'Portions' | 'Slices' | 'Packets' | 'Boxes' | 'Bags' | 'Units';
+  costRs: number;
+  status: 'Required' | 'Purchased' | 'In Stock';
+  supplier?: string;
+  date: string;
+  notes?: string;
+}
+

@@ -1,5 +1,117 @@
 [
   {
+    "id": "kot-1792657138100",
+    "kotNumber": 107,
+    "orderType": "Dine-In",
+    "tableNumber": "Table 1",
+    "customerName": "Guest Customer",
+    "customerPhone": "",
+    "items": [
+      {
+        "id": "cl-cappuccino",
+        "name": "Cappuccino",
+        "price": 99,
+        "quantity": 1,
+        "category": "hot-coffee",
+        "notes": ""
+      },
+      {
+        "id": "cl-cinnamon-americano",
+        "name": "Cinnamon Americano",
+        "price": 99,
+        "quantity": 1,
+        "category": "hot-coffee",
+        "notes": ""
+      }
+    ],
+    "chefNotes": "",
+    "timestamp": "2026-10-22T08:18:58.100Z",
+    "totalAmount": 198,
+    "status": "Preparing"
+  },
+  {
+    "id": "kot-1792489516483",
+    "kotNumber": 104,
+    "orderType": "Dine-In",
+    "tableNumber": "Table 1",
+    "customerName": "Guest Customer",
+    "customerPhone": "",
+    "items": [
+      {
+        "id": "cl-americano",
+        "name": "Americano",
+        "price": 99,
+        "quantity": 1,
+        "category": "hot-coffee",
+        "notes": ""
+      }
+    ],
+    "chefNotes": "",
+    "timestamp": "2026-10-20T09:45:16.483Z",
+    "totalAmount": 99,
+    "status": "Preparing"
+  },
+  {
+    "id": "kot-1792583380892",
+    "kotNumber": 105,
+    "orderType": "Dine-In",
+    "tableNumber": "Table 1",
+    "customerName": "Guest Customer",
+    "customerPhone": "",
+    "items": [
+      {
+        "id": "cl-americano",
+        "name": "Americano",
+        "price": 99,
+        "quantity": 1,
+        "category": "hot-coffee",
+        "notes": ""
+      },
+      {
+        "id": "cl-caramel-cappuccino",
+        "name": "Caramel Cappuccino",
+        "price": 129,
+        "quantity": 2,
+        "category": "hot-coffee",
+        "notes": ""
+      }
+    ],
+    "chefNotes": "",
+    "timestamp": "2026-10-21T11:49:40.892Z",
+    "totalAmount": 357,
+    "status": "Preparing"
+  },
+  {
+    "id": "kot-1792584534963",
+    "kotNumber": 106,
+    "orderType": "Dine-In",
+    "tableNumber": "Table 1",
+    "customerName": "Guest Customer",
+    "customerPhone": "",
+    "items": [
+      {
+        "id": "cl-americano",
+        "name": "Americano",
+        "price": 99,
+        "quantity": 1,
+        "category": "hot-coffee",
+        "notes": ""
+      },
+      {
+        "id": "cl-cinnamon-americano",
+        "name": "Cinnamon Americano",
+        "price": 99,
+        "quantity": 1,
+        "category": "hot-coffee",
+        "notes": ""
+      }
+    ],
+    "chefNotes": "",
+    "timestamp": "2026-10-21T12:08:54.963Z",
+    "totalAmount": 198,
+    "status": "Preparing"
+  },
+  {
     "id": "kot-test-101",
     "kotNumber": 101,
     "orderType": "Dine-In",
