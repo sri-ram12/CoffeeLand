@@ -5,7 +5,6 @@ import {
 import { BillboardBanner } from '../types/banner';
 import { HeroBackgroundDecor } from './HeroBackgroundDecor';
 import { BillboardHeroBanner } from './BillboardHeroBanner';
-import { HeroTopQrCard } from './HeroTopQrCard';
 
 interface HeroSectionProps {
   billboardBanner?: BillboardBanner;
@@ -116,9 +115,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <span>Order on WhatsApp</span>
             </button>
           </div>
-
-          {/* Top Scannable PWA QR Code Card */}
-          <HeroTopQrCard onOpenModal={onOpenQRCode} />
         </div>
 
         {/* ============================================================ */}
