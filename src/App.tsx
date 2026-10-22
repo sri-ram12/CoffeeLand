@@ -282,6 +282,7 @@ export const App: React.FC = () => {
       <Navbar
         favoriteCount={favoriteCount}
         onOpenFavorites={handleOpenFavorites}
+        onOpenQRCode={() => setIsQRCodeOpen(true)}
         onOpenReviewModal={() => setIsReviewModalOpen(true)}
         cartCount={cartTotalCount}
         onOpenCart={() => setIsCartModalOpen(true)}
@@ -304,6 +305,7 @@ export const App: React.FC = () => {
         billboardBanner={activeBillboardBanner}
         billboardBanners={billboardBanners}
         onOrderWhatsApp={handleHeroOrderWhatsApp}
+        onOpenQRCode={() => setIsQRCodeOpen(true)}
       />
 
       {/* Interactive Catalog & Filter Section (Main Menu Explorer) */}

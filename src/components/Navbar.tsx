@@ -32,6 +32,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   favoriteCount,
   onOpenFavorites,
+  onOpenQRCode,
   onOpenReviewModal,
   cartCount = 0,
   onOpenCart,
@@ -158,8 +159,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               })}
             </nav>
 
-            {/* Fast Action Tools: Write Review, Favorites & Mobile Menu */}
+            {/* Fast Action Tools: App QR/PWA, Write Review, Favorites & Mobile Menu */}
             <div className="flex items-center gap-1.5 sm:gap-2.5">
+              {/* App QR & PWA Install Button at the very TOP */}
+              {onOpenQRCode && (
+                <button
+                  onClick={onOpenQRCode}
+                  className="flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-terracotta/20 hover:from-amber-500/30 hover:to-terracotta/30 text-espresso-950 border border-terracotta/40 text-xs font-bold shadow-xs transition-all hover:scale-105 active:scale-95 shrink-0"
+                  title="Scan QR to open website & install PWA app on mobile"
+                  aria-label="Scan QR & Download App"
+                >
+                  <QrCode className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-terracotta" />
+                  <span className="hidden sm:inline font-bold">App QR</span>
+                </button>
+              )}
+
               {/* Upload Photo & Review Button */}
               <button
                 onClick={onOpenReviewModal}
@@ -209,6 +223,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="fixed inset-x-0 top-16 z-40 bg-[#EDE0CC]/98 border-b border-terracotta/25 backdrop-blur-xl px-6 py-6 shadow-2xl lg:hidden max-h-[85vh] overflow-y-auto"
           >
             <div className="flex flex-col space-y-3">
+              {/* Scan QR & Download PWA App for Mobile */}
+              {onOpenQRCode && (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenQRCode();
+                  }}
+                  className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500/25 via-amber-400/20 to-terracotta/20 border-2 border-terracotta/40 text-espresso-950 font-bold text-sm shadow-sm flex items-center justify-center gap-2 hover:bg-amber-500/30 transition-all active:scale-95"
+                >
+                  <QrCode className="w-4 h-4 text-terracotta" />
+                  <span>SCAN QR & INSTALL APP (PWA) 📱</span>
+                </button>
+              )}
               {/* Prominent Mobile Orders on WhatsApp Button */}
               <button
                 onClick={(e) => {

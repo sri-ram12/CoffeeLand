@@ -5,19 +5,22 @@ import {
 import { BillboardBanner } from '../types/banner';
 import { HeroBackgroundDecor } from './HeroBackgroundDecor';
 import { BillboardHeroBanner } from './BillboardHeroBanner';
+import { HeroTopQrCard } from './HeroTopQrCard';
 
 interface HeroSectionProps {
   billboardBanner?: BillboardBanner;
   billboardBanners?: BillboardBanner[];
   onOrderWhatsApp?: (dishName: string, price: number, category?: string) => void;
   onSelectBillboardBanner?: (banner: BillboardBanner) => void;
+  onOpenQRCode?: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   billboardBanner,
   billboardBanners = [],
   onOrderWhatsApp = () => {},
-  onSelectBillboardBanner = () => {}
+  onSelectBillboardBanner = () => {},
+  onOpenQRCode
 }) => {
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -113,6 +116,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <span>Order on WhatsApp</span>
             </button>
           </div>
+
+          {/* Top Scannable PWA QR Code Card */}
+          <HeroTopQrCard onOpenModal={onOpenQRCode} />
         </div>
 
         {/* ============================================================ */}
