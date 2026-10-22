@@ -51,6 +51,7 @@ import {
   Layers,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   ShieldAlert,
   Power,
   X
@@ -81,6 +82,8 @@ const COLOR_THEMES: { id: BannerColorTheme; label: string; previewClass: string 
   { id: 'ocean', label: 'Ocean Blue', previewClass: 'bg-[#0E4D64]' },
 ];
 
+export type AdminTab = 'banners' | 'menu' | 'inquiries' | 'kot' | 'analytics' | 'raw-materials' | 'excel' | 'reviews' | 'keepalive';
+
 export const AdminPage: React.FC = () => {
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -91,7 +94,7 @@ export const AdminPage: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(false);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<'banners' | 'menu' | 'inquiries' | 'kot' | 'analytics' | 'raw-materials' | 'excel' | 'reviews' | 'keepalive'>('banners');
+  const [activeTab, setActiveTab] = useState<AdminTab>('banners');
   const [externalPrintKot, setExternalPrintKot] = useState<KotOrder | null>(null);
 
   // Backend Health & Keep-Alive State
@@ -660,18 +663,18 @@ export const AdminPage: React.FC = () => {
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#EDE0CC] text-espresso-950 flex flex-col font-sans selection:bg-terracotta selection:text-white">
       {/* Top Owner Header */}
-      <header className="sticky top-0 z-30 bg-white/95 border-b border-terracotta/20 backdrop-blur-md px-4 sm:px-8 py-3.5 shadow-xs">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-30 bg-white/95 border-b border-terracotta/20 backdrop-blur-md px-2.5 sm:px-8 py-2.5 sm:py-3.5 shadow-xs">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-4">
           {/* Brand & Portal Title (Non-redirecting to prevent accidental navigation away from admin) */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2.5 select-none cursor-default">
-              <img src="/logo.png" alt="Logo" className="w-10 h-10 rounded-full object-cover border border-terracotta shadow-xs" />
+          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 select-none cursor-default shrink-0">
+              <img src="/logo.png" alt="Logo" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-terracotta shadow-xs" />
               <div>
-                <span className="font-serif tracking-tight text-xl font-bold text-espresso-950 block leading-tight">
+                <span className="font-serif tracking-tight text-base sm:text-xl font-bold text-espresso-950 block leading-tight">
                   Coffee <span className="font-serif italic font-semibold text-terracotta">Land</span>
                 </span>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[#802B12] block font-heading">
-                  Owner Admin Command Center
+                <span className="text-[7.5px] sm:text-[10px] uppercase font-bold tracking-widest text-[#802B12] block font-heading truncate max-w-[85px] xs:max-w-[130px] sm:max-w-none">
+                  Admin Center
                 </span>
               </div>
             </div>
@@ -679,7 +682,7 @@ export const AdminPage: React.FC = () => {
             {/* Server Status Indicator */}
             <button
               onClick={() => setActiveTab('keepalive')}
-              className="hidden md:flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+              className="hidden md:flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0"
               title="Click to view 24/7 Server Keep-Alive & Cloud Monitor"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -690,7 +693,7 @@ export const AdminPage: React.FC = () => {
             {/* Emergency Stop / Maintenance Mode Toggle Button */}
             <button
               onClick={() => setShowMaintenanceConfirm(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer ${
+              className={`flex items-center gap-1 px-2 xs:px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 ${
                 maintenanceMode
                   ? 'bg-red-600 hover:bg-red-700 text-white animate-pulse ring-2 ring-red-400'
                   : 'bg-white hover:bg-red-50 text-red-700 border border-red-300'
@@ -698,24 +701,25 @@ export const AdminPage: React.FC = () => {
               title="Emergency Stop / Security Maintenance Mode Toggle"
             >
               <Power className="w-3.5 h-3.5" />
-              <span>{maintenanceMode ? '🔴 STOPPED (Maintenance Active)' : '🛑 Emergency Stop Website'}</span>
+              <span className="hidden md:inline">{maintenanceMode ? '🔴 STOPPED (Maintenance Active)' : '🛑 Emergency Stop Website'}</span>
+              <span className="md:hidden text-[10px]">{maintenanceMode ? '🔴 STOPPED' : '🛑 STOP SITE'}</span>
             </button>
           </div>
 
-          {/* Quick Actions: View Site & Logout */}
-          <div className="flex items-center gap-2.5">
+          {/* Quick Actions: View Site & Logout (Always visible on mobile) */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <Link
               to="/"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-amber-50 text-espresso-900 border border-terracotta/30 text-xs font-bold shadow-xs transition-colors"
+              className="flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-white hover:bg-amber-50 text-espresso-900 border border-terracotta/30 text-xs font-bold shadow-xs transition-colors shrink-0"
               title="Open customer view in storefront"
             >
               <ExternalLink className="w-3.5 h-3.5 text-terracotta" />
-              <span className="hidden sm:inline">View Customer Site</span>
+              <span className="hidden sm:inline">Storefront</span>
             </Link>
 
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold shadow-xs transition-colors"
+              className="flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold shadow-xs transition-colors shrink-0"
               title="Sign out of owner portal"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -811,13 +815,41 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
+        {/* Mobile Quick Tab Dropdown (Guarantees 100% instant access to all 9 options on any phone) */}
+        <div className="md:hidden mb-4">
+          <div className="flex items-center justify-between mb-1.5 px-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-coffee-700">Select Section</span>
+            <span className="text-[10px] font-bold text-terracotta bg-terracotta/15 px-2.5 py-0.5 rounded-full">
+              9 Tabs Available
+            </span>
+          </div>
+          <div className="relative">
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value as AdminTab)}
+              className="w-full py-3 pl-4 pr-10 rounded-2xl bg-white border-2 border-terracotta/40 text-espresso-950 font-bold text-sm shadow-md appearance-none focus:outline-none focus:ring-2 focus:ring-terracotta transition-all cursor-pointer"
+            >
+              <option value="banners">🎁 Offer Banners ({banners.length})</option>
+              <option value="menu">🍽️ Food Menu Items ({products.length})</option>
+              <option value="inquiries">💬 WhatsApp Inquiries ({inquiries.length})</option>
+              <option value="kot">🖨️ POS & KOT Billing</option>
+              <option value="analytics">📊 Sales Analytics & Graphs</option>
+              <option value="raw-materials">📦 Raw Materials (Qty & Rs)</option>
+              <option value="excel">📄 Download Excel Sheets</option>
+              <option value="reviews">⭐ Guest Photo Reviews</option>
+              <option value="keepalive">⚡ 24/7 Server Keep-Alive</option>
+            </select>
+            <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-terracotta pointer-events-none" />
+          </div>
+        </div>
+
         {/* Navigation Tabs Bar with Left/Right Horizontal Scroll Chevrons */}
         <div className="relative mb-6">
           {/* Left Scroll Arrow */}
           <button
             type="button"
             onClick={() => scrollTabs('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 sm:-ml-3.5 z-20 w-8 h-8 rounded-full bg-white text-espresso-950 border border-terracotta/30 shadow-md flex items-center justify-center hover:bg-terracotta hover:text-white transition-all cursor-pointer opacity-95 hover:opacity-100 hover:scale-110 active:scale-95"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -ml-1 sm:-ml-3.5 z-20 w-8 h-8 rounded-full bg-white text-espresso-950 border border-terracotta/30 shadow-md flex items-center justify-center hover:bg-terracotta hover:text-white transition-all cursor-pointer opacity-95 hover:opacity-100 hover:scale-110 active:scale-95"
             title="Scroll tabs left"
             aria-label="Scroll tabs left"
           >
@@ -828,7 +860,7 @@ export const AdminPage: React.FC = () => {
           <button
             type="button"
             onClick={() => scrollTabs('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 -mr-2 sm:-mr-3.5 z-20 w-8 h-8 rounded-full bg-white text-espresso-950 border border-terracotta/30 shadow-md flex items-center justify-center hover:bg-terracotta hover:text-white transition-all cursor-pointer opacity-95 hover:opacity-100 hover:scale-110 active:scale-95"
+            className="absolute right-0 top-1/2 -translate-y-1/2 -mr-1 sm:-mr-3.5 z-20 w-8 h-8 rounded-full bg-white text-espresso-950 border border-terracotta/30 shadow-md flex items-center justify-center hover:bg-terracotta hover:text-white transition-all cursor-pointer opacity-95 hover:opacity-100 hover:scale-110 active:scale-95"
             title="Scroll tabs right (Download Excel Sheets, Reviews, Server)"
             aria-label="Scroll tabs right"
           >
@@ -837,7 +869,8 @@ export const AdminPage: React.FC = () => {
 
           <div
             ref={tabBarRef}
-            className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-terracotta/40 scrollbar-track-amber-100/40 border-b border-terracotta/15 px-3 sm:px-4 cursor-grab active:cursor-grabbing select-none"
+            style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' }}
+            className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-terracotta/40 scrollbar-track-amber-100/40 border-b border-terracotta/15 px-7 sm:px-6 cursor-grab active:cursor-grabbing select-none"
           >
             <button
               onClick={() => setActiveTab('banners')}

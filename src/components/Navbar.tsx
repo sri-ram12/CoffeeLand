@@ -95,16 +95,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             : 'bg-gradient-to-b from-[#EDE0CC]/95 via-[#EDE0CC]/80 to-transparent py-3.5'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-1.5 sm:gap-4">
             {/* Brand Logo with Official Circular Logo */}
             <a
               href="#home"
               onClick={(e) => handleScrollTo(e, '#home')}
-              className="flex items-center gap-3 group focus:outline-none shrink-0"
+              className="flex items-center gap-2 sm:gap-3 group focus:outline-none min-w-0 shrink"
             >
               <motion.div
-                className="relative"
+                className="relative shrink-0"
                 animate={{ y: [0, -2, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                 whileHover={{ scale: 1.12, rotate: 8 }}
@@ -114,14 +114,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <img
                   src="/logo.png"
                   alt="Coffee Land Resto & Cafe Official Logo"
-                  className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-terracotta shadow-md transition-transform"
+                  className="relative w-9 h-9 xs:w-11 xs:h-11 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-terracotta shadow-md transition-transform"
                 />
               </motion.div>
               <div className="flex flex-col min-w-0">
-                <span className="font-serif tracking-tight text-xl sm:text-2xl font-bold text-espresso-950 group-hover:text-terracotta transition-colors leading-none">
+                <span className="font-serif tracking-tight text-lg xs:text-xl sm:text-2xl font-bold text-espresso-950 group-hover:text-terracotta transition-colors leading-none truncate">
                   Coffee <span className="font-serif italic font-semibold text-terracotta">Land</span>
                 </span>
-                <span className="text-[8px] xs:text-[9px] sm:text-[10px] tracking-wider sm:tracking-[0.22em] uppercase text-terracotta-700 font-bold mt-0.5 sm:mt-1 font-heading truncate max-w-[170px] xs:max-w-none">
+                <span className="text-[7px] xs:text-[8.5px] sm:text-[10px] tracking-wider sm:tracking-[0.22em] uppercase text-terracotta-700 font-bold mt-0.5 sm:mt-1 font-heading truncate max-w-[110px] xs:max-w-[160px] sm:max-w-none">
                   RESTO & CAFE • THAGARAPUVALASA
                 </span>
               </div>
@@ -159,17 +159,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               })}
             </nav>
 
-            {/* Fast Action Tools: App QR/PWA, Write Review, Favorites & Mobile Menu */}
-            <div className="flex items-center gap-1.5 sm:gap-2.5">
+            {/* Fast Action Tools: App QR/PWA, Write Review, Favorites & Mobile Menu (All Guaranteed Visible on Mobile) */}
+            <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2.5 shrink-0">
               {/* App QR & PWA Install Button at the very TOP */}
               {onOpenQRCode && (
                 <button
                   onClick={onOpenQRCode}
-                  className="flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-terracotta/20 hover:from-amber-500/30 hover:to-terracotta/30 text-espresso-950 border border-terracotta/40 text-xs font-bold shadow-xs transition-all hover:scale-105 active:scale-95 shrink-0"
+                  className="flex items-center justify-center gap-1 p-2 sm:px-3.5 sm:py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-terracotta/20 hover:from-amber-500/30 hover:to-terracotta/30 text-espresso-950 border border-terracotta/40 text-xs font-bold shadow-xs transition-all hover:scale-105 active:scale-95 shrink-0"
                   title="Scan QR to open website & install PWA app on mobile"
                   aria-label="Scan QR & Download App"
                 >
-                  <QrCode className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-terracotta" />
+                  <QrCode className="w-4 h-4 text-terracotta" />
                   <span className="hidden sm:inline font-bold">App QR</span>
                 </button>
               )}
@@ -177,12 +177,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Upload Photo & Review Button */}
               <button
                 onClick={onOpenReviewModal}
-                className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-terracotta hover:bg-terracotta-600 text-white text-xs font-bold shadow-md transition-all hover:scale-105 active:scale-95 shrink-0"
+                className="flex items-center justify-center gap-1.5 p-2 sm:px-4 sm:py-2 rounded-full bg-terracotta hover:bg-terracotta-600 text-white text-xs font-bold shadow-md transition-all hover:scale-105 active:scale-95 shrink-0"
                 title="Share your review and photos"
+                aria-label="Write Review"
               >
-                <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden xs:inline">Write Review</span>
-                <span className="xs:hidden">Review</span>
+                <Camera className="w-4 h-4" />
+                <span className="hidden md:inline">Write Review</span>
+                <span className="hidden sm:inline md:hidden">Review</span>
               </button>
 
               {/* Favorites Button with Counter Badge */}
@@ -206,7 +207,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="lg:hidden p-2 sm:p-2.5 rounded-full bg-white text-espresso-900 hover:text-terracotta border border-terracotta/30 focus:outline-none shadow-sm shrink-0"
                 aria-label="Toggle mobile menu"
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}
+                {mobileMenuOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <MenuIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
             </div>
           </div>
