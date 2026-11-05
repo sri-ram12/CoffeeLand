@@ -532,7 +532,18 @@ export const AdminPage: React.FC = () => {
   const filteredProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchMenu.toLowerCase()) ||
       p.category.toLowerCase().includes(searchMenu.toLowerCase());
-    const matchesCategory = selectedMenuCategory === 'all' || p.category === selectedMenuCategory;
+    
+    let matchesCategory = false;
+    if (selectedMenuCategory === 'all') {
+      matchesCategory = true;
+    } else if (selectedMenuCategory === 'non-veg') {
+      matchesCategory = !p.isVeg || p.category === 'non-veg-appetizers' || p.category === 'non-veg' || p.name.toLowerCase().includes('chicken') || p.name.toLowerCase().includes('prawn') || p.name.toLowerCase().includes('meat');
+    } else if (selectedMenuCategory === 'egg') {
+      matchesCategory = p.category === 'egg' || p.name.toLowerCase().includes('egg') || Boolean(p.description && p.description.toLowerCase().includes('egg'));
+    } else {
+      matchesCategory = p.category === selectedMenuCategory;
+    }
+
     const matchesStock =
       stockFilter === 'all' ? true :
         stockFilter === 'inStock' ? (p.inStock !== false) :
@@ -829,7 +840,7 @@ export const AdminPage: React.FC = () => {
               onChange={(e) => setActiveTab(e.target.value as AdminTab)}
               className="w-full py-3 pl-4 pr-10 rounded-2xl bg-white border-2 border-terracotta/40 text-espresso-950 font-bold text-sm shadow-md appearance-none focus:outline-none focus:ring-2 focus:ring-terracotta transition-all cursor-pointer"
             >
-              <option value="banners">🎁 Offer Banners ({banners.length})</option>
+              <option value="banners">📢 Advertisements &amp; Banners ({banners.length})</option>
               <option value="menu">🍽️ Food Menu Items ({products.length})</option>
               <option value="inquiries">💬 WhatsApp Inquiries ({inquiries.length})</option>
               <option value="kot">🖨️ POS & KOT Billing</option>
@@ -880,7 +891,7 @@ export const AdminPage: React.FC = () => {
                 }`}
             >
               <Gift className="w-4 h-4" />
-              <span>Offer Banners ({banners.length})</span>
+              <span>Advertisements &amp; Deals ({banners.length})</span>
             </button>
 
             <button
@@ -979,43 +990,174 @@ export const AdminPage: React.FC = () => {
         </div>
 
         {/* ======================================================== */}
-        {/* TAB 1: OFFER BANNERS MANAGER */}
+        {/* TAB 1: ADVERTISEMENTS & OFFER BANNERS MANAGER */}
         {/* ======================================================== */}
         {activeTab === 'banners' && (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white border border-terracotta/20">
+            {/* Live Website Ad Broadcast Header */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-5 rounded-3xl bg-gradient-to-r from-espresso-950 via-[#34160E] to-espresso-950 text-white border-2 border-terracotta/40 shadow-xl">
               <div>
-                <h3 className="font-serif text-lg font-bold text-espresso-950">
-                  Customizable Rectangular Offer Banners
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>Ads Playing Live on Customer Website</span>
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-terracotta/30 text-amber-200 text-[10px] font-bold">
+                    {banners.filter(b => b.isActive).length} Active Deals
+                  </span>
+                </div>
+                <h3 className="font-serif text-xl sm:text-2xl font-bold text-amber-100">
+                  Coffee Land Advertisements &amp; Promo Deals
                 </h3>
-                <p className="text-xs text-coffee-700">
-                  Create new promo banners with custom photos, prices, discount badges, and color themes.
+                <p className="text-xs text-amber-200/80 max-w-2xl mt-1 leading-relaxed">
+                  Admin panel allows you to broadcast and play custom promotional advertisements on the customer website. Customers can view active ads, see discounts, and claim them directly via WhatsApp.
                 </p>
               </div>
-              <button
-                onClick={() => {
-                  setEditingBannerId(null);
-                  setBannerForm({
-                    title: '',
-                    subtitle: '',
-                    itemName: '',
-                    originalPrice: 199,
-                    offerPrice: 149,
-                    discountLabel: '20% OFF',
-                    promoCode: '',
-                    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop',
-                    themeColor: 'terracotta',
-                    isActive: true,
-                    expiryNote: 'Limited Time Offer',
-                    category: 'Specialty Combos'
-                  });
-                  setIsCreatingBanner(true);
-                }}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-terracotta hover:bg-terracotta-600 text-white font-bold text-xs shadow-md transition-all self-start sm:self-center"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add New Offer Banner</span>
-              </button>
+
+              <div className="flex items-center gap-2 flex-wrap shrink-0">
+                <a
+                  href="/#featured-banner"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs transition-all shadow-xs"
+                >
+                  <Eye className="w-3.5 h-3.5 text-amber-300" />
+                  <span>View Live on Website ↗</span>
+                </a>
+
+                <button
+                  onClick={() => {
+                    setEditingBannerId(null);
+                    setBannerForm({
+                      title: '',
+                      subtitle: '',
+                      itemName: '',
+                      originalPrice: 199,
+                      offerPrice: 149,
+                      discountLabel: '20% OFF',
+                      promoCode: '',
+                      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop',
+                      themeColor: 'terracotta',
+                      isActive: true,
+                      expiryNote: 'Limited Time Offer',
+                      category: 'Specialty Combos'
+                    });
+                    setIsCreatingBanner(true);
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-terracotta hover:bg-terracotta-600 text-white font-bold text-xs shadow-md transition-all hover:scale-105 active:scale-95"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Create New Advertisement</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick 1-Click Coffee Land Ad Presets */}
+            <div className="p-4 rounded-2xl bg-white border border-terracotta/20 shadow-xs">
+              <span className="text-[11px] font-bold text-coffee-800 uppercase tracking-wider block mb-2">
+                ⚡ Quick 1-Click Coffee Land Advertisement Presets:
+              </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingBannerId(null);
+                    setBannerForm({
+                      title: 'Artisanal Double Shot & Hazelnut Cold Brew',
+                      subtitle: 'Single-origin arabica espresso with handcrafted hazelnut foam',
+                      itemName: 'Hazelnut Cold Brew Special',
+                      originalPrice: 180,
+                      offerPrice: 129,
+                      discountLabel: '₹51 OFF',
+                      promoCode: 'COFFEE50',
+                      image: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=800&q=80',
+                      themeColor: 'terracotta',
+                      isActive: true,
+                      expiryNote: 'Valid Today Only',
+                      category: 'Coffee & Beverages'
+                    });
+                    setIsCreatingBanner(true);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-terracotta/30 text-espresso-950 font-bold text-xs transition-colors flex items-center gap-1"
+                >
+                  <span>☕ Hazelnut Cold Brew Ad</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingBannerId(null);
+                    setBannerForm({
+                      title: 'Stone-Baked Gourmet Pizza Festival',
+                      subtitle: 'Thin crust loaded with fresh buffalo mozzarella & Italian toppings',
+                      itemName: 'Handcrafted Neapolitan Pizza',
+                      originalPrice: 299,
+                      offerPrice: 229,
+                      discountLabel: '25% OFF',
+                      promoCode: 'PIZZA25',
+                      image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80',
+                      themeColor: 'crimson',
+                      isActive: true,
+                      expiryNote: 'Limited Time Deal',
+                      category: 'Handcrafted Pizzas'
+                    });
+                    setIsCreatingBanner(true);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-terracotta/30 text-espresso-950 font-bold text-xs transition-colors flex items-center gap-1"
+                >
+                  <span>🍕 Stone-Baked Pizza Ad</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingBannerId(null);
+                    setBannerForm({
+                      title: 'Middle-Eastern Royal Kunafa Feast',
+                      subtitle: 'Crispy shredded kataifi vermicelli with sweet stretchy cheese & Biscoff',
+                      itemName: 'Lotus Biscoff Cheesy Kunafa',
+                      originalPrice: 249,
+                      offerPrice: 199,
+                      discountLabel: 'FLAT ₹50 OFF',
+                      promoCode: 'KUNAFA50',
+                      image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80',
+                      themeColor: 'amber',
+                      isActive: true,
+                      expiryNote: 'Chef Special Dessert',
+                      category: 'Kunafa & Desserts'
+                    });
+                    setIsCreatingBanner(true);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-terracotta/30 text-espresso-950 font-bold text-xs transition-colors flex items-center gap-1"
+                >
+                  <span>🍰 Lotus Biscoff Kunafa Ad</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingBannerId(null);
+                    setBannerForm({
+                      title: 'Crispy Fried Chicken Crave Box',
+                      subtitle: '12-spice secret crispy recipe with garlic dip and peri-peri fries',
+                      itemName: 'Crispy Chicken Bucket Special',
+                      originalPrice: 280,
+                      offerPrice: 219,
+                      discountLabel: '20% OFF',
+                      promoCode: 'CRUNCH20',
+                      image: 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=800&q=80',
+                      themeColor: 'espresso',
+                      isActive: true,
+                      expiryNote: 'Weekend Special',
+                      category: 'Fried Chicken'
+                    });
+                    setIsCreatingBanner(true);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-terracotta/30 text-espresso-950 font-bold text-xs transition-colors flex items-center gap-1"
+                >
+                  <span>🍗 Crispy Chicken Ad</span>
+                </button>
+              </div>
             </div>
 
             {/* Banner Creation / Editing Card */}
@@ -1332,7 +1474,9 @@ export const AdminPage: React.FC = () => {
                   className="px-3 py-2 rounded-xl border border-amber-900/20 text-xs bg-white text-espresso-900 font-medium"
                 >
                   <option value="all">All Categories ({products.length})</option>
-                  {categories.map(c => (
+                  <option value="non-veg">🍗 Non-Veg Items ({products.filter(p => !p.isVeg).length})</option>
+                  <option value="egg">🍳 Egg Dishes ({products.filter(p => p.name.toLowerCase().includes('egg') || (p.description && p.description.toLowerCase().includes('egg'))).length})</option>
+                  {categories.filter(c => c !== 'non-veg' && c !== 'egg').map(c => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
@@ -2498,6 +2642,8 @@ export const AdminPage: React.FC = () => {
                         onChange={(e) => setNewProductForm(f => ({ ...f, category: e.target.value }))}
                         className="w-full px-3 py-2.5 rounded-xl border border-amber-900/20 text-xs bg-white text-espresso-900 font-medium"
                       >
+                        <option value="non-veg">Non-Veg Specials</option>
+                        <option value="egg">Egg Dishes</option>
                         <option value="hot-coffee">Hot Coffee</option>
                         <option value="cold-coffee">Cold Coffee</option>
                         <option value="specialty-coffee">Specialty Brews</option>

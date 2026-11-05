@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Category, CategoryId, SortOption } from '../types/product';
-import { Search, Heart, Sparkles, SlidersHorizontal, Check, X, Filter, LayoutGrid, Grid3x3 } from 'lucide-react';
+import { Search, Heart, SlidersHorizontal, Check, X, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CatalogViewMode } from './ProductGrid';
+import { handleImageError, getCategoryFallbackImage } from '../utils/imageFallback';
 
 interface CategoryFilterProps {
   categories: Category[];
@@ -38,6 +39,17 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   viewMode = 'cards',
   onViewModeChange,
 }) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollCategories = (direction: 'left' | 'right') => {
+    if (!scrollContainerRef.current) return;
+    const scrollAmount = 240;
+    scrollContainerRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <div className="w-full space-y-3.5">
       {/* Top Controls: Search, Sort, and Quick Toggles */}
@@ -137,62 +149,84 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
         </div>
       </div>
 
-      {/* Category Pills Bar (Horizontal Scrollable with Smooth Scroll) */}
-      <div className="relative w-full max-w-full overflow-hidden">
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar py-1">
+      {/* CIRCULAR FOOD CATEGORIES (Matching Reference Image) */}
+      <div className="relative w-full max-w-full group">
+        {/* Left Scroll Chevron */}
+        <button
+          type="button"
+          onClick={() => scrollCategories('left')}
+          className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 -ml-2 z-20 w-8 h-8 rounded-full bg-white text-espresso-900 border border-terracotta/30 shadow-md items-center justify-center hover:bg-terracotta hover:text-white transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+          aria-label="Scroll categories left"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+
+        {/* Right Scroll Chevron */}
+        <button
+          type="button"
+          onClick={() => scrollCategories('right')}
+          className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 -mr-2 z-20 w-8 h-8 rounded-full bg-white text-espresso-900 border border-terracotta/30 shadow-md items-center justify-center hover:bg-terracotta hover:text-white transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+          aria-label="Scroll categories right"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+
+        {/* Circular Category Items Scrollable Container */}
+        <div
+          ref={scrollContainerRef}
+          style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' }}
+          className="flex items-start gap-4 sm:gap-6 overflow-x-auto pb-2 pt-2 scrollbar-none no-scrollbar select-none px-2"
+        >
           {categories.map((cat) => {
             const isActive = selectedCategory === cat.id;
-            const emoji =
-              cat.id === 'all'
-                ? '✨'
-                : cat.id === 'hot-coffee'
-                ? '☕'
-                : cat.id === 'cold-coffee'
-                ? '🥤'
-                : cat.id === 'hot-chocolate-tea'
-                ? '🫖'
-                : cat.id === 'juices-mocktails'
-                ? '🍹'
-                : cat.id === 'thickshakes'
-                ? '🧋'
-                : cat.id === 'burgers'
-                ? '🍔'
-                : cat.id === 'sandwiches'
-                ? '🥪'
-                : cat.id === 'wraps'
-                ? '🌯'
-                : cat.id === 'veg-appetizers'
-                ? '🍟'
-                : cat.id === 'non-veg-appetizers'
-                ? '🍗'
-                : cat.id === 'pizza'
-                ? '🍕'
-                : cat.id === 'pasta'
-                ? '🍝'
-                : cat.id === 'fried-rice-bowls'
-                ? '🍚'
-                : cat.id === 'soup-salads'
-                ? '🥣'
-                : cat.id === 'waffles-pancakes'
-                ? '🧇'
-                : cat.id === 'kunafa-desserts'
-                ? '🍰'
-                : cat.id === 'add-ons'
-                ? '➕'
-                : '🍽️';
+            const categoryImage = cat.image || getCategoryFallbackImage(cat.id);
 
             return (
               <button
                 key={cat.id}
+                type="button"
                 onClick={() => onSelectCategory(cat.id)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-xs sm:text-sm font-medium tracking-wide transition-all duration-300 border flex items-center gap-1.5 ${
-                  isActive
-                    ? 'bg-terracotta text-white font-bold border-transparent shadow-md scale-[1.03]'
-                    : 'bg-white border-terracotta/20 text-espresso-800 hover:border-terracotta/50 hover:bg-[#EDE0CC] shadow-xs'
-                }`}
+                className="flex-shrink-0 flex flex-col items-center group/cat focus:outline-none transition-transform duration-200 cursor-pointer"
+                style={{ width: '74px' }}
               >
-                <span>{emoji}</span>
-                <span>{cat.name}</span>
+                {/* 1. Circular Food Dish Image */}
+                <div
+                  className={`relative w-16 h-16 sm:w-18 sm:h-18 rounded-full p-0.5 transition-all duration-200 flex items-center justify-center ${
+                    isActive
+                      ? 'ring-2 ring-terracotta ring-offset-2 ring-offset-[#FDF8F3] shadow-md scale-105'
+                      : 'border border-terracotta/25 hover:border-terracotta/60 group-hover/cat:scale-105 shadow-xs'
+                  }`}
+                >
+                  <img
+                    src={categoryImage}
+                    alt={cat.name}
+                    loading="lazy"
+                    onError={(e) => handleImageError(e, cat.id)}
+                    className="w-full h-full rounded-full object-cover transition-transform duration-300"
+                  />
+                  {isActive && (
+                    <div className="absolute inset-0 rounded-full bg-terracotta/10 pointer-events-none" />
+                  )}
+                </div>
+
+                {/* 2. Category Name Below */}
+                <span
+                  className={`text-[11px] sm:text-xs text-center mt-1.5 leading-tight truncate w-full block transition-colors ${
+                    isActive
+                      ? 'font-bold text-terracotta'
+                      : 'font-semibold text-espresso-900 group-hover/cat:text-terracotta'
+                  }`}
+                  title={cat.name}
+                >
+                  {cat.shortName || cat.name}
+                </span>
+
+                {/* 3. Red/Terracotta Active Indicator Line (Matching reference pic under All) */}
+                <div
+                  className={`h-0.5 sm:h-1 w-6 sm:w-8 rounded-full mt-1 transition-all duration-200 ${
+                    isActive ? 'bg-terracotta' : 'bg-transparent'
+                  }`}
+                />
               </button>
             );
           })}

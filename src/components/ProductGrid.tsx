@@ -25,6 +25,8 @@ interface ProductGridProps {
 }
 
 const CATEGORY_META: Record<string, { emoji: string; badge: string }> = {
+  'non-veg': { emoji: '🍗', badge: 'Chef Non-Veg Special' },
+  'egg': { emoji: '🍳', badge: 'Farm Fresh Eggs' },
   'hot-coffee': { emoji: '☕', badge: 'Artisanal Roasts' },
   'cold-coffee': { emoji: '🥤', badge: 'Chilled Brews' },
   'hot-chocolate-tea': { emoji: '🫖', badge: 'Warm Comforts' },
@@ -65,7 +67,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
     if (categories && categories.length > 0) {
       for (const cat of categories) {
-        if (cat.id === 'all') continue;
+        if (cat.id === 'all' || cat.id === 'non-veg' || cat.id === 'egg') continue;
         const matching = products.filter((p) => p.category === cat.id);
         if (matching.length > 0) {
           groups.push({ category: cat, items: matching });

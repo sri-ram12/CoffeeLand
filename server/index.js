@@ -141,7 +141,22 @@ app.get('/api/products', (req, res) => {
   const { category, search, veg } = req.query;
 
   if (category && category !== 'all') {
-    products = products.filter(p => p.category === category);
+    if (category === 'non-veg') {
+      products = products.filter(p =>
+        !p.isVeg ||
+        p.category === 'non-veg-appetizers' ||
+        p.category === 'non-veg' ||
+        (p.name && (p.name.toLowerCase().includes('chicken') || p.name.toLowerCase().includes('prawn') || p.name.toLowerCase().includes('fish') || p.name.toLowerCase().includes('meat')))
+      );
+    } else if (category === 'egg') {
+      products = products.filter(p =>
+        p.category === 'egg' ||
+        (p.name && (p.name.toLowerCase().includes('egg') || p.name.toLowerCase().includes('omelette'))) ||
+        (p.description && p.description.toLowerCase().includes('egg'))
+      );
+    } else {
+      products = products.filter(p => p.category === category);
+    }
   }
   if (veg === 'true') {
     products = products.filter(p => p.isVeg);

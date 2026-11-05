@@ -6,6 +6,7 @@ import { CategoryFilter } from './components/CategoryFilter';
 import { ProductGrid } from './components/ProductGrid';
 import { ProductDetailsModal } from './components/ProductDetailsModal';
 import { FeaturedProducts } from './components/FeaturedProducts';
+import { OfferBannersSection } from './components/OfferBannersSection';
 import { LiveFoodReels } from './components/LiveFoodReels';
 import { ReviewsSection } from './components/ReviewsSection';
 import { ReviewModal } from './components/ReviewModal';
@@ -308,6 +309,15 @@ export const App: React.FC = () => {
         onOrderWhatsApp={handleHeroOrderWhatsApp}
         onOpenQRCode={() => setIsQRCodeOpen(true)}
       />
+
+      {/* Coffee Land Advertisements & Promotional Offers (Played on Website from Admin Panel) */}
+      {(activeBanners.length > 0 || banners.length > 0) && (
+        <OfferBannersSection
+          banners={activeBanners.length > 0 ? activeBanners : banners}
+          onOpenAdmin={() => window.open('/admin', '_blank')}
+          onClaimOffer={handleClaimOffer}
+        />
+      )}
 
       {/* Interactive Catalog & Filter Section (Main Menu Explorer) */}
       <section

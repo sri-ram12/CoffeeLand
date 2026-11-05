@@ -154,218 +154,140 @@ export const PwaInstallPromptModal: React.FC<PwaInstallPromptModalProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/65 backdrop-blur-sm">
-          {/* Backdrop */}
+        <>
+          {/* Subtle non-blocking backdrop that dismisses on tap */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleDismiss}
-            className="absolute inset-0"
+            className="fixed inset-0 z-50 bg-black/35 backdrop-blur-[2px]"
           />
 
-          {/* Modal Container */}
-          <motion.div
-            initial={{ y: 120, opacity: 0, scale: 0.94 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 120, opacity: 0, scale: 0.94 }}
-            transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-            className="relative z-10 w-full sm:max-w-md bg-gradient-to-b from-[#FAF3EA] via-white to-[#F5E8D7] rounded-t-[2rem] sm:rounded-3xl border-t-2 sm:border-2 border-terracotta/40 shadow-2xl p-5 sm:p-6 overflow-hidden max-h-[92vh] overflow-y-auto"
-          >
-            {/* Top Close Button */}
-            <button
-              onClick={handleDismiss}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/90 hover:bg-white text-espresso-800 hover:text-terracotta border border-terracotta/20 shadow-xs transition-colors"
-              aria-label="Close"
+          {/* Compact Rectangular Floating Popup (Does NOT occupy whole screen) */}
+          <div className="fixed bottom-3 sm:bottom-5 left-0 right-0 z-50 px-3 sm:px-4 flex justify-center pointer-events-none">
+            <motion.div
+              initial={{ y: 50, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 50, opacity: 0, scale: 0.95 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+              className="pointer-events-auto relative w-full max-w-md bg-gradient-to-b from-[#FAF4EC] via-white to-[#F5EAD9] rounded-2xl border-2 border-terracotta/40 shadow-2xl p-3.5 sm:p-4 text-espresso-950"
             >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* Header Badge & Brand Icon */}
-            <div className="flex flex-col items-center text-center">
-              <div className="relative mb-3">
-                <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-terracotta via-amber-400 to-[#5C1F0E] opacity-75 blur-sm animate-pulse" />
-                <img
-                  src="/logo.png"
-                  alt="CoffeeLand Resto & Cafe"
-                  className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-full object-cover border-2 border-white shadow-xl"
-                />
-                <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-terracotta text-white shadow-xs">
-                  <Sparkles className="w-3.5 h-3.5" />
-                </span>
-              </div>
-
-              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-terracotta/15 border border-terracotta/30 text-terracotta-800 text-[10px] sm:text-xs font-black uppercase tracking-wider mb-1.5">
-                {deviceType === 'ios' ? (
-                  <Smartphone className="w-3.5 h-3.5 text-terracotta" />
-                ) : deviceType === 'android' ? (
-                  <Smartphone className="w-3.5 h-3.5 text-terracotta" />
-                ) : (
-                  <Monitor className="w-3.5 h-3.5 text-terracotta" />
-                )}
-                <span>
-                  {deviceType === 'ios'
-                    ? 'Apple iPhone / iPad App'
-                    : deviceType === 'android'
-                    ? 'Android App Available'
-                    : 'Download Web App (PWA)'}
-                </span>
-              </div>
-
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-espresso-950 leading-tight">
-                Install CoffeeLand App
-              </h2>
-
-              <p className="text-xs sm:text-sm text-coffee-800 mt-1.5 max-w-xs leading-relaxed">
-                Add CoffeeLand to your phone’s home screen for fast 1-tap food ordering, instant offline menu, and special deals.
-              </p>
-            </div>
-
-            {/* Benefits Banner */}
-            <div className="mt-3.5 p-3 rounded-2xl bg-white/90 border border-terracotta/20 shadow-xs space-y-2 text-xs text-espresso-900">
-              <div className="flex items-center gap-2.5">
-                <span className="w-6 h-6 rounded-full bg-amber-500/20 text-terracotta flex items-center justify-center font-bold text-xs shrink-0">
-                  ⚡
-                </span>
-                <span className="font-medium">Instant 1-Tap Launch from your Home Screen</span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">
-                  📶
-                </span>
-                <span className="font-medium">Works Offline with full menu & price browsing</span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <span className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-700 flex items-center justify-center font-bold text-xs shrink-0">
-                  📲
-                </span>
-                <span className="font-medium">No App Store or Play Store download required</span>
-              </div>
-            </div>
-
-            {/* Success Banner */}
-            {installSuccess && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mt-3.5 p-3 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-center flex items-center justify-center gap-2 font-bold text-sm"
-              >
-                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                <span>CoffeeLand App Installed Successfully! 🎉</span>
-              </motion.div>
-            )}
-
-            {/* Action Sections */}
-            <div className="mt-4 space-y-2.5">
-              {/* 1. Direct 1-Click Install Button (When browser supports beforeinstallprompt) */}
-              {deferredPrompt && (
-                <button
-                  onClick={handleInstallClick}
-                  className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-terracotta via-terracotta-600 to-[#5C1F0E] text-white font-bold text-sm sm:text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  <ArrowDownToLine className="w-5 h-5" />
-                  <span>Install CoffeeLand App (1-Click)</span>
-                </button>
-              )}
-
-              {/* 2. Apple iPhone & iPad Safari Instructions */}
-              {deviceType === 'ios' && (
-                <div className="p-4 rounded-2xl bg-amber-500/15 border-2 border-amber-600/35 text-left text-xs text-espresso-950 space-y-2.5 shadow-xs">
-                  <div className="flex items-center justify-between">
-                    <p className="font-bold text-terracotta-800 flex items-center gap-1.5 text-xs sm:text-sm">
-                      <Share2 className="w-4 h-4 text-terracotta" />
-                      <span>Install on Apple iPhone (Safari):</span>
-                    </p>
-                    <span className="px-2 py-0.5 rounded-full bg-terracotta text-white font-bold text-[10px]">
-                      iOS Guide
+              {/* Top Row: App Brand & Close */}
+              <div className="flex items-start justify-between gap-2.5">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="relative shrink-0">
+                    <img
+                      src="/logo.png"
+                      alt="CoffeeLand Resto & Cafe"
+                      className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl object-cover border border-terracotta/30 shadow-sm"
+                    />
+                    <span className="absolute -bottom-1 -right-1 p-0.5 rounded-full bg-terracotta text-white shadow-xs">
+                      <Sparkles className="w-3 h-3" />
                     </span>
                   </div>
-
-                  {/* Warning if opened inside WhatsApp or Instagram in-app browser */}
-                  {isInAppBrowser && (
-                    <div className="p-2 rounded-xl bg-orange-100 border border-orange-300 text-orange-950 text-[11px] font-semibold flex items-start gap-1.5">
-                      <Compass className="w-4 h-4 text-orange-700 shrink-0 mt-0.5" />
-                      <span>
-                        You are in WhatsApp/Instagram browser. Tap <strong>(⋯)</strong> at the top right and choose <strong>'Open in Safari'</strong> to enable installation!
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-serif font-bold text-sm sm:text-base text-espresso-950 truncate leading-tight">
+                        Install CoffeeLand App
+                      </h3>
+                      <span className="shrink-0 px-2 py-0.2 rounded-full bg-terracotta/15 text-terracotta-800 text-[9px] font-black uppercase tracking-wider">
+                        {deviceType === 'ios' ? 'iOS' : deviceType === 'android' ? 'Android' : 'PWA'}
                       </span>
                     </div>
-                  )}
-
-                  <ol className="space-y-2 pl-1 text-[11px] sm:text-xs text-coffee-950">
-                    <li className="flex items-start gap-2.5">
-                      <span className="w-5 h-5 rounded-full bg-terracotta text-white font-bold flex items-center justify-center text-[10px] shrink-0 mt-0.5">
-                        1
-                      </span>
-                      <span>
-                        Tap the <strong>Share</strong> icon (<strong>⎋</strong> or <Share2 className="inline w-3.5 h-3.5 text-terracotta" />) at the bottom toolbar of Safari.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="w-5 h-5 rounded-full bg-terracotta text-white font-bold flex items-center justify-center text-[10px] shrink-0 mt-0.5">
-                        2
-                      </span>
-                      <span>
-                        Scroll down and tap <strong>'Add to Home Screen'</strong> (<strong>⊞</strong>).
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="w-5 h-5 rounded-full bg-terracotta text-white font-bold flex items-center justify-center text-[10px] shrink-0 mt-0.5">
-                        3
-                      </span>
-                      <span>
-                        Tap <strong>'Add'</strong> at top-right. CoffeeLand will appear on your home screen!
-                      </span>
-                    </li>
-                  </ol>
+                    <p className="text-[11px] sm:text-xs text-coffee-700 truncate mt-0.5 leading-snug">
+                      1-tap home screen ordering & offline food menu
+                    </p>
+                  </div>
                 </div>
-              )}
-
-              {/* 3. Android Guide when beforeinstallprompt is not immediate */}
-              {deviceType === 'android' && !deferredPrompt && (
-                <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-left text-xs text-espresso-950 space-y-1.5">
-                  <p className="font-bold text-terracotta-800 flex items-center gap-1.5">
-                    <Smartphone className="w-4 h-4 text-terracotta" />
-                    <span>Install on Android:</span>
-                  </p>
-                  <p className="text-[11px] text-coffee-900 leading-relaxed">
-                    Tap the browser menu (<strong>⋮</strong> at the top right in Chrome) and tap <strong>'Install app'</strong> or <strong>'Add to Home screen'</strong>.
-                  </p>
-                </div>
-              )}
-
-              {/* 4. Desktop (PC / Laptop / Mac) */}
-              {deviceType === 'desktop' && !deferredPrompt && (
-                <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-left text-xs text-espresso-950 space-y-1.5">
-                  <p className="font-bold text-terracotta-800 flex items-center gap-1.5">
-                    <Monitor className="w-4 h-4 text-terracotta" />
-                    <span>Install on Computer / Laptop:</span>
-                  </p>
-                  <p className="text-[11px] text-coffee-900 leading-relaxed">
-                    Look for the <strong>Install App icon (⊕)</strong> on the right side of your Chrome/Edge address bar, or click browser menu (<strong>⋮</strong>) ➔ <strong>'Install CoffeeLand...'</strong>.
-                  </p>
-                </div>
-              )}
-
-              {/* Quick Actions: Copy Link & Dismiss */}
-              <div className="flex items-center gap-2 pt-1">
-                <button
-                  onClick={handleCopy}
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-white hover:bg-amber-50 border border-terracotta/30 text-espresso-900 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5"
-                >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copied ? 'Copied Link!' : 'Copy App Link'}</span>
-                </button>
 
                 <button
                   onClick={handleDismiss}
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-white/70 hover:bg-white text-coffee-800 hover:text-espresso-950 border border-coffee-200 font-semibold text-xs transition-colors"
+                  className="p-1 rounded-full bg-white/80 hover:bg-white text-espresso-700 hover:text-terracotta border border-terracotta/20 shadow-xs transition-colors shrink-0"
+                  aria-label="Close install popup"
                 >
-                  Browse Website
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            </div>
-          </motion.div>
-        </div>
+
+              {/* Success Notification */}
+              {installSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="mt-2.5 p-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-center flex items-center justify-center gap-1.5 font-bold text-xs"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>CoffeeLand App Installed Successfully! 🎉</span>
+                </motion.div>
+              )}
+
+              {/* iOS Safari Compact Instructions */}
+              {deviceType === 'ios' && (
+                <div className="mt-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-terracotta/25 text-[11px] text-espresso-950 space-y-1">
+                  {isInAppBrowser && (
+                    <p className="text-orange-800 font-semibold flex items-center gap-1 text-[10px] pb-1 border-b border-orange-200">
+                      <Compass className="w-3 h-3 text-orange-700 shrink-0" />
+                      <span>Tap (⋯) top-right and select <strong>'Open in Safari'</strong></span>
+                    </p>
+                  )}
+                  <p className="flex items-center gap-1.5 font-medium leading-tight">
+                    <Share2 className="w-3.5 h-3.5 text-terracotta shrink-0" />
+                    <span>
+                      Tap <strong>Share</strong> (bottom toolbar) ➔ Tap <strong>'Add to Home Screen' (⊞)</strong>
+                    </span>
+                  </p>
+                </div>
+              )}
+
+              {/* Android Guide when prompt is not immediate */}
+              {deviceType === 'android' && !deferredPrompt && (
+                <div className="mt-2.5 p-2.5 rounded-xl bg-amber-50 border border-terracotta/20 text-[11px] text-espresso-900 leading-tight">
+                  <span>
+                    Tap Chrome menu (<strong>⋮</strong> top right) ➔ tap <strong>'Install app'</strong> or <strong>'Add to Home screen'</strong>.
+                  </span>
+                </div>
+              )}
+
+              {/* Desktop prompt */}
+              {deviceType === 'desktop' && !deferredPrompt && (
+                <div className="mt-2.5 p-2 rounded-xl bg-amber-50 border border-terracotta/20 text-[11px] text-espresso-900 leading-tight">
+                  <span>
+                    Click the <strong>Install App icon (⊕)</strong> on the right of your address bar.
+                  </span>
+                </div>
+              )}
+
+              {/* Compact Action Bar */}
+              <div className="mt-2.5 flex items-center gap-2">
+                {deferredPrompt ? (
+                  <button
+                    onClick={handleInstallClick}
+                    className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-terracotta via-terracotta-600 to-[#5C1F0E] text-white font-bold text-xs shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5 hover:scale-[1.01] active:scale-[0.99]"
+                  >
+                    <ArrowDownToLine className="w-3.5 h-3.5" />
+                    <span>Install App (1-Click)</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleCopy}
+                    className="flex-1 py-1.5 px-2.5 rounded-xl bg-white hover:bg-amber-50 border border-terracotta/30 text-espresso-900 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-terracotta" />}
+                    <span>{copied ? 'Copied Link!' : 'Copy App Link'}</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={handleDismiss}
+                  className="py-1.5 px-3 rounded-xl bg-white/80 hover:bg-white text-coffee-800 hover:text-espresso-950 border border-coffee-200 font-semibold text-xs transition-colors shrink-0"
+                >
+                  Not Now
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        </>
       )}
     </AnimatePresence>
   );

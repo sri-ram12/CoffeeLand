@@ -1,5 +1,7 @@
 export type CategoryId = 
   | 'all'
+  | 'non-veg'
+  | 'egg'
   | 'hot-coffee'
   | 'cold-coffee'
   | 'hot-chocolate-tea'
@@ -63,6 +65,7 @@ export interface Category {
   shortName: string;
   iconName: string;
   description: string;
+  image?: string;
   itemCount?: number;
 }
 

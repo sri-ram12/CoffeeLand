@@ -76,7 +76,29 @@ class MenuService {
 
     // Filter by Category
     if (options.category && options.category !== 'all') {
-      result = result.filter((p) => p.category === options.category);
+      if (options.category === 'non-veg') {
+        result = result.filter(
+          (p) =>
+            !p.isVeg ||
+            p.category === 'non-veg-appetizers' ||
+            (p.category as string) === 'non-veg' ||
+            p.name.toLowerCase().includes('chicken') ||
+            p.name.toLowerCase().includes('prawn') ||
+            p.name.toLowerCase().includes('fish') ||
+            p.name.toLowerCase().includes('meat')
+        );
+      } else if (options.category === 'egg') {
+        result = result.filter(
+          (p) =>
+            (p.category as string) === 'egg' ||
+            p.name.toLowerCase().includes('egg') ||
+            p.description.toLowerCase().includes('egg') ||
+            p.name.toLowerCase().includes('omelette') ||
+            (p.ingredients && p.ingredients.some((i) => i.toLowerCase().includes('egg')))
+        );
+      } else {
+        result = result.filter((p) => p.category === options.category);
+      }
     }
 
     // Filter by Search query
