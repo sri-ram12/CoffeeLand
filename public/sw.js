@@ -1,5 +1,5 @@
 // Coffee Land Resto & Cafe Service Worker (PWA)
-const CACHE_NAME = 'coffeeland-pwa-v1';
+const CACHE_NAME = 'coffeeland-pwa-v3';
 const CORE_ASSETS = [
   '/',
   '/index.html',
@@ -35,15 +35,33 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Bypass service worker caching for dynamic API and websocket calls
+  // Bypass service worker caching for dynamic API and non-GET calls
   if (url.pathname.startsWith('/api/') || event.request.method !== 'GET') {
     return;
   }
 
+  // Network-First for HTML navigations: guarantees latest deployed build on every visit!
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match(event.request).then((res) => res || caches.match('/'));
+        })
+    );
+    return;
+  }
+
+  // Stale-while-revalidate for static assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Return cached, update in background (stale-while-revalidate for static files)
         fetch(event.request)
           .then((networkResponse) => {
             if (networkResponse && networkResponse.status === 200) {
@@ -69,7 +87,6 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // If offline and request is navigation, return cached root/index
           if (event.request.mode === 'navigate') {
             return caches.match('/');
           }
